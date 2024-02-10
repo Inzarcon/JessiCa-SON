@@ -18,6 +18,8 @@ Currently implemented features:
 ### Downloads
 **Standalone Releases:** [Here](https://github.com/Inzarcon/JessiCa-SON/releases)
 
+**Important Note:** *Windows Defender* may falsely flag the `JessiCa.bat` file as malicious. Please see release page for details.
+
 **Source:** Clone this repository or download the Source code zip archive from the releases page.
 
 The embedded *Python* runtime for the standalone *Windows* releases is found in the companion repository [JessiCa-SON-runtime](https://github.com/Inzarcon/JessiCa-SON-runtime).
