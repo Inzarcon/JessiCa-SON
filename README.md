@@ -9,7 +9,9 @@ Currently implemented features:
 - Color coded warning messages with additional notes about fixing specific tileset problems.**
 - Compose only the tilesheets you are actually working on instead of the entire tileset.
 
-*Working title <br>
+![](images/screenshot.png)
+
+*Working title\
 **See "Known Issues and Bugs" below for limitations.
 
 ## Installation
