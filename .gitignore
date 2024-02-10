@@ -1,0 +1,7 @@
+# Generated config files
+.*
+!/.gitignore
+
+# Local only
+tools/
+__pycache__

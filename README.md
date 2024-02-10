@@ -1,32 +1,61 @@
 # JessiCa: Serpents Obstruct None
-(Repo private while under construction.)
 
-***JessiCa: Serpents Obstruct None*** is (going to be) a *Qt 6*-powered tileset configurator for *Cataclysm: Dark Days Ahead*. Currently, *JessiCa* is in an early prototyping/alpha stage, but its core GUI wrapper for `compose.py` is functional. Using *Nuitka Python* compiler magic, the *JessiCa* executable is bundled with everything it needs for tileset composing. Most notably, this includes a minimal *Python* runtime, *libvips*, and the tileset tools themselves. No installations or setting environment variables required - just unzip and run `JessiCa.exe`.
+***JessiCa: Serpents Obstruct None**** is (going to be) a *Qt 6*-powered tileset configurator for *Cataclysm: Dark Days Ahead*. Currently, *JessiCa* is in an early prototyping/alpha stage, but its core GUI wrapper for `compose.py` is mostly functional. For 64-Bit *Windows 10+*, *JessiCa* is bundled with everything it needs for tileset composing. Most notably, this includes a minimal *Python* runtime, *libvips*, and the tileset composing script itself. No installations or setting of environment variables required - just unzip and run `JessiCa.bat`.
 
-## Downloads
+Currently implemented features:
+- Required libraries preinstalled.
+- Save and switch between configuration profiles, e.g. one for each tileset. Set a profile to be loaded by default when starting the app**.
+- Multithreaded tileset composing step.
+- Color coded warning messages with additional notes about fixing specific tileset problems.**
+- Compose only the tilesheets you are actually working on instead of the entire tileset.
+
+*Working title <br>
+**See "Known Issues and Bugs" below for limitations.
+
+## Installation
+### Downloads
 Releases: [add]
 
 Source: Clone this repository or download the .zip archive. [add]
 
-Note that bundled application releases target **64-Bit *Windows 10+* only** at this time. However, you can use *Python* to run *JessiCa* directly from source, just like running `python compose.py` as usual. Additionally, you may attempt compiling the executable package for another platform yourself. The following sections explain this in more detail.
+The embedded *Python* runtime for the standalone *Windows* releases is found in the companion repository [JessiCa-SON-runtime](https://github.com/Inzarcon/JessiCa-SON-runtime).
 
-## Running with *Python* and (optional) Compiling
+Note that bundled app releases target **64-Bit *Windows 10+* only** at this time. However, you can use *Python* to run *JessiCa* manually, just like running `python compose.py` as usual. This should work on other platforms as well. See further below for instructions.
 
-The general setup is similar to the one described in the [original TILESET.md](https://github.com/CleverRaven/Cataclysm-DDA/blob/master/doc/TILESET.md#pyvips)  from the Cataclysm-DDA Repository, with additional packages such as the *PySide6 Python* bindings for *Qt 6.* In order to install *Python* itself, you can use the official installer from [python.org](https://www.python.org/downloads/). On *Windows*, make sure to **enable the installer's 'add Python to PATH'** and **install with Pip** options[^1]. Open a command prompt/terminal (*Windows*: Searchbar or `Win` + `R`. Then type "cmd" and hit `Enter`). To install the requirements, type or copy/paste the following command into the console:
-```
-C:\Users\[Your Username]>pip install pyside6 pyvips typing_extensions tqdm icecream
-```
-Alternatively, if you already downloaded the *JessiCa* sources, you can point *Pip* to its requirements file:
-```
-C:\[Where you put JessiCa Sources]>pip install -r requirements.txt
-```
-[ToDo: Automatic split into basic requirements and additional dev-tools] 
+### Adding json_formatter.exe
+Due to the custom CDDA JSON formatter being optional and its filesize, *JessiCa* does not come with it. If you wish to include it, copy `json_formatter.exe` from your game files (where `cataclysm-tiles.exe` is) into *Jessica*'s `tools` directory. Otherwise, the *Python* built-in formatter is used. This step is the same for both methods of running the app.
 
-Finally, you can now run *JessiCa* :
-```
-C:\[Where you put JessiCa Sources]> python .\main.py
-```
+### Running with *Python* manually
 
-[ToDo: Just do Python commands in .bat like tilesets repo?] 
+The general setup is similar to the one described in the [original TILESET.md](https://github.com/CleverRaven/Cataclysm-DDA/blob/master/doc/TILESET.md#pyvips)  from the *Cataclysm-DDA* repository, with additional packages such as the *PySide6 Python* bindings for *Qt 6.* In order to install *Python* itself, you can use the official installer from [python.org](https://www.python.org/downloads/). On *Windows*, make sure to **enable the installer's 'add Python to PATH'** and **install with Pip** options[^1]. Open a command prompt/terminal (*Windows*: Searchbar or `Win` + `R`. Then type "cmd" and hit `Enter`).
 
 [^1]:This is fine for most users. If you need multiple non-conflicting *Python* installations, package managers like [*conda*](https://conda.io/projects/conda/en/latest/user-guide/getting-started.html) or the much faster [*mamba*](https://github.com/mamba-org/mamba) are recommended instead.
+
+If you have not done so yet, download *libvips* from the [official releases](https://github.com/libvips/libvips/releases). The standalone *Windows* release of *JessiCa* is bundled with version [vips-dev-w64-web-8.15.1.zip](https://github.com/libvips/build-win64-mxe/releases/download/v8.15.1/vips-dev-w64-web-8.15.1.zip). On other platforms, you may need to choose a different release type. To install it, copy at least its `bin` folder  into `JessiCa-SON/libvips`. Alternatively, the regular method described in the [original TILESET.md](https://github.com/CleverRaven/Cataclysm-DDA/blob/master/doc/TILESET.md#pyvips) also still works.
+
+Afterwards, navigate to the directory where you cloned or downloaded the *JessiCa* source files. Type or copy/paste the following command into the console:
+```
+pip install -r requirements.txt
+```
+Start *JessiCa* by running:
+```
+python main.py
+```
+(Depending on your *Python* configuration, you may need to type `python3` instead of `python` and/or `python -m pip` instead of `pip`. This should usually not be the case if you installed *Python* as described above.)
+
+## Known Issues and Bugs of the Initial Release
+- Exiting the app while composing may cause an error and stuck *JessiCa* background process.
+- `tileset.txt` and `fallback.png` are not copied to the output tileset yet. For the time being, make sure they are already present in your game files and correctly set the output directory for automatic updating.
+- If the *Compose* button does not enable after switching to a profile with a valid tileset source path, try restarting the application.
+- Profiles are not deletable in-app yet. Navigate to the `.config` directory to delete them manually.
+- The status bar text at the bottom may show the wrong message in some circumstances.
+- Not all warnings and errors are displayed in the main message box yet. To see all messages, enable the "Show Raw Log" checkbox at the bottom.
+- The same applies to the remaining command line options of the original `compose.py` script.
+
+## Contributing
+Pull Requests, Issues and general feedback are welcome. Note that *JessiCa* is still in an early prototyping stage. Repeated code refactoring and architecture changes are therefore to be expected.
+
+## License
+*JessiCa: Serpents Obstruct None* itself is licensed under the **MIT license**. 
+
+Some components or parts of them included with this project are released under different license terms and have their own license notices. Most notably, this concerns the original `compose.py` script modified for use in *JessiCa*, *Qt 6* and its *Python* bindings *PySide6*, the image processing library *libvips*, as well as their third-party subcomponents. For details, see `LICENSE.md`.
