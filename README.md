@@ -18,7 +18,7 @@ Currently implemented features:
 ### Downloads
 **Standalone Releases:** [Here](https://github.com/Inzarcon/JessiCa-SON/releases)
 
-**Important Note:** *Windows Defender* may falsely flag the `JessiCa.bat` file as malicious. Please see release page for details.
+**Important Note:** *Windows Defender* may block the `JessiCa.bat` file due to being unrecognized. Please see release page for details.
 
 **Source:** Clone this repository or download the Source code zip archive from the releases page.
 
