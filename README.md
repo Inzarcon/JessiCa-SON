@@ -1,6 +1,6 @@
 # JessiCa: Serpents Obstruct None
 
-***JessiCa: Serpents Obstruct None**** is (going to be) a *Qt 6*-powered tileset configurator for *Cataclysm: Dark Days Ahead*. Currently, *JessiCa* is in an early prototyping/alpha stage, but its core GUI wrapper for `compose.py` is mostly functional. For 64-Bit *Windows 10+*, *JessiCa* is bundled with everything it needs for tileset composing. Most notably, this includes a minimal *Python* runtime, *libvips*, and the tileset composing script itself. No installations or setting of environment variables required - just unzip and run `JessiCa.bat`.
+***JessiCa: Serpents Obstruct None**** is (going to be) a *Qt 6*-powered tileset configurator for *Cataclysm: Dark Days Ahead*. Currently, *JessiCa* is in an early prototyping/alpha stage, but its core GUI wrapper for `compose.py` is mostly functional. For 64-Bit *Windows 10+*, *JessiCa* standalone releases are bundled with everything it needs for tileset composing. Most notably, this includes a minimal *Python* runtime, *libvips*, and the tileset composing script itself. No further installations or setting of environment variables required - just unzip and run `JessiCa.bat`.
 
 Currently implemented features:
 - Required libraries preinstalled.
@@ -16,9 +16,9 @@ Currently implemented features:
 
 ## Installation
 ### Downloads
-Releases: [add]
+Standalone Releases: [Here](https://github.com/Inzarcon/JessiCa-SON/releases)
 
-Source: Clone this repository or download the .zip archive. [add]
+Source: Clone this repository or download the .zip archive from the releases page.
 
 The embedded *Python* runtime for the standalone *Windows* releases is found in the companion repository [JessiCa-SON-runtime](https://github.com/Inzarcon/JessiCa-SON-runtime).
 
@@ -55,7 +55,7 @@ python main.py
 - The same applies to the remaining command line options of the original `compose.py` script.
 
 ## Contributing
-Pull Requests, Issues and general feedback are welcome. Note that *JessiCa* is still in an early prototyping stage. Repeated code refactoring and architecture changes are therefore to be expected.
+Pull Requests, Issues and general feedback are welcome. Note that *JessiCa* is still in an early prototyping stage. Repeated code refactoring and architecture changes are therefore to be expected. This repository is also still under construction.
 
 ## License
 *JessiCa: Serpents Obstruct None* itself is licensed under the **MIT license**. 
