@@ -3,7 +3,7 @@
 ***JessiCa: Serpents Obstruct None**** is (going to be) a *Qt 6*-powered tileset configurator for *Cataclysm: Dark Days Ahead*. Currently, *JessiCa* is in an early prototyping/alpha stage, but its core GUI wrapper for `compose.py` is mostly functional. For 64-Bit *Windows 10+*, *JessiCa* standalone releases are bundled with everything it needs for tileset composing. Most notably, this includes a minimal *Python* runtime, *libvips*, and the tileset composing script itself. No further installations or setting of environment variables required - just unzip and run `JessiCa.bat`.
 
 Currently implemented features:
-- Required libraries preinstalled.
+- For **Windows 10**+ required libraries preinstalled.
 - Save and switch between configuration profiles, e.g. one for each tileset. Set a profile to be loaded by default when starting the app**.
 - Multithreaded tileset composing step.
 - Color coded warning messages with additional notes about fixing specific tileset problems.**
