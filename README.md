@@ -16,9 +16,9 @@ Currently implemented features:
 
 ## Installation
 ### Downloads
-Standalone Releases: [Here](https://github.com/Inzarcon/JessiCa-SON/releases)
+**Standalone Releases:** [Here](https://github.com/Inzarcon/JessiCa-SON/releases)
 
-Source: Clone this repository or download the .zip archive from the releases page.
+**Source:** Clone this repository or download the Source code zip archive from the releases page.
 
 The embedded *Python* runtime for the standalone *Windows* releases is found in the companion repository [JessiCa-SON-runtime](https://github.com/Inzarcon/JessiCa-SON-runtime).
 
