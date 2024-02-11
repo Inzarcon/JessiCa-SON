@@ -1,18 +1,20 @@
-#!/usr/bin/env python3
 """
 Merge all tile entries and PNGs in a compositing tileset directory into
 a tile_config.json and tilesheet .png file(s) ready for use in CDDA.
 
-Examples:
+Derivative of the original compose.py from Cataclysm DDA. See root/LICENSE.md
+for details.
 
-    %(prog)s ../CDDA-Tilesets/gfx/Retrodays/
-    %(prog)s --no-use-all ../CDDA-Tilesets/gfx/UltimateCataclysm/
-
-By default, output is written back to the source directory. Pass an output
-directory as the last argument to place output files there instead. The
-output directory will be created if it does not already exist.
+Summary of main changes/additions:
+- Removed command line interface
+- Added interface for communicating with Qt
+- Added multithreading
+- Fixed original ToDo about generating all JSON first
+- Added option to compose only a subset of tilesheets
+- Fixed various things linter complained about
 """
 
+import contextlib
 import json
 import logging
 import os
@@ -105,7 +107,8 @@ def log_and_emit(
     emit(sig_type, message, replacements, msg_type)
 
 
-# Original import code kept for compatibility outside bundled windows libvips.
+# Original import code kept for compatibility outside bundled windows libvips
+# or one manually copied to libvips folder
 try:
     vips_path = os.getenv("LIBVIPS_PATH")
     if vips_path is not None and vips_path != "":
@@ -114,10 +117,10 @@ try:
 
     Vips = pyvips
 except ImportError:
-    import gi
+    import gi  # type: ignore
 
     gi.require_version("Vips", "8.0")  # NoQA
-    from gi.repository import Vips
+    from gi.repository import Vips  # type: ignore
 
 # File name to ignore containing directory
 IGNORE_FILE = ".scratch"
@@ -487,7 +490,7 @@ class Tileset:
 
         main_finished = False
 
-        for sheet, sheet_type in sheet_configs:
+        for sheet, _ in sheet_configs:
             self.check_abort()
             if sheet.is_fallback:
                 fallback_name = sheet.name
@@ -657,7 +660,7 @@ class Tilesheet(QObject):
         self.pixelscale = specs.get("pixelscale", 1.0)
 
         self.sprites_across = specs.get("sprites_across", 16)
-        self.exclude = specs.get("exclude", tuple())
+        self.exclude = specs.get("exclude", ())
 
         self.is_fallback = specs.get("fallback", False)
         self.is_filler = not self.is_fallback and specs.get("filler", False)
@@ -1020,12 +1023,10 @@ class TileEntry:
             sprite_index = self.tilesheet.tileset.pngname_to_pngnum.get(sprite_name, 0)
             if sprite_index:
                 sheet_type = "filler" if self.tilesheet.is_filler else "main"
-                try:
+                with contextlib.suppress(ValueError):
                     self.tilesheet.tileset.unreferenced_pngnames[sheet_type].remove(
                         sprite_name
                     )
-                except ValueError:
-                    pass
 
                 entry.append(sprite_index)
                 return True
