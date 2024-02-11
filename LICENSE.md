@@ -42,7 +42,7 @@ The table below summarizes the high-level third-party components and their licen
 ## compose.py
 *Cataclysm: Dark Days Ahead*\
 (No explicit copyright notice and author(s) given. See https://github.com/cleverraven/cataclysm-dda/graphs/contributors)\
-File https://github.com/CleverRaven/Cataclysm-DDA/commit/6ce851fd71bf0fa456f62f3bf234fae98391bcd9\
+File https://github.com/CleverRaven/Cataclysm-DDA/blob/6ce851fd71bf0fa456f62f3bf234fae98391bcd9/tools/gfx_tools/compose.py\
 Licensed under the **CC BY-SA 3.0 License**.\
 Original work was modified for *JessiCa: Serpents Obstruct None*.
 
