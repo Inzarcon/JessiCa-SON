@@ -834,7 +834,6 @@ class Tilesheet(QObject):
             if image.get_typeof("icc-profile-data") != 0:
                 image = image.icc_transform("srgb")
         except Vips.Error as vips_error:
-            log.error("%s: %s", png_path, vips_error)
             log_and_emit(
                 logging.ERROR,
                 ComposeSignalType.ERROR_MESSAGE,
