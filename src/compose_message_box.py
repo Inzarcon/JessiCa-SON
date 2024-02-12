@@ -49,7 +49,7 @@ class ComposeMessageBox(QWidget):
         self.raw_log.appendPlainText(message.replace("\n", ""))
         self.raw_log.moveCursor(QTextCursor.End)
 
-    def message_pretty(self, sig_type, message, replacements=None, msg_type=None):
+    def message_pretty(self, sig_type, message, args=None, msg_type=None):
         if msg_type:
             if msg_type is MessageType.WARN_SPRITE_UNREF:
                 self.seen_unref += 1
@@ -57,28 +57,31 @@ class ComposeMessageBox(QWidget):
                 self.seen_sprite_size = True
 
         self.pretty_log.appendPlainText("")
-        message, replacements, hinting_styles = self.format_message(
-            message, replacements, msg_type
+        message, args, hinting_styles = self.format_message(
+            message, args, msg_type
         )
 
         if sig_type is ComposeSignalType.WARNING_MESSAGE:
-            self.message_formatted_text("[WARNING] ", style_highlight_yellow)
+            self.message_formatted_text("[WARNING] ", style_yellow)
         elif sig_type is ComposeSignalType.ERROR_MESSAGE:
-            self.message_formatted_text("[ERROR] ", style_highlight_red)
+            self.message_formatted_text("[ERROR] ", style_red)
+        elif sig_type is ComposeSignalType.CRITICAL_MESSAGE:
+            self.message_formatted_text("[CRITICAL] ", style_red)
         else:
-            self.message_formatted_text("[NOTE] ", style_highlight_blue)
+            self.message_formatted_text("[NOTE] ", style_cyan)
 
-        if not replacements:
+        if not args:
             self.message_formatted_text(message)
             return
 
         splits = message.split("{}")
 
-        for repl in replacements:
-            self.message_formatted_text(splits.pop(0))
-            self.message_formatted_text(repl, hinting_styles.pop(0))
+        for arg in args:
+            if splits:
+                self.message_formatted_text(splits.pop(0))
+                self.message_formatted_text(arg, hinting_styles.pop(0))
 
-        if splits:  # Text left after last replacement
+        if splits:  # Text left after last arg
             self.message_formatted_text(splits.pop())
 
     def message_formatted_text(self, text, format_before=None, format_after=None):
@@ -94,7 +97,7 @@ class ComposeMessageBox(QWidget):
                 "are intended to be added automatically, please enable the {}"
                 " checkbox above and recompose.",
                 (str(self.seen_unref), '"Use All"'),
-                "unref_note",
+                "note_unref",
             )
         if self.seen_sprite_size:
             self.message_pretty(
@@ -103,7 +106,7 @@ class ComposeMessageBox(QWidget):
                 "This will likely cause bizarre sprite offsets when loaded "
                 "in-game.",
                 None,
-                "sprite_size_note",
+                "note_sprite_size",
             )
 
     @staticmethod
@@ -124,26 +127,26 @@ class ComposeMessageBox(QWidget):
         widget.setCurrentCharFormat(char_format)
 
     @staticmethod
-    def format_message(message, replacements=None, msg_type=None):
+    def format_message(message, args=None, msg_type=None):
         hinting_styles = [style_default]
         if msg_type and msg_type in formats:
             fmt = formats[msg_type]
             if "new_message" in fmt:
                 message = fmt["new_message"]
-            if "select_repl" in fmt:
-                replacements = [replacements[i] for i in fmt["select_repl"]]
+            if "select_args" in fmt:
+                args = [args[i] for i in fmt["select_args"]]
             if "hinting_styles" in fmt:
                 hinting_styles = fmt["hinting_styles"]
-                if len(hinting_styles) < len(replacements):
-                    hinting_styles = [hinting_styles[0]] * len(replacements)
+                if len(hinting_styles) < len(args):
+                    hinting_styles = [hinting_styles[0]] * len(args)
         else:
-            if replacements:
-                hinting_styles = [style_default] * len(replacements)
-        return message, replacements, list(hinting_styles)
+            if args:
+                hinting_styles = [style_default] * len(args)
+        return message, args, list(hinting_styles)
 
 
 # TODO: Consider loading from file instead of hardcoded -> JSON?
-# Would allow user to set preferred colors
+#    -> Would allow user to set preferred colors
 style_default = {
     "font_name": "Monospace",
     "style_hint": QFont.StyleHint.SansSerif,
@@ -151,43 +154,70 @@ style_default = {
     "bold": False,
     "color": QColorConstants.White,
 }
+# GUI references
+style_yellow = dict(style_default)
+style_yellow["color"] = "#febb3f"
+style_yellow["bold"] = True
 
-style_highlight_yellow = dict(style_default)
-style_highlight_yellow["color"] = "#febb3f"
-style_highlight_yellow["bold"] = True
+# Sheet Type
+style_red = dict(style_default)
+style_red["color"] = "#ff5762"
+style_red["bold"] = True
 
-style_highlight_red = dict(style_default)
-style_highlight_red["color"] = "#ff5762"
-style_highlight_red["bold"] = True
+# IDs, sprites and their properties -> TODO: Split up?
+style_cyan = dict(style_default)
+style_cyan["color"] = "#19d7e0"
+style_cyan["bold"] = True
 
-style_highlight_blue = dict(style_default)
-style_highlight_blue["color"] = "#19d7e0"
-style_highlight_blue["bold"] = True
-
-style_highlight_green = dict(style_default)
-style_highlight_green["color"] = "#3fbf46"
-style_highlight_green["bold"] = True
+# Filepaths
+style_green = dict(style_default)
+style_green["color"] = "#3fbf46"
+style_green["bold"] = True
 
 
 formats = {
+    MessageType.CRIT_ERROR_LOADING_JSON: {
+        "hinting_styles": (style_green, style_red),
+    },
+    MessageType.CRIT_COMPOSING_EXCEPT: {
+        "hinting_styles": (style_red,),
+    },
     MessageType.ERR_SPRITE_SIZE: {
-        "hinting_styles": (style_highlight_green, *[style_highlight_blue] * 5),
+        "hinting_styles": (style_green, *[style_cyan] * 5),
     },
     MessageType.ERR_PNG_NOT_FOUND: {
         "new_message": "Sprite {} was not found and will be ignored. "
         "Referenced in {}.",
-        "select_repl": (0, 2),
-        "hinting_styles": (style_highlight_blue, style_highlight_green),
+        "select_args": (0, 2),
+        "hinting_styles": (style_cyan, style_green),
+    },
+    MessageType.ERR_DUPLICATE_NAME: {
+        "hinting_styles": (style_cyan, style_green),
+    },
+    MessageType.ERR_DUPLICATE_ID: {
+        "hinting_styles": (style_cyan, style_green),
+    },
+    MessageType.ERR_NOT_USED: {
+        "hinting_styles": (style_cyan,),
+    },
+    MessageType.ERR_VIPS: {
+        "hinting_styles": (style_green, style_red,),
     },
     MessageType.WARN_SPRITE_UNREF: {
         "new_message": "Ignoring sprite without any JSON reference: [{}] {}.",
-        "select_repl": (1, 0),
-        "hinting_styles": (style_highlight_red, style_highlight_blue),
+        "select_arg": (1, 0),
+        "hinting_styles": (style_red, style_cyan),
     },
     MessageType.WARN_NO_FORMATTER: {
-        "hinting_styles": (style_highlight_green,),
+        "hinting_styles": (style_green,),
     },
-    "unref_note": {
-        "hinting_styles": (style_highlight_blue, style_highlight_yellow),
+    MessageType.WARN_NOT_MENTIONED: {
+        "hinting_styles": (style_cyan,),
+    },
+    MessageType.WARN_EMPTY_ENTRY: {
+        "hinting_styles": (style_green, *[style_cyan] * 2),
+    },
+    "note_unref": {
+        "hinting_styles": (style_cyan, style_yellow),
     },
 }

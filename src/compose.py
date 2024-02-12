@@ -43,6 +43,7 @@ class ComposeSignalType(Enum):
     FINISHED = auto()
     WARNING_MESSAGE = auto()
     ERROR_MESSAGE = auto()
+    CRITICAL_MESSAGE = auto()
 
 
 class MessageType(Enum):
@@ -51,11 +52,20 @@ class MessageType(Enum):
     Used for color coded formatting in message box.
     """
 
-    WARN_SPRITE_UNREF = auto()
-    WARN_NO_FORMATTER = auto()
+    CRIT_COMPOSING_EXCEPT = auto()
+    CRIT_ERROR_LOADING_JSON = auto()
 
     ERR_PNG_NOT_FOUND = auto()
     ERR_SPRITE_SIZE = auto()
+    ERR_DUPLICATE_NAME = auto()
+    ERR_DUPLICATE_ID = auto()
+    ERR_NOT_USED = auto()
+    ERR_VIPS = auto()
+
+    WARN_SPRITE_UNREF = auto()
+    WARN_NO_FORMATTER = auto()
+    WARN_NOT_MENTIONED = auto()
+    WARN_EMPTY_ENTRY = auto()
 
 
 # Generally not good practice, but in this case connection chain would be very
@@ -80,31 +90,31 @@ def connect_compose_signal(receiver: Slot):
 def emit(
     sig_type: ComposeSignalType,
     message: str = None,
-    replacements: Tuple[str] = None,
+    args: Tuple[str] = None,
     msg_type: MessageType = None,
 ) -> None:
     """
     Shortcut for emitting a message with the corresponding signal type and
-    string replacements.
+    string replacement args.
     """
-    SIG_COMPOSE.signal.emit(sig_type, message, replacements, msg_type)
+    SIG_COMPOSE.signal.emit(sig_type, message, args, msg_type)
 
 
 def log_and_emit(
     log_level: int,
     sig_type: ComposeSignalType,
     message: str = None,
-    replacements: Tuple[str] = None,
+    args: Tuple[str] = None,
     msg_type: MessageType = None,
 ) -> None:
     """
     Shortcut for logging and emitting a message with the corresponding signal
-    type and string replacements.
+    type and string replacement args.
     """
-    formatted = message if not replacements else message.format(*replacements)
+    formatted = message if not args else message.format(*args)
     log.log(log_level, formatted)
     # Message box handles color coded formatting later -> just forward
-    emit(sig_type, message, replacements, msg_type)
+    emit(sig_type, message, args, msg_type)
 
 
 # Original import code kept for compatibility outside bundled windows libvips
@@ -173,8 +183,9 @@ class FailFastHandler(logging.StreamHandler):
     """Send a signal if an error and/or warning was encountered."""
 
     # TODO: Convert to Qt Signal and reattach. Needs a bit more code as exiting
-    # only makes sense with the original command line interface.
-    # -> Don't fail during JSON phase, collect all messages before stopping.
+    #       only makes sense with the original command line interface.
+    #    -> Don't fail during JSON phase, collect all messages before stopping.
+    #    -> Or additional user option about failing in JSON phase?
     def emit(self, record):
         sys.exit(1)
 
@@ -322,19 +333,25 @@ class Tileset:
         # Let's Turbocharge this with Multithreading.
         self.thread_pool = ThreadPool()
 
-    def abort_composing(self):
-        """Request aborting the composing process."""
+    def abort_composing(self, now=False):
+        """
+        Request aborting the composing process.
+        Optionally abort right away -> Use only for main compose thread!
+        """
         self.to_exit = True
         log_and_emit(
             logging.INFO,
             ComposeSignalType.STATUS_MESSAGE,
             "Aborting...",
         )
+        if now:
+            self.check_abort()
 
     def check_abort(self):
         """
         Abort composing process if requested earlier. Called in relevant
-        submethods, primarily in the loops.
+        submethods, primarily in the loops. -> Just throwing directly in
+        abort_composing doesn't work with multithreading.
         """
         if self.to_exit:
             log_and_emit(
@@ -383,7 +400,7 @@ class Tileset:
         # -> Allows accessing json and sprite meta results before
         # starting the computationally heavy main image processing step.
 
-        # This fixes original TODO about generating json first.
+        # This fixes original Todo about generating json first.
         # TODO: -> consider backporting to CDDA/Tileset repo
 
         added_first_null = False
@@ -391,7 +408,7 @@ class Tileset:
         prev_pngnum = 0
         actual_pngnums = {}
         # TODO: Find out why this offset happens on first sheet only.
-        # -> Probably because first index in tile_config.json starts with 1?
+        #    -> Probably because first index in tile_config.json starts with 1?
         offset = -1
         # Step 1: Walk file tree and process json
         for config in self.info[1:]:
@@ -463,10 +480,13 @@ class Tileset:
                 self.check_abort()
                 if unused_png in self.processed_ids:
                     if not fillers:
-                        log.warning(
-                            "%(1)s sprite was not mentioned in any tile "
-                            "entry but there is a tile entry for the %(1)s ID",
-                            {"1": unused_png},
+                        log_and_emit(
+                            logging.WARNING,
+                            ComposeSignalType.WARNING_MESSAGE,
+                            "Sprite {} was not mentioned in any "
+                            "tile entry but there is a tile entry for the ID {}.",
+                            (f"{unused_png}.png", unused_png),
+                            MessageType.WARN_NOT_MENTIONED,
                         )
                     if fillers and self.obsolete_fillers:
                         log.warning(
@@ -573,7 +593,7 @@ class Tileset:
                 "Loading sprites for: [{}] tilesheet {}",
                 (sheet_type, sheet.name),
             )
-            emit(ComposeSignalType.LOADING, replacements=[sheet.name])
+            emit(ComposeSignalType.LOADING, args=[sheet.name])
             sheet.load_sheet_images()
             log_and_emit(
                 logging.INFO,
@@ -618,9 +638,14 @@ class Tileset:
             for pngname in self.unreferenced_pngnames[sheet_type]:
                 self.check_abort()
                 if pngname in self.processed_ids:
-                    log.error(
-                        "%(1)s.png not used when %(1)s ID is mentioned in a tile entry",
-                        {"1": pngname},
+                    (
+                        log_and_emit(
+                            logging.ERROR,
+                            ComposeSignalType.ERROR_MESSAGE,
+                            "{} was not used, but ID {} is mentioned in a tile entry.",
+                            (f"{pngname}.png", pngname),
+                            MessageType.ERR_NOT_USED,
+                        ),
                     )
 
                 else:
@@ -750,7 +775,13 @@ class Tilesheet(QObject):
         """Verify image root name is unique, load it and register."""
         if filepath.stem in self.tileset.pngname_to_pngnum:
             if not self.is_filler:
-                log.error("duplicate root name %s: %s", filepath.stem, filepath)
+                log_and_emit(
+                    logging.ERROR,
+                    ComposeSignalType.ERROR_MESSAGE,
+                    "Duplicate root name for ID {}: {}.",
+                    (filepath.stem, filepath),
+                    MessageType.ERR_DUPLICATE_NAME,
+                )
 
             if self.is_filler and self.tileset.obsolete_fillers:
                 log.warning(
@@ -804,6 +835,13 @@ class Tilesheet(QObject):
                 image = image.icc_transform("srgb")
         except Vips.Error as vips_error:
             log.error("%s: %s", png_path, vips_error)
+            log_and_emit(
+                logging.ERROR,
+                ComposeSignalType.ERROR_MESSAGE,
+                "Vips error for file {}: {}",
+                (png_path, vips_error),
+                MessageType.ERR_VIPS,
+            )
 
         if image.width != self.sprite_width or image.height != self.sprite_height:
             log_and_emit(
@@ -833,8 +871,15 @@ class Tilesheet(QObject):
             try:
                 tile_entries = json.load(file)
             except Exception:
-                log.error("error loading %s", filepath)
-                raise
+                log_and_emit(
+                    logging.CRITICAL,
+                    ComposeSignalType.CRITICAL_MESSAGE,
+                    "Error loading {}. {}",
+                    (filepath, "Auto-Aborting..."),
+                    MessageType.CRIT_ERROR_LOADING_JSON,
+                )
+                self.tileset.abort_composing()
+                self.tileset.check_abort()
 
             if not isinstance(tile_entries, list):
                 tile_entries = [tile_entries]
@@ -904,10 +949,14 @@ class TileEntry:
         bg_layer = entry.get("bg")
 
         if not entry_ids or (not fg_layer and not bg_layer):
-            log.warning(
-                "skipping empty entry in %s%s",
-                self.filepath,
-                f" with IDs {prefix}{entry_ids} " if entry_ids else "",
+            message = "Skipping empty entry in {}"
+            message += " with IDs {}{}." if entry_ids else "."
+            log_and_emit(
+                logging.WARNING,
+                ComposeSignalType.WARNING_MESSAGE,
+                message,
+                (self.filepath, prefix, entry_ids),
+                MessageType.WARN_EMPTY_ENTRY,
             )
             return None
 
@@ -954,10 +1003,12 @@ class TileEntry:
                         )
 
                 else:
-                    log.error(
-                        "%s encountered more than once, last time in %s",
-                        full_id,
-                        self.filepath,
+                    log_and_emit(
+                        logging.ERROR,
+                        ComposeSignalType.ERROR_MESSAGE,
+                        "ID {} encountered more than once, last time in {}.",
+                        (full_id, self.filepath),
+                        MessageType.ERR_DUPLICATE_ID,
                     )
 
         # Return converted entry if there are new IDs.
@@ -1100,17 +1151,29 @@ class ComposeRunner(QRunnable):
                 compose_subset=self.compose_subset,
             )
         except ComposingException as ce:
-            log.critical(ce)
-            raise
+            self.on_composing_exception(ce)
 
     def run(self) -> None:
         """Run the composing process."""
         try:
             self.tileset.compose()
         except ComposingException as ce:
-            log.critical(ce)
-            raise
+            self.on_composing_exception(ce)
 
-    def exit(self):
-        """Stop a running composing process once possible."""
+    def request_abort(self):
+        """Set a running composing process to be aborted once possible."""
         self.tileset.abort_composing()
+
+    def on_composing_exception(
+        self,
+        exception: ComposingException,
+    ) -> None:
+        """Send message about encountered exception and auto-abort composing."""
+        log_and_emit(
+            logging.CRITICAL,
+            ComposeSignalType.CRITICAL_MESSAGE,
+            str(exception) + ". {}",
+            ("Auto-Aborting...",),
+            MessageType.CRIT_COMPOSING_EXCEPT,
+        )
+        self.tileset.abort_composing(now=True)

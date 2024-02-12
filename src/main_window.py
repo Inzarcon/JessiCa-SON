@@ -44,7 +44,7 @@ from tilesheet_selector import TilesheetSelector
 log = get_logger("compose")
 
 # TODO: Cleaner way and/or setting in main.py instead.
-# TODO: Also consider Qt's resource management. (though overkill at this stage)
+# TODO: Also consider Qt's resource management. (Though overkill at this stage)
 root_path = Path(__file__).resolve().parents[1]
 cfg_path = root_path.joinpath(".config")
 icon_path = root_path.joinpath("resources/icons")
@@ -96,7 +96,7 @@ class ProfileManager(QWidget):
         self.on_input_text_change()
 
     # TODO: Refactor code before adding features. Works for now, but way too
-    # chaotic edge case handling.
+    #       chaotic edge case handling.
 
     def on_input_text_change(self):
         cur_text = self.input_profile_name.text()
@@ -218,7 +218,7 @@ class ProfileManager(QWidget):
 
 
 # TODO: Refactor status labels into their own QWidget Class. Code is getting
-# all over the place.
+#       all over the place.
 class MainWindow(QMainWindow):
     """Main application window itself"""
 
@@ -368,7 +368,7 @@ class MainWindow(QMainWindow):
         self.threadpool.setMaxThreadCount(1)
 
         # TODO: Find out why background-color is working only in standalone
-        # version. Leave at white for now.
+        #       version. Leave at white for now.
         css = "QToolTip {background-color: white; color: black;}"
         self.setStyleSheet(css)
 
@@ -486,7 +486,7 @@ class MainWindow(QMainWindow):
         self.btn_abort.setEnabled(False)
         self.enable_controls(True)
         self.label.setText("Aborting...")
-        self.runner.exit()
+        self.runner.request_abort()
 
     def closeEvent(self, _):
         """
@@ -500,7 +500,7 @@ class MainWindow(QMainWindow):
         """Handle the different types of compose signals."""
 
         # TODO: Refactor to be cleaner, this is at risk of becoming code
-        # spaghetti with further additions.
+        #       spaghetti with further additions.
         if sig_type is ComposeSignalType.PROGRESS_PNGNUM:
             self.total_sprites = int(message)
             self.progress_bars.set_total(replacements, int(message))
@@ -522,6 +522,7 @@ class MainWindow(QMainWindow):
         if sig_type in [
             ComposeSignalType.WARNING_MESSAGE,
             ComposeSignalType.ERROR_MESSAGE,
+            ComposeSignalType.CRITICAL_MESSAGE,
         ]:
             self.message_box.message_pretty(sig_type, message, replacements, msg_type)
 
@@ -531,6 +532,9 @@ class MainWindow(QMainWindow):
         Reset relevant widgets and variables to their initial state.
         """
         # TODO: Different text if there were warnings and/or errors.
+        # TODO: Fix this for multithreading as signal is sent by each thread
+        #       when aborting while composing. Should ideally happen on last
+        #       thread.
         self.progress_bars.reset()
 
         self.message_box.show_suggestions()
