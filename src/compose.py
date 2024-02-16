@@ -805,16 +805,13 @@ class Tilesheet(QObject):
             emit(ComposeSignalType.PROGRESS_IMAGE)
             self.sprites.append(self.load_image(filepath))
 
-    def load_image(
-        self,
-        png_path: Union[str, Path],
-    ) -> pyvips.Image:
+    def load_image(self, png_path: Union[str, Path]) -> pyvips.Image:
         """Load and verify a single image using pyvips"""
         self.tileset.check_abort()
         if self.tileset.only_json:
             return None
         try:
-            image = Vips.Image.pngload(str(png_path))
+            image = Vips.Image.pngload(str(png_path), access="sequential")
         except pyvips.error.Error as pyvips_error:
             raise ComposingException(
                 f"Cannot load {png_path}: {pyvips_error.message}"
