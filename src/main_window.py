@@ -4,6 +4,7 @@ Module containing the main application window where all subcomponents are used.
 
 from pathlib import Path
 
+import version
 from common_utils import enable_widgets
 from compose import (
     ComposeRunner,
@@ -17,7 +18,7 @@ from compose_logger import get_logger
 from compose_message_box import ComposeMessageBox
 from compose_progress_bars import ComposeProgressBars
 from profile_manager import ProfileManager
-from PySide6.QtCore import Qt, QThreadPool, QUrl
+from PySide6.QtCore import QSize, Qt, QThreadPool, QUrl
 from PySide6.QtGui import QFont, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
@@ -43,6 +44,7 @@ from tilesheet_selector import TilesheetSelector
 log = get_logger("compose")
 
 # TODO: Cleaner way and/or setting in main.py instead.
+# TODO: Also option for user to set their own preferred location?
 # TODO: Also consider Qt's resource management. (Though overkill at this stage)
 root_path = Path(__file__).resolve().parents[1]
 cfg_path = root_path.joinpath(".config")
@@ -56,44 +58,69 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(
-            "JessiCa: Serpents Obstruct None (Compose Module Standalone)"
-        )
+        self.setWindowTitle(f"JessiCa: Serpents Obstruct None v{version.__version__}")
         self.resize(1200, 600)
+
+        font = QFont()
+        font.setPointSize(10)
+        font.setBold(True)
 
         self.btn_compose = QPushButton("Compose")
         self.btn_compose.pressed.connect(self.start_compose)
         self.btn_compose.setEnabled(False)
         icon_compose = QPixmap(icon_path.joinpath("compose.png"))
+        self.btn_compose.setFixedSize(150, 60)
+        self.btn_compose.setFont(font)
         self.btn_compose.setIcon(icon_compose)
-
-        self.cb_use_all = QCheckBox("Use All", objectName="use_all")
-        self.cb_use_all.setChecked(True)
-        # TODO: Utility function for tooltip texts. Or load from JSON file?
-        self.cb_use_all.setToolTip(
-            "Automatically generate JSON entries for unreferenced sprites. "
-            "Filename defines the ID name.\nFor example, an unreferenced "
-            '"snake.png" will be added for the game ID "snake".\n'
-            "(Note: If the ID does not actually exist, the game ignores it.)"
-        )
-        self.cb_only_json = QCheckBox("Only JSON", objectName="only_json")
-        self.cb_only_json.setToolTip(
-            "Generate only tile_config.json. No actual spritesheets will\n"
-            "be composed."
-        )
-
-        self.cb_format_json = QCheckBox("Format JSON", objectName="format_json")
-        self.cb_format_json.setToolTip(
-            "Format the resulting tile_config.json. If no json_formatter.exe "
-            "is \nfound in the tools folder, the Python built-in formatter "
-            "will be used."
-        )
+        self.btn_compose.setIconSize(QSize(60, 60))
+        self.btn_compose.setToolTip("Start composing process")
 
         self.btn_abort = QPushButton("Abort")
         self.btn_abort.setDisabled(True)
         self.btn_abort.pressed.connect(self.abort_compose)
         icon_abort = QPixmap(icon_path.joinpath("abort.png"))
+        self.btn_abort.setFixedSize(150, 60)
+        self.btn_abort.setFont(font)
         self.btn_abort.setIcon(icon_abort)
+        self.btn_abort.setIconSize(QSize(60, 60))
+        self.btn_abort.setToolTip("Stop all composing threads once possible")
+
+        self.layout_compose = QHBoxLayout()
+        self.layout_compose.addWidget(self.btn_compose)
+        self.layout_compose.addWidget(self.btn_abort)
+        self.layout_compose.setAlignment(Qt.AlignmentFlag.AlignLeft)
+
+        self.cb_use_all = QCheckBox("Use All", objectName="use_all")
+        self.cb_use_all.setChecked(True)
+        self.cb_use_all.setToolTip(
+            'Add unused images with ID being their basename (i.e. without ".png")'
+        )
+        self.cb_only_json = QCheckBox("Only JSON", objectName="only_json")
+        self.cb_only_json.setToolTip("Only output the tile_config.json")
+
+        self.cb_format_json = QCheckBox("Format JSON", objectName="format_json")
+        self.cb_format_json.setToolTip(
+            "Format tile_config.json. Uses CDDA formatter if found,\n"
+            "otherwise Python built-in formatter"
+        )
+
+        self.cb_fail_fast = QCheckBox("Fail Fast", objectName="fail_fast")
+        self.cb_fail_fast.setToolTip("Stop immediately after an error has occurred")
+
+        self.cb_obsolete_fillers = QCheckBox(
+            "Show Obsolete Fillers", objectName="obsolete_fillers"
+        )
+        self.cb_obsolete_fillers.setToolTip("Warn about obsoleted fillers")
+
+        self.cb_palette = QCheckBox("Palette", objectName="palette")
+        self.cb_palette.setToolTip("Quantize all tilesheets to 8bpp colormaps")
+
+        self.cb_palette_copies = QCheckBox(
+            "Palette Copies", objectName="palette_copies"
+        )
+        self.cb_palette_copies.setToolTip(
+            "Produce copies of tilesheets quantized to 8bpp colormaps"
+        )
 
         self.label_src = QLabel("Source Directory:")
         self.btn_src_input = QPushButton("Select")
@@ -141,7 +168,10 @@ class MainWindow(QMainWindow):
 
         self.label_prop_name.setFont(font)
         self.label_prop_view.setFont(font)
+
         self.progress_bars = ComposeProgressBars()
+        self.layout_compose.addWidget(self.progress_bars)
+
         self.sprites_per_sheet_dict = {}
         self.sheet_count = 0
 
@@ -158,16 +188,20 @@ class MainWindow(QMainWindow):
         self.runner = None
 
         self.control_widgets = [
-            self.btn_compose,
-            self.btn_abort,
             self.cb_use_all,
             self.cb_only_json,
             self.cb_format_json,
+            self.cb_fail_fast,
+            self.cb_obsolete_fillers,
+            self.cb_palette,
+            self.cb_palette_copies,
         ]
         self.layout_controls = QHBoxLayout()
         for widget in self.control_widgets:
             self.layout_controls.addWidget(widget)
         # Add widgets with own layout separately
+        self.control_widgets.append(self.btn_compose)
+        self.control_widgets.append(self.btn_abort)
         self.control_widgets.append(self.tilesheet_selector)
         self.control_widgets.append(self.btn_src_input)
         self.control_widgets.append(self.src_input)
@@ -182,13 +216,13 @@ class MainWindow(QMainWindow):
 
         layout = QVBoxLayout()
         layout.addWidget(self.profile_manager)
-        layout.addLayout(self.layout_tileset_info)
         layout.addLayout(self.layout_input)
+        layout.addLayout(self.layout_tileset_info)
         layout.addLayout(self.layout_controls)
         layout.addWidget(self.tilesheet_selector)
         layout.addWidget(self.message_box)
         layout.addWidget(self.cb_switch_log)
-        layout.addWidget(self.progress_bars)
+        layout.addLayout(self.layout_compose)
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         window = QWidget()
@@ -257,7 +291,7 @@ class MainWindow(QMainWindow):
             self.label_prop_name.setText("[Invalid Tileset Path]")
             self.label_prop_view.setText("[Invalid Tileset Path]")
             self.btn_compose.setEnabled(False)
-            self.label.setText("No tile_info.json found in source directory.")
+            self.label.setText("No valid tile_info.json found in source directory.")
             return
         # extract sheet names
         try:
@@ -296,6 +330,10 @@ class MainWindow(QMainWindow):
         _ = not self.cb_use_all.isChecked() and flags.append("no_use_all")
         _ = self.cb_only_json.isChecked() and flags.append("only_json")
         _ = self.cb_format_json.isChecked() and flags.append("format_json")
+        _ = self.cb_obsolete_fillers.isChecked() and flags.append("obsolete_fillers")
+        _ = self.cb_fail_fast.isChecked() and flags.append("fail_fast")
+        _ = self.cb_palette.isChecked() and flags.append("palette")
+        _ = self.cb_palette_copies.isChecked() and flags.append("palette_copies")
 
         self.compose_subset = []
         # TODO: Catch exception just to be sure
@@ -315,10 +353,7 @@ class MainWindow(QMainWindow):
 
     def abort_compose(self):
         """Request to stop the current composing process once possible."""
-        self.btn_abort.setEnabled(False)
-        self.enable_controls(True)
-        self.label.setText("Aborting...")
-        self.runner.request_abort()
+        self.runner.request_abort(by_user=True)
 
     def closeEvent(self, _):
         """
@@ -376,7 +411,8 @@ class MainWindow(QMainWindow):
         self.runner = None
         self.sheet_count = 0
 
-        self.enable_controls()
+        self.btn_abort.setEnabled(False)
+        self.enable_controls(True)
 
 
 def run():

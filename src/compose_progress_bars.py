@@ -59,7 +59,7 @@ class ComposeProgressBars(QWidget):
         self.progress_composed.setValue(self.weighted_sum())
 
     def set_color(self, which: QProgressBar, color: str = None):
-        color = "#669ff5" if not color else color
+        color = color if color else "#669ff5"
         css = r"QProgressBar::chunk {background: " + color + "}"
         which.setStyleSheet(css)
 

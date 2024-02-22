@@ -19,7 +19,6 @@ import json
 import logging
 import os
 import subprocess
-import sys
 from enum import Enum, auto
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
@@ -52,7 +51,7 @@ class MessageType(Enum):
     Used for color coded formatting in message box.
     """
 
-    CRIT_COMPOSING_EXCEPT = auto()
+    CRIT_GENERIC = auto()
     CRIT_ERROR_LOADING_JSON = auto()
 
     ERR_PNG_NOT_FOUND = auto()
@@ -66,6 +65,9 @@ class MessageType(Enum):
     WARN_NO_FORMATTER = auto()
     WARN_NOT_MENTIONED = auto()
     WARN_EMPTY_ENTRY = auto()
+    WARN_FILLER_SKIP = auto()
+    WARN_FILLER_DUPLICATE = auto()
+    WARN_FILLER_UNUSED = auto()
 
 
 # Generally not good practice, but in this case connection chain would be very
@@ -135,17 +137,13 @@ except ImportError:
 # File name to ignore containing directory
 IGNORE_FILE = ".scratch"
 
-# Parameters originally used in argparse.
+# Parameters originally used in argparse. Logging related flags are removed
+# entirely because GUI processes everything separately.
 # TODO: Replace with corresponding Qt checkboxes
-TMP_FAILFAST = False
-TMP_FEEDBACK = True
-TMP_RUN_SILENT = False
 
 TMP_OBSOLETE_FILLERS = True
 TMP_PALETTE_COPIES = True
 TMP_PALETTE = True
-
-TMP_FORMAT_JSON = True
 
 PROPERTIES_FILENAME = "tileset.txt"
 
@@ -177,17 +175,6 @@ FALLBACK = {
         {"offset": 3840, "bold": True, "color": "YELLOW"},
     ],
 }
-
-
-class FailFastHandler(logging.StreamHandler):
-    """Send a signal if an error and/or warning was encountered."""
-
-    # TODO: Convert to Qt Signal and reattach. Needs a bit more code as exiting
-    #       only makes sense with the original command line interface.
-    #    -> Don't fail during JSON phase, collect all messages before stopping.
-    #    -> Or additional user option about failing in JSON phase?
-    def emit(self, record):
-        sys.exit(1)
 
 
 def write_to_json(
@@ -253,8 +240,7 @@ class ComposingException(Exception):
 
 class StopComposing(Exception):
     """
-    Exception for aborting the running composing process. Not needed to be
-    explicitly caught.
+    Exception for aborting the running composing process.
     """
 
 
@@ -338,12 +324,13 @@ class Tileset:
         Request aborting the composing process.
         Optionally abort right away -> Use only for main compose thread!
         """
+        if not self.to_exit:
+            log_and_emit(
+                logging.INFO,
+                ComposeSignalType.STATUS_MESSAGE,
+                "Abort requested.",
+            )
         self.to_exit = True
-        log_and_emit(
-            logging.INFO,
-            ComposeSignalType.STATUS_MESSAGE,
-            "Aborting...",
-        )
         if now:
             self.check_abort()
 
@@ -351,14 +338,9 @@ class Tileset:
         """
         Abort composing process if requested earlier. Called in relevant
         submethods, primarily in the loops. -> Just throwing directly in
-        abort_composing doesn't work with multithreading.
+        abort_composing doesn't work with multithreading!
         """
         if self.to_exit:
-            log_and_emit(
-                logging.INFO,
-                ComposeSignalType.FINISHED,
-                "Composing aborted.",
-            )
             raise StopComposing()
 
     def determine_conffile(self) -> str:
@@ -429,7 +411,7 @@ class Tileset:
             log_and_emit(
                 logging.INFO,
                 ComposeSignalType.STATUS_MESSAGE,
-                "Parsing JSON for: [{}] tilesheet {}",
+                "Parsing JSON for: [{}] tilesheet {}.",
                 (sheet_type, sheet.name),
             )
 
@@ -438,13 +420,12 @@ class Tileset:
                 sheet.process_sheet_json()
             typed_sheets[sheet_type].append((sheet, sheet_type))
 
-            if not TMP_RUN_SILENT:
-                log_and_emit(
-                    logging.INFO,
-                    ComposeSignalType.STATUS_MESSAGE,
-                    "Processing sprite file names for: [{}] tilesheet {}",
-                    (sheet_type, sheet.name),
-                )
+            log_and_emit(
+                logging.INFO,
+                ComposeSignalType.STATUS_MESSAGE,
+                "Processing sprite file names for: [{}] tilesheet {}.",
+                (sheet_type, sheet.name),
+            )
             sheet.process_sheet_png_filenames()
             diff = sheet.sprites_across - (
                 (len(sheet.png_files) % sheet.sprites_across) or sheet.sprites_across
@@ -489,9 +470,12 @@ class Tileset:
                             MessageType.WARN_NOT_MENTIONED,
                         )
                     if fillers and self.obsolete_fillers:
-                        log.warning(
-                            "there is a tile entry for %s in a non-filler sheet",
-                            unused_png,
+                        log_and_emit(
+                            logging.WARNING,
+                            ComposeSignalType.WARNING_MESSAGE,
+                            "There is a tile entry for {} in a non-filler sheet",
+                            (unused_png,),
+                            MessageType.WARN_FILLER_UNUSED,
                         )
                     continue
                 unused_num = self.pngname_to_pngnum[unused_png]
@@ -519,7 +503,7 @@ class Tileset:
                 continue
             if sheet.is_filler and not main_finished:
                 create_tile_entries_for_unused(
-                    self.handle_unreferenced_sprites("main"), fillers=False
+                    self.handle_unreferenced_sprites("main"), fillers=True
                 )
                 main_finished = True
             sheet_entries = []
@@ -580,8 +564,7 @@ class Tileset:
         if not self.only_json:
             self.thread_pool.map(self.load_and_compose_sheet, sheet_configs)
 
-        if not TMP_RUN_SILENT:
-            log_and_emit(logging.INFO, ComposeSignalType.FINISHED, "Composing done.")
+        log_and_emit(logging.INFO, ComposeSignalType.FINISHED, "Composing done.")
 
     def load_and_compose_sheet(self, work):
         sheet, sheet_type = work
@@ -590,7 +573,7 @@ class Tileset:
             log_and_emit(
                 logging.INFO,
                 ComposeSignalType.STATUS_MESSAGE,
-                "Loading sprites for: [{}] tilesheet {}",
+                "Start Loading sprites for: [{}] tilesheet {}.",
                 (sheet_type, sheet.name),
             )
             emit(ComposeSignalType.LOADING, args=[sheet.name])
@@ -598,7 +581,7 @@ class Tileset:
             log_and_emit(
                 logging.INFO,
                 ComposeSignalType.STATUS_MESSAGE,
-                "Composing: [{}] tilesheet {}",
+                "Start Composing: [{}] tilesheet {}.",
                 (sheet_type, sheet.name),
             )
             emit(ComposeSignalType.COMPOSING)
@@ -609,7 +592,7 @@ class Tileset:
             log_and_emit(
                 logging.INFO,
                 ComposeSignalType.STATUS_MESSAGE,
-                "Skipping composing for: [{}] tilesheet {}",
+                "Skipping composing for: [{}] tilesheet {}.",
                 (sheet_type, sheet.name),
             )
 
@@ -782,14 +765,14 @@ class Tilesheet(QObject):
                     (filepath.stem, filepath),
                     MessageType.ERR_DUPLICATE_NAME,
                 )
-
             if self.is_filler and self.tileset.obsolete_fillers:
-                log.warning(
-                    "root name %s is already present in a non-filler sheet: %s",
-                    filepath.stem,
-                    filepath,
+                log_and_emit(
+                    logging.WARNING,
+                    ComposeSignalType.WARNING_MESSAGE,
+                    "Root name {} is already present in a non-filler sheet: {}",
+                    (filepath.stem, filepath),
+                    MessageType.WARN_FILLER_DUPLICATE,
                 )
-
             return
 
         self.tileset.pngnum += 1
@@ -874,8 +857,7 @@ class Tilesheet(QObject):
                     (filepath, "Auto-Aborting..."),
                     MessageType.CRIT_ERROR_LOADING_JSON,
                 )
-                self.tileset.abort_composing()
-                self.tileset.check_abort()
+                self.tileset.abort_composing(now=True)
 
             if not isinstance(tile_entries, list):
                 tile_entries = [tile_entries]
@@ -914,6 +896,13 @@ class Tilesheet(QObject):
 
         if self.tileset.palette_copies and not self.tileset.palette:
             sheet_image.pngsave(str(self.output) + "8", palette=True, **pngsave_args)
+
+        log_and_emit(
+            logging.INFO,
+            ComposeSignalType.STATUS_MESSAGE,
+            "Finished composing: tilesheet {}.",
+            (self.name,),
+        )
 
         return True
 
@@ -992,10 +981,12 @@ class TileEntry:
 
                 if self.tilesheet.is_filler:
                     if self.tilesheet.tileset.obsolete_fillers:
-                        log.warning(
-                            "skipping filler for %s from %s",
-                            full_id,
-                            self.filepath,
+                        log_and_emit(
+                            logging.WARNING,
+                            ComposeSignalType.WARNING_MESSAGE,
+                            "Skipping filler for {} from {}.",
+                            (full_id, self.filepath),
+                            MessageType.WARN_FILLER_SKIP,
                         )
 
                 else:
@@ -1110,12 +1101,13 @@ class ComposeRunner(QRunnable):
         self.output_dir = Path(output_dir) or self.source_dir
         (
             self.no_use_all,
+            self.fail_fast,
             self.obsolete_fillers,
             self.palette_copies,
             self.palette,
             self.format_json,
             self.only_json,
-        ) = [False] * 6
+        ) = [False] * 7
 
         for v in flags:
             if v in self.__dict__:
@@ -1125,10 +1117,20 @@ class ComposeRunner(QRunnable):
 
         self.compose_subset = compose_subset
 
-        if TMP_FAILFAST:
-            failfast_handler = FailFastHandler()
-            failfast_handler.setLevel(logging.ERROR)
-            log.addHandler(failfast_handler)
+        if self.fail_fast:
+            # TODO: Make handler part of compose_logger module and connect here
+            #       instead of checking and resetting every time.
+            create_handler = True
+            for handler in log.handlers:
+                if isinstance(handler, FailFastHandler):
+                    create_handler = False
+                    handler.parent = self
+                    handler.triggered = False
+                    break
+            if create_handler:
+                fail_fast_handler = FailFastHandler(self)
+                fail_fast_handler.setLevel(logging.WARNING)
+                log.addHandler(fail_fast_handler)
 
         self.tileset = None
 
@@ -1155,9 +1157,22 @@ class ComposeRunner(QRunnable):
             self.tileset.compose()
         except ComposingException as ce:
             self.on_composing_exception(ce)
+        except StopComposing:
+            log_and_emit(
+                logging.INFO,
+                ComposeSignalType.FINISHED,
+                "Composing aborted.",
+            )
 
-    def request_abort(self):
-        """Set a running composing process to be aborted once possible."""
+    def request_abort(self, by_user: bool = False):
+        """Interface for requesting composing stop once possible."""
+        if by_user:
+            emit(
+                ComposeSignalType.CRITICAL_MESSAGE,
+                "User Request: {}...",
+                ("Aborting",),
+                MessageType.CRIT_GENERIC,
+            )
         self.tileset.abort_composing()
 
     def on_composing_exception(
@@ -1168,8 +1183,29 @@ class ComposeRunner(QRunnable):
         log_and_emit(
             logging.CRITICAL,
             ComposeSignalType.CRITICAL_MESSAGE,
-            str(exception) + ". {}",
-            ("Auto-Aborting...",),
-            MessageType.CRIT_COMPOSING_EXCEPT,
+            str(exception) + ". {}...",
+            ("Auto-Aborting",),
+            MessageType.CRIT_GENERIC,
         )
         self.tileset.abort_composing(now=True)
+
+
+class FailFastHandler(logging.StreamHandler):
+    """Stop composing if an error was encountered."""
+
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+        self.triggered = False  # Avoid recursion
+
+    def emit(self, _):
+        if not self.triggered:
+            self.triggered = True
+            log_and_emit(
+                logging.CRITICAL,
+                ComposeSignalType.CRITICAL_MESSAGE,
+                "Fail Fast: {}...",
+                ("Auto-Aborting",),
+                MessageType.CRIT_GENERIC,
+            )
+            self.parent.request_abort()

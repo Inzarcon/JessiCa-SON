@@ -57,9 +57,7 @@ class ComposeMessageBox(QWidget):
                 self.seen_sprite_size = True
 
         self.pretty_log.appendPlainText("")
-        message, args, hinting_styles = self.format_message(
-            message, args, msg_type
-        )
+        message, args, hinting_styles = self.format_message(message, args, msg_type)
 
         if sig_type is ComposeSignalType.WARNING_MESSAGE:
             self.message_formatted_text("[WARNING] ", style_yellow)
@@ -128,7 +126,7 @@ class ComposeMessageBox(QWidget):
 
     @staticmethod
     def format_message(message, args=None, msg_type=None):
-        hinting_styles = [style_default]
+        hinting_styles = style_default
         if msg_type and msg_type in formats:
             fmt = formats[msg_type]
             if "new_message" in fmt:
@@ -179,7 +177,7 @@ formats = {
     MessageType.CRIT_ERROR_LOADING_JSON: {
         "hinting_styles": (style_green, style_red),
     },
-    MessageType.CRIT_COMPOSING_EXCEPT: {
+    MessageType.CRIT_GENERIC: {
         "hinting_styles": (style_red,),
     },
     MessageType.ERR_SPRITE_SIZE: {
@@ -201,11 +199,14 @@ formats = {
         "hinting_styles": (style_cyan,),
     },
     MessageType.ERR_VIPS: {
-        "hinting_styles": (style_green, style_red,),
+        "hinting_styles": (
+            style_green,
+            style_red,
+        ),
     },
     MessageType.WARN_SPRITE_UNREF: {
         "new_message": "Ignoring sprite without any JSON reference: [{}] {}.",
-        "select_arg": (1, 0),
+        "select_args": (1, 0),
         "hinting_styles": (style_red, style_cyan),
     },
     MessageType.WARN_NO_FORMATTER: {
@@ -216,6 +217,15 @@ formats = {
     },
     MessageType.WARN_EMPTY_ENTRY: {
         "hinting_styles": (style_green, *[style_cyan] * 2),
+    },
+    MessageType.WARN_FILLER_SKIP: {
+        "hinting_styles": (style_cyan, style_green),
+    },
+    MessageType.WARN_FILLER_DUPLICATE: {
+        "hinting_styles": (style_cyan, style_green),
+    },
+    MessageType.WARN_FILLER_UNUSED: {
+        "hinting_styles": (style_cyan,),
     },
     "note_unref": {
         "hinting_styles": (style_cyan, style_yellow),
