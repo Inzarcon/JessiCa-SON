@@ -137,14 +137,6 @@ except ImportError:
 # File name to ignore containing directory
 IGNORE_FILE = ".scratch"
 
-# Parameters originally used in argparse. Logging related flags are removed
-# entirely because GUI processes everything separately.
-# TODO: Replace with corresponding Qt checkboxes
-
-TMP_OBSOLETE_FILLERS = True
-TMP_PALETTE_COPIES = True
-TMP_PALETTE = True
-
 PROPERTIES_FILENAME = "tileset.txt"
 
 PNGSAVE_ARGS = {
