@@ -1,4 +1,5 @@
 import json
+import os
 
 from compose_logger import get_logger
 from PySide6.QtCore import Qt, Signal
@@ -9,6 +10,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QMessageBox,
     QPushButton,
     QWidget,
 )
@@ -34,7 +36,8 @@ class ProfileManager(QWidget):
         self.input_profile_name.setMaximumWidth(200)
         self.btn_save = QPushButton("Save Profile")
         self.btn_save.setMinimumWidth(115)
-        self.btn_set_as_default = QPushButton("Set as default profile")
+        self.btn_set_as_default = QPushButton("Set as default")
+        self.btn_delete = QPushButton("Delete")
 
         layout = QHBoxLayout()
         layout.addWidget(self.label)
@@ -43,6 +46,7 @@ class ProfileManager(QWidget):
         layout.addWidget(self.input_profile_name)
         layout.addWidget(self.btn_save)
         layout.addWidget(self.btn_set_as_default)
+        layout.addWidget(self.btn_delete)
         layout.addStretch()
         layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -52,6 +56,7 @@ class ProfileManager(QWidget):
         self.btn_set_as_default.pressed.connect(self.set_default)
         self.drop_down.currentIndexChanged.connect(self.on_drop_down_change)
         self.input_profile_name.textChanged.connect(self.on_input_text_change)
+        self.btn_delete.pressed.connect(self.delete)
 
         self.config_path = cfg_path
         self.widgets = widgets
@@ -145,6 +150,22 @@ class ProfileManager(QWidget):
 
     def profile_exists(self, profile_name):
         return (self.config_path / f"{profile_name}.json").is_file()
+
+    def delete(self):
+        profile_name = self.drop_down.currentText()
+        assert self.profile_exists(profile_name)
+        answer = QMessageBox.question(
+            self, "Confirm Profile Deletion", f"Really delete profile '{profile_name}'?"
+        )
+        if answer != QMessageBox.Yes:
+            return
+        os.remove(self.config_path / f"{profile_name}.json")
+        self.drop_down.removeItem(self.drop_down.findText(profile_name))
+        if self.is_default(profile_name) and self.drop_down.count():
+            # TODO: Let user decide new default.
+            self.input_profile_name.setText(self.drop_down.itemText(0))
+            self.set_default()
+        self.load_default()
 
     @staticmethod
     def _save_json(file_path, entries):
