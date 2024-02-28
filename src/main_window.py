@@ -260,17 +260,17 @@ class MainWindow(QMainWindow):
         self.tileset_info.read_tileset_info(
             self.src_input.text(), self.out_input.text()
         )
-        valid = self.tileset_info.src_tileset and self.tileset_info.src_tile_info
+        valid = self.tileset_info.tileset and self.tileset_info.tile_info
         self.btn_compose.setEnabled(valid)
         if valid:
             self.tilesheet_selector.set_entries(self.tileset_info.tilesheets)
             self.status_label.setText("Ready for composing.")
         else:
             self.tilesheet_selector.clear_entries()
-            if self.tileset_info.src_tileset:
-                self.status_label.setText("Invalid tile_info.json")
+            if self.tileset_info.tileset:
+                self.status_label.setText("Invalid or missing tile_info.json.")
             else:
-                self.status_label.setText("Invalid tileset.txt")
+                self.status_label.setText("Invalid or missing tileset.txt.")
 
     def enable_controls(self, enable=True):
         """Shortcut for enabling/diabling the control widgets."""
