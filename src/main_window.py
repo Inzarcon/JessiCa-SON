@@ -1,19 +1,9 @@
 """
 Module containing the main application window where all subcomponents are used.
 """
-
-from pathlib import Path
-
 import version
 from common_utils import enable_widgets
-from compose import (
-    ComposeRunner,
-    ComposeSignalType,
-    ComposingException,
-    Tileset,
-    connect_compose_signal,
-    read_properties,
-)
+from compose import ComposeRunner, ComposeSignalType, connect_compose_signal
 from compose_logger import get_logger
 from compose_message_box import ComposeMessageBox
 from compose_progress_bars import ComposeProgressBars
@@ -39,16 +29,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from qdarktheme import setup_theme
+from tileset_info import TilesetInfo
 from tilesheet_selector import TilesheetSelector
 
-log = get_logger("compose")
+from main import CFG_PATH, ICON_PATH, ROOT_PATH
 
-# TODO: Cleaner way and/or setting in main.py instead.
-# TODO: Also option for user to set their own preferred location?
-# TODO: Also consider Qt's resource management. (Though overkill at this stage)
-root_path = Path(__file__).resolve().parents[1]
-cfg_path = root_path.joinpath(".config")
-icon_path = root_path.joinpath("resources/icons")
+log = get_logger("compose")
 
 
 # TODO: Refactor status labels into their own QWidget Class. Code is getting
@@ -68,7 +54,7 @@ class MainWindow(QMainWindow):
         self.btn_compose = QPushButton("Compose")
         self.btn_compose.pressed.connect(self.start_compose)
         self.btn_compose.setEnabled(False)
-        icon_compose = QPixmap(icon_path.joinpath("compose.png"))
+        icon_compose = QPixmap(ICON_PATH.joinpath("compose.png"))
         self.btn_compose.setFixedSize(150, 60)
         self.btn_compose.setFont(font)
         self.btn_compose.setIcon(icon_compose)
@@ -78,7 +64,7 @@ class MainWindow(QMainWindow):
         self.btn_abort = QPushButton("Abort")
         self.btn_abort.setDisabled(True)
         self.btn_abort.pressed.connect(self.abort_compose)
-        icon_abort = QPixmap(icon_path.joinpath("abort.png"))
+        icon_abort = QPixmap(ICON_PATH.joinpath("abort.png"))
         self.btn_abort.setFixedSize(150, 60)
         self.btn_abort.setFont(font)
         self.btn_abort.setIcon(icon_abort)
@@ -126,13 +112,14 @@ class MainWindow(QMainWindow):
         self.btn_src_input = QPushButton("Select")
         self.btn_src_input.pressed.connect(self.on_source_input_click)
         self.src_input = QLineEdit(objectName="source_dir")
-        self.src_input.textChanged.connect(self.read_tileset_info)
+        self.src_input.textChanged.connect(self.update_tileset_info)
 
         self.label_out = QLabel("Output Directory:", objectName="output_dir")
         self.btn_out_input = QPushButton("Select")
         # TODO: Change naming as "output_input" may be confusing
         self.btn_out_input.pressed.connect(self.on_output_input_click)
         self.out_input = QLineEdit(objectName="output_dir")
+        self.out_input.textChanged.connect(self.update_tileset_info)
 
         self.layout_input = QGridLayout()
         self.layout_input.addWidget(self.label_src, 0, 0)
@@ -142,32 +129,22 @@ class MainWindow(QMainWindow):
         self.layout_input.addWidget(self.btn_out_input, 1, 1)
         self.layout_input.addWidget(self.out_input, 1, 2)
 
-        self.label = QLabel("Please select tileset source directory.")
+        self.status_label = QLabel("Please select tileset source directory.")
         font = QFont()
         font.setPointSize(10)
         font.setBold(True)
-        self.label.setFont(font)
+        self.status_label.setFont(font)
 
-        self.layout_tileset_info = QGridLayout()
-        self.layout_tileset_info.addWidget(QLabel("Tileset Name: ", font=font), 0, 0)
-        self.label_prop_name = QLabel("[No tileset selected]")
-        self.layout_tileset_info.addWidget(self.label_prop_name, 0, 1)
-        self.layout_tileset_info.addWidget(QLabel("View Name: ", font=font), 1, 0)
-        self.label_prop_view = QLabel("[No tileset selected]")
-        self.layout_tileset_info.addWidget(self.label_prop_view, 1, 1)
-        self.layout_tileset_info.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.tileset_info = TilesetInfo()
 
         self.tilesheet_selector = TilesheetSelector()
 
         self.status_bar = QStatusBar()
-        self.status_bar.addPermanentWidget(self.label, 1)
+        self.status_bar.addPermanentWidget(self.status_label, 1)
         self.setStatusBar(self.status_bar)
 
-        self.tilesheet_selector.sig_grid_change.connect(self.label.setText)
+        self.tilesheet_selector.sig_grid_change.connect(self.status_label.setText)
         self.compose_subset = []
-
-        self.label_prop_name.setFont(font)
-        self.label_prop_view.setFont(font)
 
         self.progress_bars = ComposeProgressBars()
         self.layout_compose.addWidget(self.progress_bars)
@@ -210,14 +187,14 @@ class MainWindow(QMainWindow):
 
         self.layout_controls.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        self.profile_manager = ProfileManager(cfg_path, self.control_widgets)
-        self.profile_manager.sig_loaded.connect(self.read_tileset_info)
-        self.read_tileset_info()  # Alternatively connection within init.
+        self.profile_manager = ProfileManager(CFG_PATH, self.control_widgets)
+        self.profile_manager.sig_loaded.connect(self.update_tileset_info)
+        self.update_tileset_info()  # Alternatively connection within init.
 
         layout = QVBoxLayout()
         layout.addWidget(self.profile_manager)
         layout.addLayout(self.layout_input)
-        layout.addLayout(self.layout_tileset_info)
+        layout.addWidget(self.tileset_info)
         layout.addLayout(self.layout_controls)
         layout.addWidget(self.tilesheet_selector)
         layout.addWidget(self.message_box)
@@ -257,7 +234,7 @@ class MainWindow(QMainWindow):
     def show_licenses(self):
         self.license_box = QTextBrowser()
         self.license_box.setWindowTitle("LICENSE.md")
-        url = QUrl.fromLocalFile(root_path.joinpath("LICENSE.md"))
+        url = QUrl.fromLocalFile(ROOT_PATH.joinpath("LICENSE.md"))
         self.license_box.setSource(url)
         self.license_box.resize(1000, 600)
         self.license_box.show()
@@ -277,44 +254,23 @@ class MainWindow(QMainWindow):
         """
         selection = QFileDialog.getExistingDirectory(caption="Open directory")
         self.out_input.setText(selection)
-        self.label.setText("Ready for composing.")
+        self.status_label.setText("Ready for composing.")
 
-    def read_tileset_info(self):
-        """
-        Read tileset properties and tilesheet names.
-        """
-        try:
-            prop = read_properties(f"{self.src_input.text()}/tileset.txt")
-            self.label_prop_name.setText(prop["NAME"])
-            self.label_prop_view.setText(prop["VIEW"])
-        except FileNotFoundError:
-            self.label_prop_name.setText("[Invalid Tileset Path]")
-            self.label_prop_view.setText("[Invalid Tileset Path]")
-            self.btn_compose.setEnabled(False)
-            self.label.setText("No valid tile_info.json found in source directory.")
-            return
-        # extract sheet names
-        try:
-            info = Tileset(
-                Path(self.src_input.text()), Path(self.out_input.text())
-            ).info
-            result = []
-            for entry in info:
-                result.append(str(list(entry.keys())[0]))
-            self.tilesheet_selector.set_entries(result[1:])
-            self.label.setText("Ready for composing.")
-            self.btn_compose.setEnabled(True)
-        except ComposingException:
+    def update_tileset_info(self):
+        self.tileset_info.read_tileset_info(
+            self.src_input.text(), self.out_input.text()
+        )
+        valid = self.tileset_info.src_tileset and self.tileset_info.src_tile_info
+        self.btn_compose.setEnabled(valid)
+        if valid:
+            self.tilesheet_selector.set_entries(self.tileset_info.tilesheets)
+            self.status_label.setText("Ready for composing.")
+        else:
             self.tilesheet_selector.clear_entries()
-            self.btn_compose.setEnabled(False)
-        out_was_default = "/default_compose_output" in self.out_input.text()
-        if not self.out_input.text() or out_was_default:
-            self.out_input.setText(f"{self.src_input.text()}/default_compose_output")
-            self.label.setText(
-                "Ready for composing into default output directory. "
-                "Select the corresponding tileset in your game files as"
-                " output to update it automatically."
-            )
+            if self.tileset_info.src_tileset:
+                self.status_label.setText("Invalid tile_info.json")
+            else:
+                self.status_label.setText("Invalid tileset.txt")
 
     def enable_controls(self, enable=True):
         """Shortcut for enabling/diabling the control widgets."""
@@ -378,13 +334,13 @@ class MainWindow(QMainWindow):
             self.sheet_count += 1
         if sig_type is ComposeSignalType.STATUS_MESSAGE:
             if replacements:
-                self.label.setText(message.format(*replacements))
+                self.status_label.setText(message.format(*replacements))
             else:
-                self.label.setText(message)
+                self.status_label.setText(message)
         if sig_type is ComposeSignalType.LOADING:
             self.progress_bars.show()
         if sig_type is ComposeSignalType.FINISHED:
-            self.label.setText(message)
+            self.status_label.setText(message)
             self.on_finished()
         if sig_type in [
             ComposeSignalType.WARNING_MESSAGE,
