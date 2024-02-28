@@ -47,15 +47,6 @@ python main.py
 ```
 (Depending on your *Python* configuration, you may need to type `python3` instead of `python` and/or `python -m pip` instead of `pip`. This should usually not be the case if you installed *Python* as described above.)
 
-## Known Issues and Bugs of the Initial Release
-- Exiting the app while composing may cause an error and stuck *JessiCa* background process.
-- `tileset.txt` and `fallback.png` are not copied to the output tileset yet. For the time being, make sure they are already present in your game files and correctly set the output directory for automatic updating.
-- If the *Compose* button does not enable after switching to a profile with a valid tileset source path, try restarting the application.
-- Profiles are not deletable in-app yet. Navigate to the `.config` directory to delete them manually.
-- The status bar text at the bottom may show the wrong message in some circumstances.
-- Not all warnings and errors are displayed in the main message box yet. To see all messages, enable the "Show Raw Log" checkbox at the bottom.
-- The same applies to the remaining command line options of the original `compose.py` script.
-
 ## Contributing
 Pull Requests, Issues and general feedback are welcome. Note that *JessiCa* is still in an early prototyping stage. Repeated code refactoring and architecture changes are therefore to be expected. This repository is also still under construction.
 
