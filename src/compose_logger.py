@@ -9,27 +9,6 @@ from colorama import Fore
 from PySide6.QtCore import QObject, Signal, Slot
 
 
-class LevelTrackingFilter(logging.Filter):
-    """
-    Logging handler that will remember the highest level that was called
-    """
-
-    # TODO: Reconnect with logger.
-
-    def __init__(self):
-        super().__init__()
-        self.level = logging.NOTSET
-
-    def filter(self, record):
-        """
-        Filter the record, check if highest so far.
-        :param record: :data:`LogRecord` instance.
-        :return: :data:`True`
-        """
-        self.level = max(self.level, record.levelno)
-        return True
-
-
 class ColorFormatter(logging.Formatter):
     """
     logging.StreamHandler which sets color coding for logger messages.
