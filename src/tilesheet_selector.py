@@ -1,7 +1,7 @@
 """Module for the TilesheetSelector class."""
 
 from common_utils import delete_layout_widgets, get_layout_widgets
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QCheckBox, QGridLayout, QVBoxLayout, QWidget
 
 N_COLS = 6  # TODO: Make this more dynamic.
@@ -28,7 +28,6 @@ class TilesheetSelector(QWidget):
                 row, col = divmod(count, N_COLS)
                 widget = QCheckBox(name)
                 self.layout.addWidget(widget, row, col)
-                widget.stateChanged.connect(parent._on_grid_change)
                 count += 1
 
         def grid_state(self):
@@ -38,8 +37,6 @@ class TilesheetSelector(QWidget):
                 if widget.isChecked():
                     result.append(widget.text())
             return result
-
-    sig_grid_change = Signal(str)
 
     def __init__(self):
         super().__init__()
@@ -80,30 +77,12 @@ class TilesheetSelector(QWidget):
             else:
                 self.selector_grid.hide()
 
-            if self.main_checkbox.isChecked():
-                self._on_grid_change()
-            else:
-                self.sig_grid_change.emit("Ready for composing.")
-
         except AttributeError:
-            self.sig_grid_change.emit("No valid tileset selected.")
             self.clear_entries()
         except RuntimeError as e:
             # TODO: Refactor to prevent this from happening in the first place.
             if str(e) != "Internal C++ object (SelectorGrid) already deleted.":
                 raise
-
-    def _on_grid_change(self):
-        """Called when a selector grid entry was clicked."""
-        state_string = ", ".join(self.grid_state())
-        if not state_string:
-            self.sig_grid_change.emit(
-                "No tilesheet selected; will compose whole tileset. "
-                'Enable the "Only JSON" checkbox instead if you want to '
-                "completely skip tilesheet composing."
-            )
-        else:
-            self.sig_grid_change.emit(f"Ready for composing {state_string}.")
 
     def grid_state(self):
         """Return a list of the currently selected tilesheet names."""

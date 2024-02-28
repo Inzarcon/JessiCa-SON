@@ -143,7 +143,6 @@ class MainWindow(QMainWindow):
         self.status_bar.addPermanentWidget(self.status_label, 1)
         self.setStatusBar(self.status_bar)
 
-        self.tilesheet_selector.sig_grid_change.connect(self.status_label.setText)
         self.compose_subset = []
 
         self.progress_bars = ComposeProgressBars()
