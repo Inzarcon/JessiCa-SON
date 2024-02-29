@@ -9,6 +9,7 @@ CFG_PATH = ROOT_PATH.joinpath(".config")
 ICON_PATH = ROOT_PATH.joinpath("resources/icons")
 
 if __name__ == "__main__":
+    sys.path.append(str(ROOT_PATH))
     sys.path.append(str(ROOT_PATH.joinpath("src")))
     # Local libvips BEFORE other entries to avoid dll conflicts.
     os.environ["PATH"] = (
