@@ -1,6 +1,8 @@
 """
 Module containing the main application window where all subcomponents are used.
 """
+from pathlib import Path
+
 import version
 from common_utils import enable_widgets
 from compose import ComposeRunner, ComposeSignalType, connect_compose_signal
@@ -249,7 +251,6 @@ class MainWindow(QMainWindow):
         """
         selection = QFileDialog.getExistingDirectory(caption="Open directory")
         self.out_input.setText(selection)
-        self.status_label.setText("Ready for composing.")
 
     def update_tileset_info(self):
         self.tileset_info.read_tileset_info(
@@ -260,6 +261,17 @@ class MainWindow(QMainWindow):
         if valid:
             self.tilesheet_selector.set_entries(self.tileset_info.tilesheets)
             self.status_label.setText("Ready for composing.")
+            if (
+                not self.out_input.text()
+                or "default_compose_output" in self.out_input.text()
+            ):
+                self.out_input.setText(
+                    str(
+                        Path(self.src_input.text())
+                        .joinpath("default_compose_output")
+                        .as_posix()
+                    )
+                )
         else:
             self.tilesheet_selector.clear_entries()
             if self.tileset_info.tileset:
