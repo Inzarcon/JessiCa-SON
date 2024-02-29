@@ -423,7 +423,7 @@ class Tileset:
                 (len(sheet.png_files) % sheet.sprites_across) or sheet.sprites_across
             )
 
-            if not self.compose_subset or sheet.name in self.compose_subset:
+            if sheet.name in self.compose_subset:
                 actual_pngnums[sheet.name] = self.pngnum - prev_pngnum
             self.pngnum += diff + offset
             offset = 0
@@ -561,7 +561,7 @@ class Tileset:
     def load_and_compose_sheet(self, work):
         sheet, sheet_type = work
         self.check_abort()
-        if not self.compose_subset or sheet.name in self.compose_subset:
+        if sheet.name in self.compose_subset:
             log_and_emit(
                 logging.INFO,
                 ComposeSignalType.STATUS_MESSAGE,

@@ -143,8 +143,6 @@ class MainWindow(QMainWindow):
         self.status_bar.addPermanentWidget(self.status_label, 1)
         self.setStatusBar(self.status_bar)
 
-        self.compose_subset = []
-
         self.progress_bars = ComposeProgressBars()
         self.layout_compose.addWidget(self.progress_bars)
 
@@ -290,10 +288,11 @@ class MainWindow(QMainWindow):
         _ = self.cb_palette.isChecked() and flags.append("palette")
         _ = self.cb_palette_copies.isChecked() and flags.append("palette_copies")
 
-        self.compose_subset = []
         # TODO: Catch exception just to be sure
         if self.tilesheet_selector.main_checkbox.isChecked():
             self.compose_subset = self.tilesheet_selector.grid_state()
+        else:
+            self.compose_subset = self.tileset_info.tilesheets
 
         self.progress_bars.subset = self.compose_subset
 
@@ -353,10 +352,6 @@ class MainWindow(QMainWindow):
         Called when composing has finished, whether successfully or aborted.
         Reset relevant widgets and variables to their initial state.
         """
-        # TODO: Different text if there were warnings and/or errors.
-        # TODO: Fix this for multithreading as signal is sent by each thread
-        #       when aborting while composing. Should ideally happen on last
-        #       thread.
         self.progress_bars.reset()
 
         self.message_box.show_suggestions()
