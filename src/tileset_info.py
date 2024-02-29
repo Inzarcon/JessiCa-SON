@@ -3,13 +3,19 @@ from pathlib import Path
 from compose import ComposingException, Tileset, read_properties
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QPixmap
-from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QLabel, QWidget
+from PySide6.QtWidgets import (
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QWidget,
+)
 
 from main import ICON_PATH
 
 
-class TilesetInfo(QWidget):
-    class ValidIcon(QWidget):
+class TilesetInfo(QFrame):
+    class FileStatusEntry(QWidget):
         def __init__(self, file_name: str = None, optional: bool = False):
             super().__init__()
 
@@ -17,6 +23,7 @@ class TilesetInfo(QWidget):
             self.setLayout(layout)
             layout.setContentsMargins(0, 0, 0, 0)
             layout.setAlignment(Qt.AlignmentFlag.AlignRight)
+            layout.setSpacing(0)
             if file_name:
                 font = QFont()
                 font.setPointSize(10)
@@ -40,6 +47,7 @@ class TilesetInfo(QWidget):
 
     def __init__(self):
         super().__init__()
+        self.setFrameStyle(QFrame.Box)
 
         font = QFont()
         font.setPointSize(10)
@@ -50,7 +58,7 @@ class TilesetInfo(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
 
-        self.layout.addWidget(QLabel("Tileset: ", font=font), 0, 0)
+        self.layout.addWidget(QLabel("Name: ", font=font), 0, 0)
         self.label_prop_name = QLabel(font=font)
         self.label_prop_name.setMinimumWidth(250)
         self.layout.addWidget(self.label_prop_name, 0, 1)
@@ -59,15 +67,15 @@ class TilesetInfo(QWidget):
         self.layout.addWidget(self.label_prop_view, 1, 1)
 
         self.layout.addWidget(QLabel("Required:", font=font), 0, 2)
-        self.valid_tileset = self.ValidIcon("tileset.txt")
+        self.valid_tileset = self.FileStatusEntry("tileset.txt")
         self.layout.addWidget(self.valid_tileset, 0, 3)
-        self.valid_tile_info = self.ValidIcon("tile_info.json")
+        self.valid_tile_info = self.FileStatusEntry("tile_info.json")
 
         self.layout.addWidget(QLabel("Optional:", font=font), 1, 2)
         self.layout.addWidget(self.valid_tile_info, 0, 4)
-        self.valid_layering = self.ValidIcon("layering.json", optional=True)
+        self.valid_layering = self.FileStatusEntry("layering.json", optional=True)
         self.layout.addWidget(self.valid_layering, 1, 3)
-        self.valid_fallback = self.ValidIcon("fallback.png", optional=True)
+        self.valid_fallback = self.FileStatusEntry("fallback.png", optional=True)
         self.layout.addWidget(self.valid_fallback, 1, 4)
 
     def read_tileset_info(self, src_dir: str, out_dir):
