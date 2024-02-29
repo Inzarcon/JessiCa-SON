@@ -6,10 +6,10 @@
 
 Currently implemented features:
 - For **Windows 10**+ required libraries preinstalled.
-- Save and switch between configuration profiles, e.g. one for each tileset. Set a profile to be loaded by default when starting the app.
-- Multithreaded tileset composing step.
+- Save and switch between configuration profiles (e.g. one for each tileset). Set a profile to be loaded by default when starting the app.
+- Multithreaded tilesheet composing step.
 - Color coded warning messages with additional notes about fixing specific tileset problems.
-- Compose only the tilesheets you are actually working on instead of the entire tileset.
+- Compose only the tilesheets you are actually modifying instead of the entire tileset every time.
 
 *Working title
 
