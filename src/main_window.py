@@ -185,14 +185,13 @@ class MainWindow(QMainWindow):
         self.layout_controls.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         layout = QVBoxLayout()
+        layout.addWidget(self.tileset_info, alignment=Qt.AlignmentFlag.AlignLeft)
         layout.addLayout(self.layout_input)
-        layout.addWidget(self.tileset_info)
         layout.addLayout(self.layout_controls)
         layout.addWidget(self.tilesheet_selector)
         layout.addWidget(self.message_box)
         layout.addWidget(self.cb_switch_log)
         layout.addLayout(self.layout_compose)
-        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         window = QWidget()
         window.setLayout(layout)
@@ -215,9 +214,7 @@ class MainWindow(QMainWindow):
         about_qt = QPushButton("About Qt")
         licenses = QPushButton("Licenses")
 
-        spacer.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
-        )
+        spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         about_qt.pressed.connect(lambda: QMessageBox().aboutQt(self))
         licenses.pressed.connect(self.show_licenses)
 
