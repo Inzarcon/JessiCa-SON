@@ -184,12 +184,7 @@ class MainWindow(QMainWindow):
 
         self.layout_controls.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        self.profile_manager = ProfileManager(CFG_PATH, self.control_widgets)
-        self.profile_manager.sig_loaded.connect(self.update_tileset_info)
-        self.update_tileset_info()  # Alternatively connection within init.
-
         layout = QVBoxLayout()
-        layout.addWidget(self.profile_manager)
         layout.addLayout(self.layout_input)
         layout.addWidget(self.tileset_info)
         layout.addLayout(self.layout_controls)
@@ -212,20 +207,26 @@ class MainWindow(QMainWindow):
         css = "QToolTip {background-color: white; color: black;}"
         self.setStyleSheet(css)
 
-        self.toolbar = QToolBar("Toolbar")
-        toolbar_spacer = QWidget()
-        toolbar_about_qt = QPushButton("About Qt")
-        toolbar_licenses = QPushButton("Licenses")
+        self.profile_manager = ProfileManager(CFG_PATH, self.control_widgets)
+        self.profile_manager.sig_loaded.connect(self.update_tileset_info)
+        self.update_tileset_info()  # Alternatively connection within init.
 
-        toolbar_spacer.setSizePolicy(
+        spacer = QWidget()
+        about_qt = QPushButton("About Qt")
+        licenses = QPushButton("Licenses")
+
+        spacer.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
-        toolbar_about_qt.pressed.connect(lambda: QMessageBox().aboutQt(self))
-        toolbar_licenses.pressed.connect(self.show_licenses)
+        about_qt.pressed.connect(lambda: QMessageBox().aboutQt(self))
+        licenses.pressed.connect(self.show_licenses)
 
-        self.toolbar.addWidget(toolbar_spacer)
-        self.toolbar.addWidget(toolbar_about_qt)
-        self.toolbar.addWidget(toolbar_licenses)
+        self.toolbar = QToolBar("Toolbar")
+        self.toolbar.setMovable(False)
+        self.toolbar.addWidget(self.profile_manager)
+        self.toolbar.addWidget(spacer)
+        self.toolbar.addWidget(about_qt)
+        self.toolbar.addWidget(licenses)
         self.addToolBar(self.toolbar)
 
     def show_licenses(self):
