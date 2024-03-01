@@ -30,7 +30,7 @@ Due to the custom CDDA JSON formatter being optional and its filesize, *JessiCa*
 
 ### Running with *Python* manually
 
-The general setup is similar to the one described in the [original TILESET.md](https://github.com/CleverRaven/Cataclysm-DDA/blob/master/doc/TILESET.md#pyvips)  from the *Cataclysm-DDA* repository, with additional packages such as the *PySide6 Python* bindings for *Qt 6.* In order to install *Python* itself, you can use the official installer from [python.org](https://www.python.org/downloads/). On *Windows*, make sure to **enable the installer's 'add Python to PATH'** and **install with Pip** options[^1]. Open a command prompt/terminal (*Windows*: Searchbar or `Win` + `R`. Then type "cmd" and hit `Enter`).
+The general setup is similar to the one described in the [original TILESET.md](https://github.com/CleverRaven/Cataclysm-DDA/blob/master/doc/TILESET.md#pyvips)  from the *Cataclysm-DDA* repository, with additional packages such as the *PySide6 Python* bindings for *Qt 6.* In order to install *Python* itself, you can use the official installer from [python.org](https://www.python.org/downloads/). *Python* version 3.11 is recommended; **version 3.12 is not compatible** with *PyQtDarkTheme*. On *Windows*, make sure to **enable the installer's 'add Python to PATH'** and **install with Pip** options[^1]. Open a command prompt/terminal (*Windows*: Searchbar or `Win` + `R`. Then type "cmd" and hit `Enter`).
 
 [^1]:This is fine for most users. If you need multiple non-conflicting *Python* installations, package managers like [*conda*](https://conda.io/projects/conda/en/latest/user-guide/getting-started.html) or the much faster [*mamba*](https://github.com/mamba-org/mamba) are recommended instead.
 
