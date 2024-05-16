@@ -202,7 +202,6 @@ class MainWindow(QMainWindow):
         # TODO: Fix to QThread
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(1)
-
         # TODO: Find out why background-color is working only in standalone
         #       version. Leave at white for now.
         css = "QToolTip {background-color: white; color: black;}"
@@ -210,7 +209,7 @@ class MainWindow(QMainWindow):
 
         self.profile_manager = ProfileManager(CFG_PATH, self.control_widgets)
         self.profile_manager.sig_loaded.connect(self.update_tileset_info)
-        self.update_tileset_info()  # Alternatively connection within init.
+        self.update_tileset_info()  # alternatively connection within init.
 
         spacer = QWidget()
         about_qt = QPushButton("About Qt")
