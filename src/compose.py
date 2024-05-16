@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Any, Optional, Tuple, Union
 
 from compose_logger import get_logger
+from main import ROOT_PATH
 from PySide6.QtCore import QObject, QRunnable, Signal, Slot
 
 log = get_logger(name="compose")
@@ -189,7 +190,7 @@ def write_to_json(
     if not format_json:
         return
 
-    json_formatter = Path("tools/json_formatter.exe")
+    json_formatter = ROOT_PATH.joinpath("tools/json_formatter.exe")
     if json_formatter.is_file():
         cmd = [json_formatter, pathname]
         subprocess.call(cmd)
