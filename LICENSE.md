@@ -92,7 +92,7 @@ https://wiki.qt.io/Qt_for_Python \
 Copyright (C) 2023 The Qt Company Ltd and other contributors. \
 Licensed under the **LGPL-3** license.
 
-(**Note:** *JessiCa: Serpents Obstruct None* does not use all of the following third-party software within Qt. Nevertheless, the Qt DLL binaries redistributed with the *JessiCa: Serpents Obstruct None* release version may contain their code. As such, they are also listed here. See https://doc.qt.io/qt-6/licenses-used-in-qt.html for further context.)
+(**Note:** *JessiCa: Serpents Obstruct None* does not use all of the following third-party software within Qt. Nevertheless, the Qt DLL binaries redistributed with the *JessiCa: Serpents Obstruct None* release version may contain their code. As such, they are also listed here. See https://doc.qt.io/archives/qt-6.6/licenses-used-in-qt.html for further context.)
 ## Qt Core Third-Party
 ### BLAKE2 (reference implementation), version 54f4faa4c16ea34bcd59d16e8da46a64b259fc07
 https://blake2.net/ \
