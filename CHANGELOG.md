@@ -1,4 +1,8 @@
 # Changelog
+## 0.1.3-dev (in progress)
+### Main
+- Fixed json_formatter.exe not being found in standalone version. [Reported by Discord user oogabooga] 
+
 ## 0.1.2
 ### Main
 - Fixed libvips wrongly loading modified sprites from cache.
