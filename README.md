@@ -30,13 +30,13 @@ Due to the custom CDDA JSON formatter being optional and its filesize, *JessiCa*
 
 ### Running with *Python* manually
 
-The general setup is similar to the one described in the [original TILESET.md](https://github.com/CleverRaven/Cataclysm-DDA/blob/master/doc/TILESET.md#pyvips)  from the *Cataclysm-DDA* repository, with additional packages such as the *PySide6 Python* bindings for *Qt 6.* In order to install *Python* itself, you can use the official installer from [python.org](https://www.python.org/downloads/). *Python* version 3.11 is recommended; **version 3.12 is not compatible** with *PyQtDarkTheme*. On *Windows*, make sure to **enable the installer's 'add Python to PATH'** and **install with Pip** options[^1]. Open a command prompt/terminal (*Windows*: Searchbar or `Win` + `R`. Then type "cmd" and hit `Enter`).
+The general setup is similar to the one described in the [original TILESET.md](https://github.com/CleverRaven/Cataclysm-DDA/blob/master/doc/TILESET.md#pyvips)  from the *Cataclysm-DDA* repository, with additional packages such as the *PySide6 Python* bindings for *Qt 6.* In order to install *Python* itself, you can use the official installer from [python.org](https://www.python.org/downloads/). *Python* version 3.11 is recommended; **version 3.12 is not compatible** with *PyQtDarkTheme*. On *Windows*, make sure to **enable the installer's 'add Python to PATH'** and **install with Pip** options[^1].
 
 [^1]:This is fine for most users. If you need multiple non-conflicting *Python* installations, package managers like [*conda*](https://conda.io/projects/conda/en/latest/user-guide/getting-started.html) or the much faster [*mamba*](https://github.com/mamba-org/mamba) are recommended instead.
 
 If you have not done so yet, download *libvips* from the [official releases](https://github.com/libvips/libvips/releases). The standalone *Windows* release of *JessiCa* is bundled with version [vips-dev-w64-web-8.15.1.zip](https://github.com/libvips/build-win64-mxe/releases/download/v8.15.1/vips-dev-w64-web-8.15.1.zip). On other platforms, you may need to choose a different release type. To install it, copy at least its `bin` folder  into `JessiCa-SON/libvips`. Alternatively, the regular method described in the [original TILESET.md](https://github.com/CleverRaven/Cataclysm-DDA/blob/master/doc/TILESET.md#pyvips) also still works.
 
-Afterwards, navigate to the directory where you cloned or downloaded the *JessiCa* source files. Type or copy/paste the following command into the console:
+Afterwards, open a command prompt/terminal (*Windows*: Searchbar or `Win` + `R`. Then type "cmd" and hit `Enter`). Navigate to the directory where you cloned or downloaded the *JessiCa* source files. Type or copy/paste the following command into the console:
 ```
 pip install -r requirements.txt
 ```
