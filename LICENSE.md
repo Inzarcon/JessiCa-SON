@@ -1,26 +1,26 @@
-*JessiCa: Serpents Obstruct None* is licensed under the **MIT License**. (See *License Texts* section further below.) \
+*JessiCa: Serpents Obstruct None* is licensed under the **MIT License**. (See *License Texts* section further below.)  \
 Copyright (c) 2024 Inzarcon
 
 **Some components or parts of them included with this project are released under different license terms and have their own license notices, listed further below.** Commonly shared or long license texts are found in the *License Texts* section of this document.  
 
-In the case of components licensed under the **LGPL** (most notably *Qt 6* and *libvips*), compliance also requires providing the corresponding source code. You are hereby given this written offer to receive said source code. Please create a corresponding issue at https://github.com/Inzarcon/JessiCa-SON/issues or direct your request to `inzarcon@eclipso.de`.\
+In the case of components licensed under the **LGPL** (most notably *Qt 6* and *libvips*), compliance also requires providing the corresponding source code. You are hereby given this written offer to receive said source code. Please create a corresponding issue at https://github.com/Inzarcon/JessiCa-SON/issues or direct your request to `inzarcon@eclipso.de`. \
 **Note:** The redistributed *libvips* files included with the *JessiCa:SON* standalone releases are identical to the ones from the official *libvips* *Windows* release version [vips-dev-w64-web-8.15.1.zip](https://github.com/libvips/build-win64-mxe/releases/download/v8.15.1/vips-dev-w64-web-8.15.1.zip). The included *Qt 6* binaries and *PySide6* package are identical to the ones provided by running `pip install PySide6==6.6.1` on 64-Bit *Windows 10* and *Python* version 3.11.7.
 
- **For the licenses of *libvips* and its subcomponents** (if included with this distribution), please refer to the `JessiCa-SON/libvips` folder which contains an unmodified copy of *libvips Windows* build version vips-dev-w64-web-8.15.1, including all of its license statements. For further information, see\
-https://github.com/libvips/libvips\
-https://github.com/libvips/build-win64-mxe/releases/tag/v8.15.1\
+ **For the licenses of *libvips* and its subcomponents** (if included with this distribution), please refer to the `JessiCa-SON/libvips` folder which contains an unmodified copy of *libvips Windows* build version vips-dev-w64-web-8.15.1, including all of its license statements. For further information, see \
+https://github.com/libvips/libvips \
+https://github.com/libvips/build-win64-mxe/releases/tag/v8.15.1 \
 https://github.com/libvips/build-win64-mxe/releases/download/v8.15.1/vips-dev-w64-web-8.15.1.zip
 
 **For the licenses of *Python* and its subcomponents** (if included with this distribution), please refer to `JessiCa-SON/python-3.11.7-embed-amd64/LICENSE.txt`.
 
  For software available under multiple licensing options, only the respective license selected for this project is referenced in this document.
 
-The table below summarizes the high-level third-party components and their licenses. With the exception of `compose.py`, all table entries are only redistributed with the *JessiCa: Serpents Obstruct None* standalone releases. For embedded Python packages in \
-`python-3.11.7-embed-amd64/Lib/site-packages/[package_name]`, \
- the licensing information is also found in the corresponding \
- `python-3.11.7-embed-amd64/Lib/site-packages/[package_name]-[version].dist-info` \
- directories. For readability, \
- `python-3.11.7-embed-amd64/Lib/site-packages/` \
+The table below summarizes the high-level third-party components and their licenses. With the exception of `compose.py`, all table entries are only redistributed with the *JessiCa: Serpents Obstruct None* standalone releases. For embedded Python packages in  \
+`python-3.11.7-embed-amd64/Lib/site-packages/[package_name]`,  \
+ the licensing information is also found in the corresponding  \
+ `python-3.11.7-embed-amd64/Lib/site-packages/[package_name]-[version].dist-info`  \
+ directories. For readability,  \
+ `python-3.11.7-embed-amd64/Lib/site-packages/`  \
  is abbreviated as `[...]/` in the table.
 
 | Component | Location in `JessiCa-SON/` | License | Notes |
@@ -40,369 +40,369 @@ The table below summarizes the high-level third-party components and their licen
 
 # Notice - General
 ## compose.py
-*Cataclysm: Dark Days Ahead*\
-(No explicit copyright notice and author(s) given. See https://github.com/cleverraven/cataclysm-dda/graphs/contributors)\
-File https://github.com/CleverRaven/Cataclysm-DDA/blob/6ce851fd71bf0fa456f62f3bf234fae98391bcd9/tools/gfx_tools/compose.py\
-Licensed under the **CC BY-SA 3.0 License**.\
+*Cataclysm: Dark Days Ahead* \
+(No explicit copyright notice and author(s) given. See https://github.com/cleverraven/cataclysm-dda/graphs/contributors) \
+File https://github.com/CleverRaven/Cataclysm-DDA/blob/6ce851fd71bf0fa456f62f3bf234fae98391bcd9/tools/gfx_tools/compose.py \
+Licensed under the **CC BY-SA 3.0 License**. \
 Original work was modified for *JessiCa: Serpents Obstruct None*.
 
 ## CFFI, version 1.16.0
-https://github.com/cffi/cffi\
-Copyright (C) 2005-2007, James Bielman  <jamesjb@jamesjb.com> \
+https://github.com/cffi/cffi \
+Copyright (C) 2005-2007, James Bielman  <jamesjb@jamesjb.com>  \
 Licensed under the **MIT License**.
 
 ## Colorama, version 0.4.6
-https://github.com/tartley/colorama\
-Copyright (c) 2010 Jonathan Hartley\
-All rights reserved.\
+https://github.com/tartley/colorama \
+Copyright (c) 2010 Jonathan Hartley \
+All rights reserved. \
 Licensed under the **BSD 3-clause License**.
 
 ## Darkdetect, version 0.7.1
-https://github.com/albertosottile/darkdetect\
-Copyright (c) 2019, Alberto Sottile\
-All rights reserved.\
+https://github.com/albertosottile/darkdetect \
+Copyright (c) 2019, Alberto Sottile \
+All rights reserved. \
 Licensed under the **BSD 3-clause License**.
 
 ## pycparser, version 2.21
-https://github.com/eliben/pycparser\
-Copyright (c) 2008-2020, Eli Bendersky\
-All rights reserved.\
+https://github.com/eliben/pycparser \
+Copyright (c) 2008-2020, Eli Bendersky \
+All rights reserved. \
 Licensed under the **BSD 3-clause License**.
 
 ## PyQtDarktheme, version 2.1.0
-https://github.com/5yutan5/PyQtDarkTheme\
-Copyright (c) 2021-2022 Yunosuke Ohsugi\
+https://github.com/5yutan5/PyQtDarkTheme \
+Copyright (c) 2021-2022 Yunosuke Ohsugi \
 Licensed under the **MIT License**.
 
 ## pyvips, version 2.2.2
-https://github.com/libvips/pyvips\
-Copyright (c) 2017 John Cupitt\
+https://github.com/libvips/pyvips \
+Copyright (c) 2017 John Cupitt \
 Licensed under the **MIT License**
 
 ## PythonEmbed4Windows
-Used to create and configure `python-3.11.7-embed-amd64` (if included with this distribution). `PythonEmbed4Win.ps1` itself is *not* redistributed.\
-https://github.com/jtmoon79/PythonEmbed4Win\
-Copyright (c) 2022 James Thomas Moon\
+Used to create and configure `python-3.11.7-embed-amd64` (if included with this distribution). `PythonEmbed4Win.ps1` itself is *not* redistributed. \
+https://github.com/jtmoon79/PythonEmbed4Win \
+Copyright (c) 2022 James Thomas Moon \
 Licensed under the **MIT License**.
 
 # Notice - Qt and its Third-Party Modules
 ## Qt 6.6.1, PySide6, Shiboken6
-https://www.qt.io/\
-https://wiki.qt.io/Qt_for_Python\
-Copyright (C) 2023 The Qt Company Ltd and other contributors.\
+https://www.qt.io/ \
+https://wiki.qt.io/Qt_for_Python \
+Copyright (C) 2023 The Qt Company Ltd and other contributors. \
 Licensed under the **LGPL-3** license.
 
 (**Note:** *JessiCa: Serpents Obstruct None* does not use all of the following third-party software within Qt. Nevertheless, the Qt DLL binaries redistributed with the *JessiCa: Serpents Obstruct None* release version may contain their code. As such, they are also listed here. See https://doc.qt.io/qt-6/licenses-used-in-qt.html for further context.)
 ## Qt Core Third-Party
 ### BLAKE2 (reference implementation), version 54f4faa4c16ea34bcd59d16e8da46a64b259fc07
-https://blake2.net/\
-Copyright 2012, Samuel Neves <sneves@dei.uc.pt>\
+https://blake2.net/ \
+Copyright 2012, Samuel Neves <sneves@dei.uc.pt> \
 Licensed under the **Creative Commons Zero v1.0 Universal License**
 
 ### Data Compression Library (zlib), version 1.3
-https://zlib.net/\
-(C) 1995-2023 Jean-loup Gailly and Mark Adler\
+https://zlib.net/ \
+(C) 1995-2023 Jean-loup Gailly and Mark Adler \
 Licensed under the **zlib License**.
 
 ### Easing Equations by Robert Penner
-http://robertpenner.com/easing/\
-Copyright (c) 2001 Robert Penner\
+http://robertpenner.com/easing/ \
+Copyright (c) 2001 Robert Penner \
 Licensed under the **BSD 3-clause License**.
 
 ### Efficient Binary-Decimal and Decimal-Binary Conversion Routines for IEEE Doubles, version 3.3.0
-https://github.com/google/double-conversion\
-Copyright 2006-2012, the V8 project authors\
+https://github.com/google/double-conversion \
+Copyright 2006-2012, the V8 project authors \
 Licensed under the **BSD 3-clause License**.
 
 ### KWin, version 5.13.4
-https://www.kde.org/\
-Copyright 2014 Alex Merry <alex.merry@kde.org>\
-Copyright 2014 Martin Gräßlin <mgraesslin@kde.org>,\
-Copyright (c) 2006,2007 Laurent Montel, <montel@kde.org>\
+https://www.kde.org/ \
+Copyright 2014 Alex Merry <alex.merry@kde.org> \
+Copyright 2014 Martin Gräßlin <mgraesslin@kde.org>, \
+Copyright (c) 2006,2007 Laurent Montel, <montel@kde.org> \
 Licensed under the **BSD 3-clause License**.
 
 ### MD4
-Written by Alexander Peslyak - better known as Solar Designer <solar@openwall.com> - in 2001, and placed in the public domain. There's absolutely no warranty.\
+Written by Alexander Peslyak - better known as Solar Designer <solar@openwall.com> - in 2001, and placed in the public domain. There's absolutely no warranty. \
 **Public Domain**.
 
 ### MD5
-Written by Colin Plumb in 1993, no copyright is claimed. Ian Jackson <ian@chiark.greenend.org.uk>.\
+Written by Colin Plumb in 1993, no copyright is claimed. Ian Jackson <ian@chiark.greenend.org.uk>. \
 **Public Domain**.
 
 ### PCRE2 - Stack-less Just-In-Time Compiler, version 10.42
-http://www.pcre.org/\
-Copyright (c) 2009-2022 Zoltan Herczeg\
+http://www.pcre.org/ \
+Copyright (c) 2009-2022 Zoltan Herczeg \
 Licensed under the **BSD 2-clause License**.
 
 ### PCRE2, version 10.42
-http://www.pcre.org/\
-Copyright (c) 1997-2022 University of Cambridge\
-Copyright (c) 2010-2022 Zoltan Herczeg\
+http://www.pcre.org/ \
+Copyright (c) 1997-2022 University of Cambridge \
+Copyright (c) 2010-2022 Zoltan Herczeg \
 Licensed under **BSD 3-clause with PCRE2 binary-like Packages Exception License**.
 
 ### QEventDispatcher on macOS
-Copyright (c) 2007-2008, Apple, Inc.\
+Copyright (c) 2007-2008, Apple, Inc. \
 Licensed under the **BSD 3-clause License**.
 
 ### Secure Hash Algorithm SHA-1
-http://www.dominik-reichl.de/projects/csha1/\
-Copyright (C) Dominik Reichl <dominik.reichl@t-online.de>\
-Copyright (C) 2016 The Qt Company Ltd\
+http://www.dominik-reichl.de/projects/csha1/ \
+Copyright (C) Dominik Reichl <dominik.reichl@t-online.de> \
+Copyright (C) 2016 The Qt Company Ltd \
 **Public Domain**.
 
 ### Secure Hash Algorithm SHA-3 - Keccak, version 3.2
-Guido Bertoni, Joan Daemen, Michaël Peeters and Gilles Van Assche.\
-To the extent possible under law, the implementers have waived all copyright\
-and related or neighboring rights to the source code in this file.\
+Guido Bertoni, Joan Daemen, Michaël Peeters and Gilles Van Assche. \
+To the extent possible under law, the implementers have waived all copyright \
+and related or neighboring rights to the source code in this file. \
 Licensed under the **Creative Commons Zero v1.0 Universal License**.
 
 ### Secure Hash Algorithm SHA-3 - brg_endian, version 4b9e13ead2c5b5e41ca27c65de4dd69ae0bac228
-https://github.com/BrianGladman/sha/commit/4b9e13ead2c5b5e41ca27c65de4dd69ae0bac228\
-Copyright (c) 1998-2013, Brian Gladman, Worcester, UK. All rights reserved.\
+https://github.com/BrianGladman/sha/commit/4b9e13ead2c5b5e41ca27c65de4dd69ae0bac228 \
+Copyright (c) 1998-2013, Brian Gladman, Worcester, UK. All rights reserved. \
 Licensed under the **BSD 2-clause License**.
 
 ### Secure Hash Algorithms SHA-384 and SHA-512
-Copyright (c) 2011 IETF Trust and the persons identified as authors of the code.\
+Copyright (c) 2011 IETF Trust and the persons identified as authors of the code. \
 Licensed under the **BSD 3-clause License**.
 
 ### SipHash Algorithm
-https://131002.net/siphash/\
-(C) 2012-2014 Jean-Philippe Aumasson, (C) 2012-2014 Daniel J. Bernstein <djb@cr.yp.to>\
+https://131002.net/siphash/ \
+(C) 2012-2014 Jean-Philippe Aumasson, (C) 2012-2014 Daniel J. Bernstein <djb@cr.yp.to> \
 Licensed under the **Creative Commons Zero v1.0 Universal License**.
 
 ### TinyCBOR, version 0.6.0
-https://github.com/intel/tinycbor\
-Copyright (C) 2015-2021 Intel Corporation\
+https://github.com/intel/tinycbor \
+Copyright (C) 2015-2021 Intel Corporation \
 Licensed under the **MIT License**.
 
 ### Unicode Character Database (UCD), version 30
-https://www.unicode.org/ucd/\
-Copyright (C) 1991-2022 Unicode, Inc.\
+https://www.unicode.org/ucd/ \
+Copyright (C) 1991-2022 Unicode, Inc. \
 Licensed under the **Unicode License Agreement - Data Files and Software (2016)**.
 
 ### Unicode Common Locale Data Repository (CLDR), version v43
-https://cldr.unicode.org/\
-Copyright (C) 1991-2022 Unicode, Inc.\
+https://cldr.unicode.org/ \
+Copyright (C) 1991-2022 Unicode, Inc. \
 Licensed under the **Unicode License Agreement - Data Files and Software (2016)**.
 
 ### extra-cmake-modules, version 5.84.0
-https://api.kde.org/ecm/\
-Copyright © 2011-2018 The KDE community\
+https://api.kde.org/ecm/ \
+Copyright © 2011-2018 The KDE community \
 Licensed under the **BSD 3-clause License**.
 
 ### forkfd
-Copyright (C) 2016 Intel Corporation\
-Copyright (C) 2015 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com\
+Copyright (C) 2016 Intel Corporation \
+Copyright (C) 2015 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com \
 Licensed under the **MIT License**.
 
 ## Qt GUI Third-Party
 ### Adobe Glyph List For New Fonts, version 1.7
-https://github.com/adobe-type-tools/agl-aglfn\
-Copyright 2002, 2003, 2005, 2006, 2008, 2010, 2015 Adobe Systems\
+https://github.com/adobe-type-tools/agl-aglfn \
+Copyright 2002, 2003, 2005, 2006, 2008, 2010, 2015 Adobe Systems \
 Licensed under the **BSD 3-clause License**.
 
 ### Anti-aliasing rasterizer from FreeType 2
-http://www.freetype.org/\
-Copyright 2000-2016 by David Turner, Robert Wilhelm, and Werner Lemberg.\
+http://www.freetype.org/ \
+Copyright 2000-2016 by David Turner, Robert Wilhelm, and Werner Lemberg. \
 Licensed under the **Freetype Project License**.
 
 ### Bitstream Vera Font, version 1.10
-Copyright (C) 2003 Bitstream,Inc\
+Copyright (C) 2003 Bitstream,Inc \
 Licensed under the **Bitstream Vera Font License**.
 
 ### Cocoa Platform Plugin
-Copyright (c) 2007-2008, Apple, Inc.\
+Copyright (c) 2007-2008, Apple, Inc. \
 Licensed under the **BSD 3-clause License**.
 
 ### D3D12 Memory Allocator, version f128d39b7a95b4235bd228d231646278dc6c24b2
-https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator\
-Copyright (c) 2019-2022 Advanced Micro Devices, Inc. All rights reserved.\
+https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator \
+Copyright (c) 2019-2022 Advanced Micro Devices, Inc. All rights reserved. \
 Licensed under the **MIT License**.
 
 ### DejaVu Fonts, version 2.37
-https://dejavu-fonts.github.io/\
-Copyright (c) 2003 by Bitstream, Inc\
-Copyright (c) 2006 by Tavmjong Bah\
-(c) American Mathematical Society\
+https://dejavu-fonts.github.io/ \
+Copyright (c) 2003 by Bitstream, Inc \
+Copyright (c) 2006 by Tavmjong Bah \
+(c) American Mathematical Society \
 Licensed under the **Bitstream Vera Font License**.
 
 ### Freetype 2 - Bitmap Distribution Format (BDF) support
-http://www.freetype.org/\
-Copyright (c) 2000 Computing Research Labs, New Mexico State University\
-Copyright (c) 2001-2014 Francesco Zappa Nardelli\
+http://www.freetype.org/ \
+Copyright (c) 2000 Computing Research Labs, New Mexico State University \
+Copyright (c) 2001-2014 Francesco Zappa Nardelli \
 Licensed under the **MIT License**.
 
 ### Freetype 2 - Portable Compiled Format (PCF) support
-http://www.freetype.org/\
-Copyright (c) 2001, 2012 David Turner, Robert Wilhelm, and Werner Lemberg\
-Copyright (c) 2000-2014 Francesco Zappa Nardelli\
-Copyright (c) 1990, 1994, 1998 The Open Group\
+http://www.freetype.org/ \
+Copyright (c) 2001, 2012 David Turner, Robert Wilhelm, and Werner Lemberg \
+Copyright (c) 2000-2014 Francesco Zappa Nardelli \
+Copyright (c) 1990, 1994, 1998 The Open Group \
 Licensed under the **MIT License** and the **MIT Open Group Variant License**.
 
 ### Freetype 2 - zlib
-http://www.freetype.org/\
-Copyright (C) 1995-2022 Jean-loup Gailly and Mark Adler\
+http://www.freetype.org/ \
+Copyright (C) 1995-2022 Jean-loup Gailly and Mark Adler \
 Licensed under the **zlib License**.
 
 ### Freetype 2, version 2.13.2
-http://www.freetype.org/\
-Copyright (c) 2007-2014 Adobe Systems Incorporated\
-Copyright (c) 2004-2023 Albert Chin-A-Young\
-Copyright (c) 2018-2023 Armin Hasitzka, David Turner, Robert Wilhelm, and Werner Lemberg\
-Copyright (c) 2000 Computing Research Labs, New Mexico State University\
-Copyright (c) 1996-2023 David Turner, Robert Wilhelm, Dominik Röttsches, and Werner Lemberg\
-Copyright (c) 2004-2023 David Turner, Robert Wilhelm, Werner Lemberg and George Williams\
-Copyright (c) 2022-2023 David Turner, Robert Wilhelm, Werner Lemberg, and Moazin Khatti\
-Copyright (c) 2008-2023 David Turner, Robert Wilhelm, Werner Lemberg, and suzuki toshiya\
-Copyright (c) 2003-2023 David Turner, Robert Wilhelm, and Werner Lemberg\
-Copyright (c) 2005-2023 David Turner\
-Copyright (c) 2007-2023 Derek Clegg and Michael Toftdal\
-Copyright (c) 2007 Dmitry Timoshkov for Codeweavers\
-Copyright (c) 2001-2015 Francesco Zappa Nardelli\
-Copyright (c) 2005, 2007, 2008, 2013 George Williams\
-Copyright (c) 2013-2023 Google, Inc. Google Author(s) Behdad Esfahbod and Stuart Gill\
-Copyright (c) 2013-2022 Google, Inc.\
-Copyright (c) 2003 Huw D M Davies for Codeweavers\
-Copyright (c) 2010-2023 Joel Klinghed\
-Copyright (c) 1996-2023 Just van Rossum, David Turner, Robert Wilhelm, and Werner Lemberg\
-Copyright (c) 2003-2023 Masatake YAMATO and Redhat K.K.\
-Copyright (c) 2004-2023 Masatake YAMATO, Redhat K.K, David Turner, Robert Wilhelm, and Werner Lemberg\
-Copyright (c) 2019-2023 Nikhil Ramakrishnan, David Turner, Robert Wilhelm, and Werner Lemberg\
-Copyright (c) 2009-2023 Oran Agra and Mickey Gabel\
-Copyright (c) 2007-2023 Rahul Bhalerao <rahul.bhalerao@redhat.com>\
-Copyright (c) 2002-2023 Roberto Alameda\
-Copyright (c) 2015-2022 Werner Lemberg\
-Copyright (c) 2004-2023 suzuki toshiya, Masatake YAMATO, Red Hat K.K., David Turner, Robert Wilhelm, and Werner Lemberg\
-Copyright (c) 2019 nyorain\
-Copyright (c) 2022-2023 David Turner, Robert Wilhelm, Werner Lemberg, George Williams, and Dominik Röttsches\
+http://www.freetype.org/ \
+Copyright (c) 2007-2014 Adobe Systems Incorporated \
+Copyright (c) 2004-2023 Albert Chin-A-Young \
+Copyright (c) 2018-2023 Armin Hasitzka, David Turner, Robert Wilhelm, and Werner Lemberg \
+Copyright (c) 2000 Computing Research Labs, New Mexico State University \
+Copyright (c) 1996-2023 David Turner, Robert Wilhelm, Dominik Röttsches, and Werner Lemberg \
+Copyright (c) 2004-2023 David Turner, Robert Wilhelm, Werner Lemberg and George Williams \
+Copyright (c) 2022-2023 David Turner, Robert Wilhelm, Werner Lemberg, and Moazin Khatti \
+Copyright (c) 2008-2023 David Turner, Robert Wilhelm, Werner Lemberg, and suzuki toshiya \
+Copyright (c) 2003-2023 David Turner, Robert Wilhelm, and Werner Lemberg \
+Copyright (c) 2005-2023 David Turner \
+Copyright (c) 2007-2023 Derek Clegg and Michael Toftdal \
+Copyright (c) 2007 Dmitry Timoshkov for Codeweavers \
+Copyright (c) 2001-2015 Francesco Zappa Nardelli \
+Copyright (c) 2005, 2007, 2008, 2013 George Williams \
+Copyright (c) 2013-2023 Google, Inc. Google Author(s) Behdad Esfahbod and Stuart Gill \
+Copyright (c) 2013-2022 Google, Inc. \
+Copyright (c) 2003 Huw D M Davies for Codeweavers \
+Copyright (c) 2010-2023 Joel Klinghed \
+Copyright (c) 1996-2023 Just van Rossum, David Turner, Robert Wilhelm, and Werner Lemberg \
+Copyright (c) 2003-2023 Masatake YAMATO and Redhat K.K. \
+Copyright (c) 2004-2023 Masatake YAMATO, Redhat K.K, David Turner, Robert Wilhelm, and Werner Lemberg \
+Copyright (c) 2019-2023 Nikhil Ramakrishnan, David Turner, Robert Wilhelm, and Werner Lemberg \
+Copyright (c) 2009-2023 Oran Agra and Mickey Gabel \
+Copyright (c) 2007-2023 Rahul Bhalerao <rahul.bhalerao@redhat.com> \
+Copyright (c) 2002-2023 Roberto Alameda \
+Copyright (c) 2015-2022 Werner Lemberg \
+Copyright (c) 2004-2023 suzuki toshiya, Masatake YAMATO, Red Hat K.K., David Turner, Robert Wilhelm, and Werner Lemberg \
+Copyright (c) 2019 nyorain \
+Copyright (c) 2022-2023 David Turner, Robert Wilhelm, Werner Lemberg, George Williams, and Dominik Röttsches \
 Copyright (C) 2009, 2023  Red Hat, Inc.
 
 Licensed under the **Freetype Project License**.
 
 ### HarfBuzz-NG, version 8.3.0
-http://harfbuzz.org/\
-Copyright © 2010-2022  Google, Inc.\
-Copyright © 2015-2020  Ebrahim Byagowi\
-Copyright © 2019,2020  Facebook, Inc.\
-Copyright © 2012,2015  Mozilla Foundation\
-Copyright © 2011  Codethink Limited\
-Copyright © 2008,2010  Nokia Corporation and/or its subsidiary(-ies)\
-Copyright © 2009  Keith Stribley\
-Copyright © 2011  Martin Hosken and SIL International\
-Copyright © 2007  Chris Wilson\
-Copyright © 2005,2006,2020,2021,2022,2023  Behdad Esfahbod\
-Copyright © 2004,2007,2008,2009,2010,2013,2021,2022,2023  Red Hat, Inc.\
-Copyright © 1998-2005  David Turner and Werner Lemberg\
-Copyright © 2016  Igalia S.L.\
-Copyright © 2022  Matthias Clasen\
-Copyright © 2018,2021  Khaled Hosny\
-Copyright © 2018,2019,2020  Adobe, Inc\
+http://harfbuzz.org/ \
+Copyright © 2010-2022  Google, Inc. \
+Copyright © 2015-2020  Ebrahim Byagowi \
+Copyright © 2019,2020  Facebook, Inc. \
+Copyright © 2012,2015  Mozilla Foundation \
+Copyright © 2011  Codethink Limited \
+Copyright © 2008,2010  Nokia Corporation and/or its subsidiary(-ies) \
+Copyright © 2009  Keith Stribley \
+Copyright © 2011  Martin Hosken and SIL International \
+Copyright © 2007  Chris Wilson \
+Copyright © 2005,2006,2020,2021,2022,2023  Behdad Esfahbod \
+Copyright © 2004,2007,2008,2009,2010,2013,2021,2022,2023  Red Hat, Inc. \
+Copyright © 1998-2005  David Turner and Werner Lemberg \
+Copyright © 2016  Igalia S.L. \
+Copyright © 2022  Matthias Clasen \
+Copyright © 2018,2021  Khaled Hosny \
+Copyright © 2018,2019,2020  Adobe, Inc \
 Copyright © 2013-2015  Alexei Podtelezhnikov
 
 Licensed under the **MIT License**.
 
 ### IAccessible2 IDL Specification, version 1.3.0
-https://wiki.linuxfoundation.org/accessibility/iaccessible2/\
-Copyright (c) 2000, 2006 Sun Microsystems, Inc.\
-Copyright (c) 2006 IBM Corporation\
-Copyright (c) 2007, 2010, 2012, 2013 Linux Foundation\
+https://wiki.linuxfoundation.org/accessibility/iaccessible2/ \
+Copyright (c) 2000, 2006 Sun Microsystems, Inc. \
+Copyright (c) 2006 IBM Corporation \
+Copyright (c) 2007, 2010, 2012, 2013 Linux Foundation \
 IAccessible2 is a trademark of the Linux Foundation. The IAccessible2 mark may be used in accordance with the Linux Foundation Trademark Policy to indicate compliance with the IAccessible2 specification.
 
 Licensed under the **BSD 3-clause License**.
 
 ### LibJPEG-turbo, version 3.0.1
-http://libjpeg-turbo.virtualgl.org/\
-Copyright (C) 2009-2023 D. R. Commander\
-Copyright (C) 2015, 2020 Google, Inc.\
-Copyright (C) 2019-2020 Arm Limited\
-Copyright (C) 2015-2016, 2018 Matthieu Darbois\
-Copyright (C) 2011-2016 Siarhei Siamashka\
-Copyright (C) 2015 Intel Corporation\
-Copyright (C) 2013-2014 Linaro Limited\
-Copyright (C) 2013-2014 MIPS Technologies, Inc.\
-Copyright (C) 2009, 2012 Pierre Ossman for Cendio AB\
-Copyright (C) 2009-2011 Nokia Corporation and/or its subsidiary(-ies)\
-Copyright (C) 1999-2006 MIYASAKA Masaru\
-Copyright (C) 1999 Ken Murchison\
+http://libjpeg-turbo.virtualgl.org/ \
+Copyright (C) 2009-2023 D. R. Commander \
+Copyright (C) 2015, 2020 Google, Inc. \
+Copyright (C) 2019-2020 Arm Limited \
+Copyright (C) 2015-2016, 2018 Matthieu Darbois \
+Copyright (C) 2011-2016 Siarhei Siamashka \
+Copyright (C) 2015 Intel Corporation \
+Copyright (C) 2013-2014 Linaro Limited \
+Copyright (C) 2013-2014 MIPS Technologies, Inc. \
+Copyright (C) 2009, 2012 Pierre Ossman for Cendio AB \
+Copyright (C) 2009-2011 Nokia Corporation and/or its subsidiary(-ies) \
+Copyright (C) 1999-2006 MIYASAKA Masaru \
+Copyright (C) 1999 Ken Murchison \
 Copyright (C) 1991-2020 Thomas G. Lane, Guido Vollbeding
 
 Licensed under the **Independent JPEG Group License** and the **BSD 3-clause License** and the **zlib License**.
 
 ### LibPNG, version 1.6.40
-http://www.libpng.org/pub/png/libpng.html\
-Copyright (c) 1995-2023 The PNG Reference Library Authors\
-Copyright (c) 2000-2023 Cosmin Truta\
-Copyright (c) 1998-2018 Glenn Randers-Pehrson\
-Copyright (c) 1996-1997 Andreas Dilger\
-Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.\
-Copyright (c) 2000-2017 Simon-Pierre Cadieux\
-Copyright (c) 2000-2017 Eric S. Raymond\
-Copyright (c) 2000-2017 Mans Rullgard\
-Copyright (c) 2000-2017 Gilles Vollant\
-Copyright (c) 2000-2017 James Yu\
-Copyright (c) 2000-2017 Mandar Sahastrabuddhe\
-Copyright (c) 1998-2000 Tom Lane\
-Copyright (c) 1998-2000 Willem van Schaik\
-Copyright (c) 1996-1997 John Bowler\
-Copyright (c) 1996-1997 Kevin Bracey\
-Copyright (c) 1996-1997 Sam Bushell\
-Copyright (c) 1996-1997 Magnus Holmgren\
-Copyright (c) 1996-1997 Greg Roelofs\
-Copyright (c) 1996-1997 Tom Tanner\
-Copyright (c) 1995-1996 Dave Martindale\
-Copyright (c) 1995-1996 Paul Schmidt\
+http://www.libpng.org/pub/png/libpng.html \
+Copyright (c) 1995-2023 The PNG Reference Library Authors \
+Copyright (c) 2000-2023 Cosmin Truta \
+Copyright (c) 1998-2018 Glenn Randers-Pehrson \
+Copyright (c) 1996-1997 Andreas Dilger \
+Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc. \
+Copyright (c) 2000-2017 Simon-Pierre Cadieux \
+Copyright (c) 2000-2017 Eric S. Raymond \
+Copyright (c) 2000-2017 Mans Rullgard \
+Copyright (c) 2000-2017 Gilles Vollant \
+Copyright (c) 2000-2017 James Yu \
+Copyright (c) 2000-2017 Mandar Sahastrabuddhe \
+Copyright (c) 1998-2000 Tom Lane \
+Copyright (c) 1998-2000 Willem van Schaik \
+Copyright (c) 1996-1997 John Bowler \
+Copyright (c) 1996-1997 Kevin Bracey \
+Copyright (c) 1996-1997 Sam Bushell \
+Copyright (c) 1996-1997 Magnus Holmgren \
+Copyright (c) 1996-1997 Greg Roelofs \
+Copyright (c) 1996-1997 Tom Tanner \
+Copyright (c) 1995-1996 Dave Martindale \
+Copyright (c) 1995-1996 Paul Schmidt \
 Copyright (c) 1995-1996 Tim Wegner
 
 Licensed under the **libpng License** and the **PNG Reference Library License version 2**.
 
 ### MD4C, version 0.4.8
-https://github.com/mity/md4c\
-Copyright © 2016-2020 Martin Mitáš\
+https://github.com/mity/md4c \
+Copyright © 2016-2020 Martin Mitáš \
 Licensed under the **MIT License**.
 
 ### Mipmap generator for D3D12, version 0aa79bad78992da0b6a8279ddb9002c1753cb849
-https://github.com/microsoft/DirectX-Graphics-Samples\
-Copyright (c) 2015 Microsoft\
+https://github.com/microsoft/DirectX-Graphics-Samples \
+Copyright (c) 2015 Microsoft \
 Licensed under the **MIT License**.
 
 ### Native Style for Android
-Copyright (C) 2005 The Android Open Source Project\
+Copyright (C) 2005 The Android Open Source Project \
 Licensed under the **Apache License 2.0**.
 
 ### OpenGL ES 2 Headers, Revisions 27673 and 27684
-https://www.khronos.org/\
-Copyright (c) 2013-2014 The Khronos Group Inc.\
+https://www.khronos.org/ \
+Copyright (c) 2013-2014 The Khronos Group Inc. \
 Licensed under the **MIT License**.
 
 ### Pixman, version 0.17.12
-http://www.pixman.org/\
-Copyright © 2009 Nokia Corporation\
+http://www.pixman.org/ \
+Copyright © 2009 Nokia Corporation \
 Licensed under the **MIT License**.
 
 ### Smooth Scaling Algorithm
-Copyright (C) 2004, 2005 Daniel M. Duley.\
-(C) Carsten Haitzler and various contributors.\
-(C) Willem Monsuwe <willem@stack.nl>\
-qimagetransform.cpp was contributed by Daniel M. Duley based on code from Imlib2.\
+Copyright (C) 2004, 2005 Daniel M. Duley. \
+(C) Carsten Haitzler and various contributors. \
+(C) Willem Monsuwe <willem@stack.nl> \
+qimagetransform.cpp was contributed by Daniel M. Duley based on code from Imlib2. \
 Licensed under the **BSD 2-clause License** and the **Imlib2 License**.
 
 ### Vulkan API Registry, version 1.3.223
-https://www.khronos.org/\
-Copyright (c) 2015-2022 The Khronos Group Inc.\
+https://www.khronos.org/ \
+Copyright (c) 2015-2022 The Khronos Group Inc. \
 Licensed under the **MIT License**.
 
 ### Vulkan Memory Allocator, version 3.0.1
-https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator\
-Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.\
+https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator \
+Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved. \
 Licensed under the **MIT License**.
 
 ### WebGradients
-https://webgradients.com/\
-Copyright (c) 2017 itmeo\
+https://webgradients.com/ \
+Copyright (c) 2017 itmeo \
 Licensed under the **MIT License**.
 
 ### Wintab API
-Copyright 1991-1998 by LCS/Telegraphics.\
+Copyright 1991-1998 by LCS/Telegraphics. \
 Licensed under the **LCS-Telegraphics License**. The license text is as follows:
 ```
 The text and information contained in this file may be freely used,
@@ -410,21 +410,21 @@ copied, or distributed without compensation or licensing restrictions.
 ```
 
 ### X Server helper
-https://www.x.org/\
-Copyright (c) 1987, 1988 X Consortium\
-Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts.\
+https://www.x.org/ \
+Copyright (c) 1987, 1988 X Consortium \
+Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts. \
 Licensed under the **X11 License and Historical Permission Notice and Disclaimer**.
 
 ### XCB-XInput
 https://xcb.freedesktop.org/
-Copyright (C) 2001-2006 Bart Massey, Jamey Sharp, and Josh Triplett.\
-Copyright (C) 2006 Peter Hutterer\
-Copyright (C) 2013 Daniel Martin\
+Copyright (C) 2001-2006 Bart Massey, Jamey Sharp, and Josh Triplett. \
+Copyright (C) 2006 Peter Hutterer \
+Copyright (C) 2013 Daniel Martin \
 Licensed under the **MIT License**.
 
 ### sRGB color profile icc file
-http://www.color.org/\
-Copyright International Color Consortium, 2015\
+http://www.color.org/ \
+Copyright International Color Consortium, 2015 \
 Licensed under the **International Color Consortium License**. The license text is as follows:
 ```
 Copyright International Color Consortium, 2015
@@ -439,7 +439,7 @@ shall not be misrepresented as the original profile.
 
 ## Qt SVG Third-Party
 ### XSVG
-Copyright 2002 USC/Information Sciences Institute\
+Copyright 2002 USC/Information Sciences Institute \
 Licensed under the **Historical Permission Notice and Disclaimer - sell variant**. The license text is as follows:
 ```
 Copyright  2002 USC/Information Sciences Institute
