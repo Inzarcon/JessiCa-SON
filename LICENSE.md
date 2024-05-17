@@ -74,6 +74,9 @@ https://github.com/5yutan5/PyQtDarkTheme \
 Copyright (c) 2021-2022 Yunosuke Ohsugi \
 Licensed under the **MIT License**.
 
+Additional note by the author:
+"The svg files for the PyQtDarkTheme are derived Material design icons(Apache License Version 2.0). Qt stylesheets are originally fork of QDarkStyleSheet(MIT License). Other files are covered by PyQtDarkTheme's MIT license. The accent detector(qdarktheme/_os_appearance/_accent/_mac_detect) is inspired by darkdetect(3-clause BSD License)."
+
 ## pyvips, version 2.2.2
 https://github.com/libvips/pyvips \
 Copyright (c) 2017 John Cupitt \
