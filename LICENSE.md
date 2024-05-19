@@ -15,7 +15,9 @@ https://github.com/libvips/build-win64-mxe/releases/download/v8.15.1/vips-dev-w6
 
  For software available under multiple licensing options, only the respective license selected for this project is referenced in this document.
 
-The table below summarizes the high-level third-party components and their licenses. With the exception of `compose.py`, all table entries are only redistributed with the *JessiCa: Serpents Obstruct None* standalone releases. For embedded Python packages in  \
+ For the licenses of **Third-Party Resources** such as icons and sound files within the `resources/` directory (if included with this distribution), please refer to the `CREDITS.md` file(s) in the respective subdirectories. (Resource files without explicit credit statements are original work for *JessiCa: Serpents Obstruct None* and fall under its **MIT License**.)
+
+The table below summarizes the high-level third-party software components and their licenses. With the exception of `compose.py` and files in `src/thirdparty/`, all table entries are only redistributed with the *JessiCa: Serpents Obstruct None* standalone releases. For embedded Python packages in  \
 `python-3.11.7-embed-amd64/Lib/site-packages/[package_name]`,  \
  the licensing information is also found in the corresponding  \
  `python-3.11.7-embed-amd64/Lib/site-packages/[package_name]-[version].dist-info`  \
@@ -26,6 +28,7 @@ The table below summarizes the high-level third-party components and their licen
 | Component | Location in `JessiCa-SON/` | License | Notes |
 |---|---|---|---|
 | **compose.py** | `src/` | **CC BY-SA 3.0** | Modified
+| **playsound.py** | `src/thirdparty/` | **MIT** |
 | **Python (Windows)** | `python-3.11.7-embed-amd64/` | **PSF-2.0** |
 | **PythonEmbed4Win** | `python-3.11.7-embed-amd64` | **MIT** | Only output included
 | **libvips** | `libvips/` | **LGPL-2.1** | 
@@ -45,6 +48,12 @@ The table below summarizes the high-level third-party components and their licen
 File https://github.com/CleverRaven/Cataclysm-DDA/blob/6ce851fd71bf0fa456f62f3bf234fae98391bcd9/tools/gfx_tools/compose.py \
 Licensed under the **CC BY-SA 3.0 License**. \
 Original work was modified for *JessiCa: Serpents Obstruct None*.
+
+## playsound.py
+https://github.com/TaylorSMarks/playsound \
+File https://github.com/TaylorSMarks/playsound/commit/9cf4af20caa5ae8586f88b65659681b24f0c4e69 \
+Copyright (c) 2021 Taylor Marks <taylor@marksfam.com> \
+Licensed under the **MIT License**.
 
 ## CFFI, version 1.16.0
 https://github.com/cffi/cffi \

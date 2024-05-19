@@ -10,7 +10,7 @@ from compose_logger import get_logger
 from compose_message_box import ComposeMessageBox
 from compose_progress_bars import ComposeProgressBars
 from profile_manager import ProfileManager
-from PySide6.QtCore import QSize, Qt, QThreadPool, QUrl
+from PySide6.QtCore import QSize, Qt, QThread, QThreadPool, QUrl
 from PySide6.QtGui import QFont, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
@@ -31,10 +31,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from qdarktheme import setup_theme
+from thirdparty.playsound import playsound
 from tileset_info import TilesetInfo
 from tilesheet_selector import TilesheetSelector
 
-from main import CFG_PATH, ICON_PATH, ROOT_PATH
+from main import CFG_PATH, ICON_PATH, ROOT_PATH, SOUNDS_PATH
 
 log = get_logger("compose")
 
@@ -42,7 +43,16 @@ log = get_logger("compose")
 # TODO: Refactor status labels into their own QWidget Class. Code is getting
 #       all over the place.
 class MainWindow(QMainWindow):
-    """Main application window itself"""
+    class SoundThread(QThread):
+        """Simple thread for playing sounds without blocking the GUI."""
+
+        def run(self):
+            playsound(self.path)
+
+        def play(self, path: str):
+            self.path = path
+            self.start()
+            self.exit()
 
     def __init__(self):
         super().__init__()
@@ -76,6 +86,7 @@ class MainWindow(QMainWindow):
         self.layout_compose = QHBoxLayout()
         self.layout_compose.addWidget(self.btn_compose)
         self.layout_compose.addWidget(self.btn_abort)
+
         self.layout_compose.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         self.cb_use_all = QCheckBox("Use All", objectName="use_all")
@@ -153,10 +164,23 @@ class MainWindow(QMainWindow):
 
         self.message_box = ComposeMessageBox()
 
-        # TODO: Move log switch to ComposeMessageBox
+        # TODO: Move log checkboxes to ComposeMessageBox
         self.cb_switch_log = QCheckBox("Show Raw Log")
         self.cb_switch_log.setToolTip("Show full, unformatted log.")
         self.cb_switch_log.toggled.connect(self.message_box.switch)
+
+        self.cb_sound_done = QCheckBox("Finish Sound")
+        self.cb_sound_done.setToolTip("Play a sound when composing has finished.")
+        self.cb_sound_error = QCheckBox("Warning/Error Sound")
+        self.cb_sound_error.setToolTip(
+            "Play a sound when a warning or an error is encountered."
+        )
+
+        self.layout_log = QHBoxLayout()
+        self.layout_log.addWidget(self.cb_switch_log)
+        self.layout_log.addWidget(self.cb_sound_done)
+        self.layout_log.addWidget(self.cb_sound_error)
+        self.layout_log.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         log.handlers[0].formatter.connect_log(self.message_box.message_raw)
 
@@ -192,7 +216,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(self.layout_controls)
         layout.addWidget(self.tilesheet_selector)
         layout.addWidget(self.message_box)
-        layout.addWidget(self.cb_switch_log)
+        layout.addLayout(self.layout_log)
         layout.addLayout(self.layout_compose)
 
         window = QWidget()
@@ -226,6 +250,8 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(about_qt)
         self.toolbar.addWidget(licenses)
         self.addToolBar(self.toolbar)
+
+        self.sound_thread = self.SoundThread()
 
     def show_licenses(self):
         self.license_box = QTextBrowser()
@@ -355,6 +381,8 @@ class MainWindow(QMainWindow):
             ComposeSignalType.CRITICAL_MESSAGE,
         ]:
             self.message_box.message_pretty(sig_type, message, replacements, msg_type)
+            if self.cb_sound_error.isChecked():
+                self.sound_thread.play(SOUNDS_PATH.joinpath("error.mp3"))
 
     def on_finished(self) -> None:
         """
@@ -372,6 +400,8 @@ class MainWindow(QMainWindow):
 
         self.btn_abort.setEnabled(False)
         self.enable_controls(True)
+        if self.cb_sound_done.isChecked():
+            self.sound_thread.play(SOUNDS_PATH.joinpath("done.mp3"))
 
 
 def run():

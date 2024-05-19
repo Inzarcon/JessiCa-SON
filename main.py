@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT_PATH = Path(__file__).resolve().parent
 CFG_PATH = ROOT_PATH.joinpath(".config")
 ICON_PATH = ROOT_PATH.joinpath("resources/icons")
+SOUNDS_PATH = ROOT_PATH.joinpath("resources/sounds")
 
 if __name__ == "__main__":
     sys.path.append(str(ROOT_PATH))

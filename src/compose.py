@@ -25,8 +25,9 @@ from pathlib import Path
 from typing import Any, Optional, Tuple, Union
 
 from compose_logger import get_logger
-from main import ROOT_PATH
 from PySide6.QtCore import QObject, QRunnable, Signal, Slot
+
+from main import ROOT_PATH
 
 log = get_logger(name="compose")
 
