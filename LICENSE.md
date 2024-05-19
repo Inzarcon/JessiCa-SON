@@ -4,7 +4,7 @@ Copyright (c) 2024 Inzarcon
 **Some components or parts of them included with this project are released under different license terms and have their own license notices, listed further below.** Commonly shared or long license texts are found in the *License Texts* section of this document.  
 
 In the case of components licensed under the **LGPL** (most notably *Qt 6* and *libvips*), compliance also requires providing the corresponding source code. You are hereby given this written offer to receive said source code. Please create a corresponding issue at https://github.com/Inzarcon/JessiCa-SON/issues or direct your request to `inzarcon@eclipso.de`. \
-**Note:** The redistributed *libvips* files included with the *JessiCa:SON* standalone releases are identical to the ones from the official *libvips* *Windows* release version [vips-dev-w64-web-8.15.1.zip](https://github.com/libvips/build-win64-mxe/releases/download/v8.15.1/vips-dev-w64-web-8.15.1.zip). The included *Qt 6* binaries and *PySide6* package are identical to the ones provided by running `pip install PySide6==6.6.1` on 64-Bit *Windows 10* and *Python* version 3.11.7.
+**Note:** The redistributed *libvips* files included with the *JessiCa:SON* standalone releases are identical to the ones from the official *libvips* *Windows* release version [vips-dev-w64-web-8.15.1.zip](https://github.com/libvips/build-win64-mxe/releases/download/v8.15.1/vips-dev-w64-web-8.15.1.zip). The included *Qt 6* binaries and *PySide6* package are identical to the ones provided by running `pip install PySide6==6.6.1` on 64-Bit *Windows 10* and *Python* version 3.11.7. The same principle applies to the remaining *Python* packages licensed under the *LGPL*.
 
  **For the licenses of *libvips* and its subcomponents** (if included with this distribution), please refer to the `JessiCa-SON/libvips` folder which contains an unmodified copy of *libvips Windows* build version vips-dev-w64-web-8.15.1, including all of its license statements. For further information, see \
 https://github.com/libvips/libvips \
@@ -36,6 +36,7 @@ The table below summarizes the high-level third-party software components and th
 | **Colorama** | `[...]/colorama/` | **BSD 3-clause**
 | **Darkdetect** | `[...]/darkdetect/` | **BSD 3-clause**
 | **pycparser** | `[...]/pycparser` | **BSD 3-clause**
+| **pynput** | `[...]/pynput` | **LGPL-3**
 | **PySide6** | `[...]/PySide6` | **LGPL-3** | Includes Qt 6 DLL binaries, also LGPL-3
 | **pyvips** | `[...]/pyvips` | **MIT**
 | **PyQtDarkTheme** | `[...]/qdarktheme` | **MIT**
@@ -77,6 +78,11 @@ https://github.com/eliben/pycparser \
 Copyright (c) 2008-2020, Eli Bendersky \
 All rights reserved. \
 Licensed under the **BSD 3-clause License**.
+
+## pynput, version 1.7.7
+https://github.com/moses-palmer/pynput \
+Copyright (C) 2007-2024 Free Software Foundation, Inc. <http://fsf.org/> \
+Licensed under the **LGPL-3** license.
 
 ## PyQtDarktheme, version 2.1.0
 https://github.com/5yutan5/PyQtDarkTheme \
