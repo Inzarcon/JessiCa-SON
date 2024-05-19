@@ -10,6 +10,7 @@ from compose_logger import get_logger
 from compose_message_box import ComposeMessageBox
 from compose_progress_bars import ComposeProgressBars
 from profile_manager import ProfileManager
+from pynput import keyboard
 from PySide6.QtCore import QSize, Qt, QThread, QThreadPool, QUrl
 from PySide6.QtGui import QFont, QPixmap
 from PySide6.QtWidgets import (
@@ -54,6 +55,22 @@ class MainWindow(QMainWindow):
             self.start()
             self.exit()
 
+    class HotkeyThread(QThread):
+        """
+        Thread for capturing keyboard shortcuts. Using pynput since QShortcut
+        doesn't work when window is inactive.
+        TODO: Make shortcuts customizable.
+        """
+
+        def run(self):
+            with keyboard.GlobalHotKeys(
+                {
+                    "<alt>+<F7>": self.parent.start_compose_hotkey,
+                    "<alt>+<F8>": self.parent.btn_abort.click,
+                }
+            ) as h:
+                h.join()
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle(f"JessiCa: Serpents Obstruct None v{version.__version__}")
@@ -63,7 +80,7 @@ class MainWindow(QMainWindow):
         font.setPointSize(10)
         font.setBold(True)
 
-        self.btn_compose = QPushButton("Compose")
+        self.btn_compose = QPushButton("Compose\n(Alt+F7)")
         self.btn_compose.pressed.connect(self.start_compose)
         self.btn_compose.setEnabled(False)
         icon_compose = QPixmap(ICON_PATH.joinpath("compose.png"))
@@ -73,7 +90,7 @@ class MainWindow(QMainWindow):
         self.btn_compose.setIconSize(QSize(60, 60))
         self.btn_compose.setToolTip("Start composing process")
 
-        self.btn_abort = QPushButton("Abort")
+        self.btn_abort = QPushButton("Abort\n(Alt+F8)")
         self.btn_abort.setDisabled(True)
         self.btn_abort.pressed.connect(self.abort_compose)
         icon_abort = QPixmap(ICON_PATH.joinpath("abort.png"))
@@ -169,17 +186,26 @@ class MainWindow(QMainWindow):
         self.cb_switch_log.setToolTip("Show full, unformatted log.")
         self.cb_switch_log.toggled.connect(self.message_box.switch)
 
-        self.cb_sound_done = QCheckBox("Finish Sound")
+        self.cb_sound_done = QCheckBox("Done")
         self.cb_sound_done.setToolTip("Play a sound when composing has finished.")
-        self.cb_sound_error = QCheckBox("Warning/Error Sound")
+        self.cb_sound_error = QCheckBox("Warning/Error")
         self.cb_sound_error.setToolTip(
             "Play a sound when a warning or an error is encountered."
+        )
+        self.cb_sound_hotkey = QCheckBox("Hotkey Start")
+        self.cb_sound_hotkey.setToolTip(
+            "Play a sound when starting composing by using the hotkey."
         )
 
         self.layout_log = QHBoxLayout()
         self.layout_log.addWidget(self.cb_switch_log)
+        self.layout_log.addSpacing(20)
+        self.layout_log.addWidget(QLabel("Sounds:"))
         self.layout_log.addWidget(self.cb_sound_done)
+        self.layout_log.addSpacing(10)
         self.layout_log.addWidget(self.cb_sound_error)
+        self.layout_log.addSpacing(10)
+        self.layout_log.addWidget(self.cb_sound_hotkey)
         self.layout_log.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         log.handlers[0].formatter.connect_log(self.message_box.message_raw)
@@ -252,6 +278,9 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.toolbar)
 
         self.sound_thread = self.SoundThread()
+        self.hotkey_thread = self.HotkeyThread()
+        self.hotkey_thread.parent = self  # Doesn't work with setParent for some reason
+        self.hotkey_thread.start()
 
     def show_licenses(self):
         self.license_box = QTextBrowser()
@@ -308,6 +337,13 @@ class MainWindow(QMainWindow):
         """Shortcut for enabling/diabling the control widgets."""
         enable_widgets(self.control_widgets, enable)
         self.btn_abort.setEnabled(not enable)
+
+    def start_compose_hotkey(self):
+        """Optionally play sound when starting to compose via hotkey."""
+        if self.btn_compose.isEnabled():
+            self.btn_compose.click()
+            if self.cb_sound_hotkey.isChecked():
+                self.sound_thread.play(SOUNDS_PATH.joinpath("start_hotkey.mp3"))
 
     def start_compose(self):
         """Prepare and run the main composing routine."""
