@@ -30,17 +30,18 @@ The table below summarizes the high-level third-party software components and th
 | **compose.py** | `src/` | **CC BY-SA 3.0** | Modified
 | **playsound.py** | `src/thirdparty/` | **MIT** |
 | **Python (Windows)** | `python-3.11.7-embed-amd64/` | **PSF-2.0** |
-| **PythonEmbed4Win** | `python-3.11.7-embed-amd64` | **MIT** | Only output included
+| **PythonEmbed4Win** | `python-3.11.7-embed-amd64/` | **MIT** | Only output included
 | **libvips** | `libvips/` | **LGPL-2.1** | 
 | **CFFI** | `[...]/cffi/` | **MIT**
 | **Colorama** | `[...]/colorama/` | **BSD 3-clause**
 | **Darkdetect** | `[...]/darkdetect/` | **BSD 3-clause**
-| **pycparser** | `[...]/pycparser` | **BSD 3-clause**
-| **pynput** | `[...]/pynput` | **LGPL-3**
-| **PySide6** | `[...]/PySide6` | **LGPL-3** | Includes Qt 6 DLL binaries, also LGPL-3
-| **pyvips** | `[...]/pyvips` | **MIT**
-| **PyQtDarkTheme** | `[...]/qdarktheme` | **MIT**
-| **Shiboken6** | `[...]/shiboken6` | **LGPL-3**
+| **pycparser** | `[...]/pycparser/` | **BSD 3-clause**
+| **pynput** | `[...]/pynput/` | **LGPL-3**
+| **PySide6** | `[...]/PySide6/` | **LGPL-3** | Includes Qt 6 DLL binaries, also LGPL-3
+| **pyvips** | `[...]/pyvips/` | **MIT**
+| **PyQtDarkTheme** | `[...]/qdarktheme/` | **MIT**
+| **Shiboken6** | `[...]/shiboken6/` | **LGPL-3**
+| **six** | `[...]/six.py` | **MIT**
 
 # Notice - General
 ## compose.py
@@ -102,6 +103,11 @@ Used to create and configure `python-3.11.7-embed-amd64` (if included with this 
 https://github.com/jtmoon79/PythonEmbed4Win \
 Copyright (c) 2022 James Thomas Moon \
 Licensed under the **MIT License**.
+
+## six, version 1.16.0
+https://github.com/benjaminp/six \
+Copyright (c) 2010-2020 Benjamin Peterson \
+Licensed under the **MIT License**
 
 # Notice - Qt and its Third-Party Modules
 ## Qt 6.6.1, PySide6, Shiboken6
