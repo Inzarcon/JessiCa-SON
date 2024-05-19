@@ -8,3 +8,6 @@ Converted to MP3 format.
 
 **error.mp3** \
 Modified from done.mp3.
+
+**start_keyboard.mp3** \
+Modified from done.mp3.
