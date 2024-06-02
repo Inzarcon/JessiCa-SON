@@ -1123,7 +1123,7 @@ class ComposeRunner(QRunnable):
                     break
             if create_handler:
                 fail_fast_handler = FailFastHandler(self)
-                fail_fast_handler.setLevel(logging.WARNING)
+                fail_fast_handler.setLevel(logging.ERROR)
                 log.addHandler(fail_fast_handler)
 
         self.tileset = None

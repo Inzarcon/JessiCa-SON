@@ -2,6 +2,7 @@
 ## 0.1.3-dev (in progress)
 ### Main
 - Fixed json_formatter.exe not being found in standalone version. [Reported by Discord user oogabooga] 
+- Fixed Fail Fast triggering on warnings instead of just errors.
 
 ## 0.1.2
 ### Main
