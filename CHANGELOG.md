@@ -1,8 +1,13 @@
 # Changelog
 ## 0.1.3-dev (in progress)
 ### Main
+- Added global keyboard shortcuts for Compose/Abort buttons.
+- Added optional sounds for finished composing, warnings/errors and using Compose hotkey. 
 - Fixed json_formatter.exe not being found in standalone version. [Reported by Discord user oogabooga] 
 - Fixed Fail Fast triggering on warnings instead of just errors.
+
+### Misc
+- Added new dependecies pynput and six, plus relevant licensing information.
 
 ## 0.1.2
 ### Main
