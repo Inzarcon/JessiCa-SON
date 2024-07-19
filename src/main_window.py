@@ -310,7 +310,11 @@ class MainWindow(QMainWindow):
         self.tileset_info.read_tileset_info(
             self.src_input.text(), self.out_input.text()
         )
-        valid = self.tileset_info.tileset and self.tileset_info.tile_info
+        valid = (
+            self.tileset_info.tileset
+            and self.tileset_info.tile_info
+            and self.tileset_info.symlinks
+        )
         self.btn_compose.setEnabled(valid)
         if valid:
             self.tilesheet_selector.set_entries(self.tileset_info.tilesheets)
@@ -328,10 +332,14 @@ class MainWindow(QMainWindow):
                 )
         else:
             self.tilesheet_selector.clear_entries()
-            if self.tileset_info.tileset:
+            if not self.tileset_info.tileset:
+                self.status_label.setText("Invalid or missing tileset.txt.")
+            elif not self.tileset_info.tile_info:
                 self.status_label.setText("Invalid or missing tile_info.json.")
             else:
-                self.status_label.setText("Invalid or missing tileset.txt.")
+                self.status_label.setText(
+                    "Symlinks used by tileset, but not supported."
+                )
 
     def enable_controls(self, enable=True):
         """Shortcut for enabling/diabling the control widgets."""
