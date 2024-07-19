@@ -82,7 +82,7 @@ Licensed under the **BSD 3-clause License**.
 
 ## pynput, version 1.7.7
 https://github.com/moses-palmer/pynput \
-Copyright (C) 2007-2024 Free Software Foundation, Inc. <http://fsf.org/> \
+Copyright (C) 2015-2024 Moses Palmér \
 Licensed under the **LGPL-3** license.
 
 ## PyQtDarktheme, version 2.1.0
