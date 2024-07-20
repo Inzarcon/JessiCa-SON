@@ -13,6 +13,12 @@ def enable_widgets(widgets: list[QWidget], enabled: bool = True) -> None:
         widget.setEnabled(enabled)
 
 
+def show_widgets(widgets: list[QWidget], show: bool = True) -> None:
+    """Show or hide all widgets in a list of widgets"""
+    for widget in widgets:
+        widget.setVisible(show)
+
+
 def get_layout_widgets(layout):
     """Return all widget that are part of a layout."""
     return [layout.itemAt(i).wid for i in range(layout.count())]

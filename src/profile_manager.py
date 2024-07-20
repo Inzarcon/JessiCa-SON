@@ -17,6 +17,9 @@ from PySide6.QtWidgets import (
 
 log = get_logger("compose")
 
+# TODO: Put JSON stuff and main settings.json into separate module.
+#       Currently clashes with HotKeyManager and is very messy.
+
 
 class ProfileManager(QWidget):
     sig_loaded = Signal()
@@ -85,18 +88,20 @@ class ProfileManager(QWidget):
 
     def scan_profiles(self):
         files = self.config_path.glob("*.json")
-        # TODO: Cleaner way of filtering out cur_default.json pointer.
+        # TODO: Cleaner way of filtering out settings file.
         files = [
-            file.parts[-1][:-5] for file in files if "cur_default.json" not in str(file)
+            file.parts[-1][:-5] for file in files if "settings.json" not in str(file)
         ]
         self.drop_down.addItems(files)
 
     def set_default(self):
         # TODO: Exception handling and validation.
-        file_path = self.config_path / "cur_default.json"
+        file_path = self.config_path / "settings.json"
         self.config_path.mkdir(exist_ok=True)
         with open(file_path, "w", encoding="utf-8") as file:
-            json.dump({"cur_default": self.input_profile_name.text()}, file, indent=4)
+            json.dump(
+                {"cur_default_profile": self.input_profile_name.text()}, file, indent=4
+            )
         self.btn_set_as_default.setEnabled(False)
 
     def save(self):
@@ -117,14 +122,14 @@ class ProfileManager(QWidget):
 
     def load_default(self):
         # TODO: Exception handling.
-        if (self.config_path / "cur_default.json").is_file():
-            entry = self._load_json(self.config_path / "cur_default.json")
+        if (self.config_path / "settings.json").is_file():
+            entry = self._load_json(self.config_path / "settings.json")
         else:  # First start or otherwise missing -> Generate default config
-            entry = {"cur_default": "Default"}
+            entry = {"cur_default_profile": "Default"}
             self.input_profile_name.setText("Default")
             self.set_default()
             self.save()
-        self.load(entry.get("cur_default"))
+        self.load(entry.get("cur_default_profile"))
 
     def load(self, profile_name):
         file_path = self.config_path / f"{profile_name}.json"
@@ -144,9 +149,9 @@ class ProfileManager(QWidget):
         self.sig_loaded.emit()
 
     def is_default(self, profile_name):
-        return profile_name == self._load_json(
-            self.config_path / "cur_default.json"
-        ).get("cur_default")
+        return profile_name == self._load_json(self.config_path / "settings.json").get(
+            "cur_default_profile"
+        )
 
     def profile_exists(self, profile_name):
         return (self.config_path / f"{profile_name}.json").is_file()
@@ -162,7 +167,6 @@ class ProfileManager(QWidget):
         os.remove(self.config_path / f"{profile_name}.json")
         self.drop_down.removeItem(self.drop_down.findText(profile_name))
         if self.is_default(profile_name) and self.drop_down.count():
-            # TODO: Let user decide new default.
             self.input_profile_name.setText(self.drop_down.itemText(0))
             self.set_default()
         self.load_default()
@@ -181,7 +185,7 @@ class ProfileManager(QWidget):
             log.error("JSONDecodeError %s: %s", file_path, exception)
         except FileNotFoundError:
             log.error(
-                "Profile %s not found. Starting with initial " "configuration.",
+                "Profile %s not found. Starting with initial configuration.",
                 file_path,
             )
 

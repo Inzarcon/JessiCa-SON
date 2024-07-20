@@ -9,8 +9,8 @@ from compose import ComposeRunner, ComposeSignalType, connect_compose_signal
 from compose_logger import get_logger
 from compose_message_box import ComposeMessageBox
 from compose_progress_bars import ComposeProgressBars
+from hotkey_manager import HotKeyManager
 from profile_manager import ProfileManager
-from pynput import keyboard
 from PySide6.QtCore import QSize, Qt, QThread, QThreadPool, QUrl
 from PySide6.QtGui import QFont, QPixmap
 from PySide6.QtWidgets import (
@@ -55,22 +55,6 @@ class MainWindow(QMainWindow):
             self.start()
             self.exit()
 
-    class HotkeyThread(QThread):
-        """
-        Thread for capturing keyboard shortcuts. Using pynput since QShortcut
-        doesn't work when window is inactive.
-        TODO: Make shortcuts customizable.
-        """
-
-        def run(self):
-            with keyboard.GlobalHotKeys(
-                {
-                    "<alt>+<F7>": self.parent.start_compose_hotkey,
-                    "<alt>+<F8>": self.parent.btn_abort.click,
-                }
-            ) as h:
-                h.join()
-
     def __init__(self):
         super().__init__()
         self.setWindowTitle(f"JessiCa: Serpents Obstruct None v{version.__version__}")
@@ -80,7 +64,7 @@ class MainWindow(QMainWindow):
         font.setPointSize(10)
         font.setBold(True)
 
-        self.btn_compose = QPushButton("Compose\n(Alt+F7)")
+        self.btn_compose = QPushButton("Compose")
         self.btn_compose.pressed.connect(self.start_compose)
         self.btn_compose.setEnabled(False)
         icon_compose = QPixmap(ICON_PATH.joinpath("compose.png"))
@@ -90,7 +74,7 @@ class MainWindow(QMainWindow):
         self.btn_compose.setIconSize(QSize(60, 60))
         self.btn_compose.setToolTip("Start composing process")
 
-        self.btn_abort = QPushButton("Abort\n(Alt+F8)")
+        self.btn_abort = QPushButton("Abort")
         self.btn_abort.setDisabled(True)
         self.btn_abort.pressed.connect(self.abort_compose)
         icon_abort = QPixmap(ICON_PATH.joinpath("abort.png"))
@@ -103,6 +87,10 @@ class MainWindow(QMainWindow):
         self.layout_compose = QHBoxLayout()
         self.layout_compose.addWidget(self.btn_compose)
         self.layout_compose.addWidget(self.btn_abort)
+
+        self.hotkey_manager = HotKeyManager(CFG_PATH)
+        self.hotkey_manager.parent = self  # Doesn't work with setParent for some reason
+        self.layout_compose.addWidget(self.hotkey_manager)
 
         self.layout_compose.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
@@ -278,9 +266,9 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.toolbar)
 
         self.sound_thread = self.SoundThread()
-        self.hotkey_thread = self.HotkeyThread()
-        self.hotkey_thread.parent = self  # Doesn't work with setParent for some reason
-        self.hotkey_thread.start()
+
+        self.hotkey_manager.sig_updated.connect(self._update_hotkey)
+        self.hotkey_manager.setup()
 
     def show_licenses(self):
         self.license_box = QTextBrowser()
@@ -387,6 +375,10 @@ class MainWindow(QMainWindow):
     def abort_compose(self):
         """Request to stop the current composing process once possible."""
         self.runner.request_abort(by_user=True)
+
+    def _update_hotkey(self, compose_hk, abort_hk):
+        self.btn_compose.setText(f"Compose\n{compose_hk}")
+        self.btn_abort.setText(f"Abort\n{abort_hk}")
 
     def closeEvent(self, _):
         """
