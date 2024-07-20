@@ -10,6 +10,8 @@ Currently implemented features:
 - Multithreaded tilesheet composing step.
 - Color coded warning messages with additional notes about fixing specific tileset problems.
 - Compose only the tilesheets you are actually modifying instead of the entire tileset every time.
+- Hotkeys for starting and stopping the composing process, even while the app is inactive/minimized.
+- Optional sound feedback to accompany the hotkey feature.
 
 *Working title
 
