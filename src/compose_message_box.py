@@ -109,8 +109,7 @@ class ComposeMessageBox(QWidget):
 
     @staticmethod
     def set_text_style(widget, style_dict=None) -> None:
-        """
-        Shortcut for setting text style of following message strings. Calling
+        """Shortcut for setting text style of following message strings. Calling
         without style dict resets to default style. Color should
         be a QColorConstant or hex triplet string, e.g. "#FFCC00".
         """
@@ -137,9 +136,8 @@ class ComposeMessageBox(QWidget):
                 hinting_styles = fmt["hinting_styles"]
                 if len(hinting_styles) < len(args):
                     hinting_styles = [hinting_styles[0]] * len(args)
-        else:
-            if args:
-                hinting_styles = [style_default] * len(args)
+        elif args:
+            hinting_styles = [style_default] * len(args)
         return message, args, list(hinting_styles)
 
 
@@ -184,8 +182,7 @@ formats = {
         "hinting_styles": (style_green, *[style_cyan] * 5),
     },
     MessageType.ERR_PNG_NOT_FOUND: {
-        "new_message": "Sprite {} was not found and will be ignored. "
-        "Referenced in {}.",
+        "new_message": "Sprite {} was not found and will be ignored. " "Referenced in {}.",
         "select_args": (0, 2),
         "hinting_styles": (style_cyan, style_green),
     },

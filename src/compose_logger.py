@@ -1,5 +1,4 @@
-"""
-Module for getting a preconfigured default logger with prettier formatting,
+"""Module for getting a preconfigured default logger with prettier formatting,
 color coding, and a Qt Signal.
 """
 
@@ -10,8 +9,7 @@ from PySide6.QtCore import QObject, Signal, Slot
 
 
 class ColorFormatter(logging.Formatter):
-    """
-    logging.StreamHandler which sets color coding for logger messages.
+    """logging.StreamHandler which sets color coding for logger messages.
     Also emits a Qt Signal for each message to be captured in-app as well.
     """
 
@@ -52,8 +50,7 @@ def get_logger(
     name: str = __name__,
     start_level: int = logging.DEBUG,
 ) -> logging.Logger:
-    """
-    TODO: Setting log level (ColorHandler needs to be set too)
+    """TODO: Setting log level (ColorHandler needs to be set too)
     Returns default logger with prettier formatting, color coding, and a Qt
     Signal.
     """

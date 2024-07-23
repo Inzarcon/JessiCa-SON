@@ -27,8 +27,7 @@ class HotKeyManager(QWidget):
     sig_updated = Signal(str, str)
 
     class HotkeyThread(QThread):
-        """
-        Thread for capturing keyboard shortcuts. Using pynput since QShortcut
+        """Thread for capturing keyboard shortcuts. Using pynput since QShortcut
         doesn't work when window is inactive.
         """
 
@@ -98,9 +97,7 @@ class HotKeyManager(QWidget):
         self.setLayout(layout)
 
     def setup(self):
-        """
-        Bandaid fix since this must run after ProfileManager is initialized.
-        """
+        """Bandaid fix since this must run after ProfileManager is initialized."""
         if not Path(self.settings_path).is_file():
             self._save_json(self.settings_path, {})
 
@@ -135,9 +132,7 @@ class HotKeyManager(QWidget):
         if self.hotkey_thread is not None:
             self.hotkey_thread.quit()
 
-        self.hotkey_thread = self.HotkeyThread(
-            self, self._preparse_hotkey(compose_hk), self._preparse_hotkey(abort_hk)
-        )
+        self.hotkey_thread = self.HotkeyThread(self, self._preparse_hotkey(compose_hk), self._preparse_hotkey(abort_hk))
         self.hotkey_thread.parent = self  # Doesn't work with setParent for some reason
         self.hotkey_thread.start()
 
@@ -177,17 +172,13 @@ class HotKeyManager(QWidget):
 
     @staticmethod
     def _preparse_hotkey(hotkey):
-        """
-        Add "<" and ">" to modifier keys for pynput so user doesn't need to
+        """Add "<" and ">" to modifier keys for pynput so user doesn't need to
         know about this requirement.
         """
         # TODO: Exhaustive and correct regex. Works for basic cases for now.
         modifier_keys_regex = r"^(ctrl)|^(shift)|^(alt)|^(f)\d+"
         keys = hotkey.split("+")
-        keys = [
-            f"<{key}>" if re.fullmatch(modifier_keys_regex, key, re.IGNORECASE) else key
-            for key in keys
-        ]
+        keys = [f"<{key}>" if re.fullmatch(modifier_keys_regex, key, re.IGNORECASE) else key for key in keys]
         return "+".join(keys)
 
     @staticmethod

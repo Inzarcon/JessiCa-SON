@@ -97,9 +97,7 @@ class TilesetInfo(QFrame):
         self.layout.addWidget(self.valid_fallback, 1, 4)
 
     def read_tileset_info(self, src_dir: str, out_dir):
-        """
-        Read tileset properties and tilesheet names. Update info display.
-        """
+        """Read tileset properties and tilesheet names. Update info display."""
         try:
             prop = read_properties(f"{src_dir}/tileset.txt")
             self.label_prop_name.setText(prop["NAME"])
@@ -143,8 +141,7 @@ class TilesetInfo(QFrame):
             self.symlink_help.show()
 
     def check_for_symlinks(self, src_dir):
-        """
-        Check if the tileset contains any symlinks. If it does, also check if symlinks
+        """Check if the tileset contains any symlinks. If it does, also check if symlinks
         are supported by the operating system.
 
         None: Not needed by tileset
@@ -154,11 +151,7 @@ class TilesetInfo(QFrame):
         TODO: Currently only checks in root directory, but fine for now as all
         official tileset with symlinks do have them at least there.
         """
-        dir = (
-            src_dir
-            if len(src_dir) > 0 and src_dir[-1] in ["/", "\\"]
-            else f"{src_dir}/"
-        )
+        dir = src_dir if len(src_dir) > 0 and src_dir[-1] in ["/", "\\"] else f"{src_dir}/"
         paths = [Path(path) for path in glob(f"{dir}*")]
 
         if any(os.path.islink(path) for path in paths):

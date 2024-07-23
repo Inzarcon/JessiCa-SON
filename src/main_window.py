@@ -1,6 +1,5 @@
-"""
-Module containing the main application window where all subcomponents are used.
-"""
+"""Module containing the main application window where all subcomponents are used."""
+
 from pathlib import Path
 
 import version
@@ -96,35 +95,26 @@ class MainWindow(QMainWindow):
 
         self.cb_use_all = QCheckBox("Use All", objectName="use_all")
         self.cb_use_all.setChecked(True)
-        self.cb_use_all.setToolTip(
-            'Add unused images with ID being their basename (i.e. without ".png")'
-        )
+        self.cb_use_all.setToolTip('Add unused images with ID being their basename (i.e. without ".png")')
         self.cb_only_json = QCheckBox("Only JSON", objectName="only_json")
         self.cb_only_json.setToolTip("Only output the tile_config.json")
 
         self.cb_format_json = QCheckBox("Format JSON", objectName="format_json")
         self.cb_format_json.setToolTip(
-            "Format tile_config.json. Uses CDDA formatter if found,\n"
-            "otherwise Python built-in formatter"
+            "Format tile_config.json. Uses CDDA formatter if found,\n" "otherwise Python built-in formatter"
         )
 
         self.cb_fail_fast = QCheckBox("Fail Fast", objectName="fail_fast")
         self.cb_fail_fast.setToolTip("Stop immediately after an error has occurred")
 
-        self.cb_obsolete_fillers = QCheckBox(
-            "Show Obsolete Fillers", objectName="obsolete_fillers"
-        )
+        self.cb_obsolete_fillers = QCheckBox("Show Obsolete Fillers", objectName="obsolete_fillers")
         self.cb_obsolete_fillers.setToolTip("Warn about obsoleted fillers")
 
         self.cb_palette = QCheckBox("Palette", objectName="palette")
         self.cb_palette.setToolTip("Quantize all tilesheets to 8bpp colormaps")
 
-        self.cb_palette_copies = QCheckBox(
-            "Palette Copies", objectName="palette_copies"
-        )
-        self.cb_palette_copies.setToolTip(
-            "Produce copies of tilesheets quantized to 8bpp colormaps"
-        )
+        self.cb_palette_copies = QCheckBox("Palette Copies", objectName="palette_copies")
+        self.cb_palette_copies.setToolTip("Produce copies of tilesheets quantized to 8bpp colormaps")
 
         self.label_src = QLabel("Source Directory:")
         self.btn_src_input = QPushButton("Select")
@@ -177,13 +167,9 @@ class MainWindow(QMainWindow):
         self.cb_sound_done = QCheckBox("Done")
         self.cb_sound_done.setToolTip("Play a sound when composing has finished.")
         self.cb_sound_error = QCheckBox("Warning/Error")
-        self.cb_sound_error.setToolTip(
-            "Play a sound when a warning or an error is encountered."
-        )
+        self.cb_sound_error.setToolTip("Play a sound when a warning or an error is encountered.")
         self.cb_sound_hotkey = QCheckBox("Hotkey Start")
-        self.cb_sound_hotkey.setToolTip(
-            "Play a sound when starting composing by using the hotkey."
-        )
+        self.cb_sound_hotkey.setToolTip("Play a sound when starting composing by using the hotkey.")
 
         self.layout_log = QHBoxLayout()
         self.layout_log.addWidget(self.cb_switch_log)
@@ -279,45 +265,28 @@ class MainWindow(QMainWindow):
         self.license_box.show()
 
     def on_source_input_click(self):
-        """
-        Called when source selection button was clicked. Open a file Dialog and
+        """Called when source selection button was clicked. Open a file Dialog and
         handle result.
         """
         selection = QFileDialog.getExistingDirectory(caption="Open directory")
         self.src_input.setText(selection)
 
     def on_output_input_click(self):
-        """
-        Called when output selection button was clicked. Open a file Dialog and
+        """Called when output selection button was clicked. Open a file Dialog and
         handle result.
         """
         selection = QFileDialog.getExistingDirectory(caption="Open directory")
         self.out_input.setText(selection)
 
     def update_tileset_info(self):
-        self.tileset_info.read_tileset_info(
-            self.src_input.text(), self.out_input.text()
-        )
-        valid = (
-            self.tileset_info.tileset
-            and self.tileset_info.tile_info
-            and self.tileset_info.symlinks
-        )
+        self.tileset_info.read_tileset_info(self.src_input.text(), self.out_input.text())
+        valid = self.tileset_info.tileset and self.tileset_info.tile_info and self.tileset_info.symlinks
         self.btn_compose.setEnabled(valid)
         if valid:
             self.tilesheet_selector.set_entries(self.tileset_info.tilesheets)
             self.status_label.setText("Ready for composing.")
-            if (
-                not self.out_input.text()
-                or "default_compose_output" in self.out_input.text()
-            ):
-                self.out_input.setText(
-                    str(
-                        Path(self.src_input.text())
-                        .joinpath("default_compose_output")
-                        .as_posix()
-                    )
-                )
+            if not self.out_input.text() or "default_compose_output" in self.out_input.text():
+                self.out_input.setText(str(Path(self.src_input.text()).joinpath("default_compose_output").as_posix()))
         else:
             self.tilesheet_selector.clear_entries()
             if not self.tileset_info.tileset:
@@ -325,9 +294,7 @@ class MainWindow(QMainWindow):
             elif not self.tileset_info.tile_info:
                 self.status_label.setText("Invalid or missing tile_info.json.")
             else:
-                self.status_label.setText(
-                    "Symlinks used by tileset, but not supported."
-                )
+                self.status_label.setText("Symlinks used by tileset, but not supported.")
 
     def enable_controls(self, enable=True):
         """Shortcut for enabling/diabling the control widgets."""
@@ -363,12 +330,7 @@ class MainWindow(QMainWindow):
 
         self.progress_bars.subset = self.compose_subset
 
-        self.runner = ComposeRunner(
-            self.src_input.text(),
-            self.out_input.text(),
-            flags,
-            self.compose_subset,
-        )
+        self.runner = ComposeRunner(self.src_input.text(), self.out_input.text(), flags, self.compose_subset)
         self.runner.create_tileset()
         self.threadpool.start(self.runner.run)
 
@@ -381,8 +343,7 @@ class MainWindow(QMainWindow):
         self.btn_abort.setText(f"Abort\n{abort_hk}")
 
     def closeEvent(self, _):
-        """
-        Called when application is quit. Abort composing process if it is
+        """Called when application is quit. Abort composing process if it is
         running.
         """
         if self.runner:
@@ -390,7 +351,6 @@ class MainWindow(QMainWindow):
 
     def handle_compose_signal(self, sig_type, message, replacements, msg_type):
         """Handle the different types of compose signals."""
-
         # TODO: Refactor to be cleaner, this is at risk of becoming code
         #       spaghetti with further additions.
         if sig_type is ComposeSignalType.PROGRESS_PNGNUM:
@@ -421,8 +381,7 @@ class MainWindow(QMainWindow):
                 self.sound_thread.play(SOUNDS_PATH.joinpath("error.mp3"))
 
     def on_finished(self) -> None:
-        """
-        Called when composing has finished, whether successfully or aborted.
+        """Called when composing has finished, whether successfully or aborted.
         Reset relevant widgets and variables to their initial state.
         """
         self.progress_bars.reset()

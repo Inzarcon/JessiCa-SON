@@ -8,8 +8,7 @@ N_COLS = 6  # TODO: Make this more dynamic.
 
 
 class TilesheetSelector(QWidget):
-    """
-    QWidget for optionally selecting a subset of tilesheets to compose.
+    """QWidget for optionally selecting a subset of tilesheets to compose.
     Enabling the main checkbox opens a selection grid.
     """
 

@@ -1,5 +1,4 @@
-"""
-Merge all tile entries and PNGs in a compositing tileset directory into
+"""Merge all tile entries and PNGs in a compositing tileset directory into
 a tile_config.json and tilesheet .png file(s) ready for use in CDDA.
 
 Derivative of the original compose.py from Cataclysm DDA. See root/LICENSE.md
@@ -48,8 +47,7 @@ class ComposeSignalType(Enum):
 
 
 class MessageType(Enum):
-    """
-    More specific types for warning and error message signals.
+    """More specific types for warning and error message signals.
     Used for color coded formatting in message box.
     """
 
@@ -97,8 +95,7 @@ def emit(
     args: Tuple[str] = None,
     msg_type: MessageType = None,
 ) -> None:
-    """
-    Shortcut for emitting a message with the corresponding signal type and
+    """Shortcut for emitting a message with the corresponding signal type and
     string replacement args.
     """
     SIG_COMPOSE.signal.emit(sig_type, message, args, msg_type)
@@ -111,8 +108,7 @@ def log_and_emit(
     args: Tuple[str] = None,
     msg_type: MessageType = None,
 ) -> None:
-    """
-    Shortcut for logging and emitting a message with the corresponding signal
+    """Shortcut for logging and emitting a message with the corresponding signal
     type and string replacement args.
     """
     formatted = message if not args else message.format(*args)
@@ -133,7 +129,7 @@ try:
 except ImportError:
     import gi  # type: ignore
 
-    gi.require_version("Vips", "8.0")  # NoQA
+    gi.require_version("Vips", "8.0")
     from gi.repository import Vips  # type: ignore
 
 # File name to ignore containing directory
@@ -176,9 +172,7 @@ def write_to_json(
     data: Union[dict, list],
     format_json: bool = False,
 ) -> None:
-    """
-    Write data to a JSON file.
-    """
+    """Write data to a JSON file."""
     kwargs = {
         "ensure_ascii": False,
     }
@@ -206,16 +200,12 @@ def write_to_json(
 
 
 def list_or_first(iterable: list) -> Any:
-    """
-    Strip unneeded container list if there is only one value.
-    """
+    """Strip unneeded container list if there is only one value."""
     return iterable[0] if len(iterable) == 1 else iterable
 
 
 def read_properties(filepath: Path) -> dict:
-    """
-    tileset.txt reader.
-    """
+    """tileset.txt reader."""
     with open(filepath, encoding="utf-8") as file:
         pairs = {}
         for line in file.readlines():
@@ -227,21 +217,15 @@ def read_properties(filepath: Path) -> dict:
 
 
 class ComposingException(Exception):
-    """
-    Base class for all composing exceptions.
-    """
+    """Base class for all composing exceptions."""
 
 
 class StopComposing(Exception):
-    """
-    Exception for aborting the running composing process.
-    """
+    """Exception for aborting the running composing process."""
 
 
 class Tileset:
-    """
-    Referenced sprites memory and handling, tile entries conversion.
-    """
+    """Referenced sprites memory and handling, tile entries conversion."""
 
     def __init__(
         self,
@@ -302,20 +286,15 @@ class Tileset:
             self.sprite_height = self.info[0].get("height", self.sprite_height)
             self.zlevel_height = self.info[0].get("zlevel_height", self.zlevel_height)
             self.pixelscale = self.info[0].get("pixelscale", self.pixelscale)
-            self.retract_dist_min = self.info[0].get(
-                "retract_dist_min", self.retract_dist_min
-            )
-            self.retract_dist_max = self.info[0].get(
-                "retract_dist_max", self.retract_dist_max
-            )
+            self.retract_dist_min = self.info[0].get("retract_dist_min", self.retract_dist_min)
+            self.retract_dist_max = self.info[0].get("retract_dist_max", self.retract_dist_max)
             self.iso = self.info[0].get("iso", self.iso)
 
         # Let's Turbocharge this with Multithreading.
         self.thread_pool = ThreadPool()
 
     def abort_composing(self, now=False):
-        """
-        Request aborting the composing process.
+        """Request aborting the composing process.
         Optionally abort right away -> Use only for main compose thread!
         """
         if not self.to_exit:
@@ -329,8 +308,7 @@ class Tileset:
             self.check_abort()
 
     def check_abort(self):
-        """
-        Abort composing process if requested earlier. Called in relevant
+        """Abort composing process if requested earlier. Called in relevant
         submethods, primarily in the loops. -> Just throwing directly in
         abort_composing doesn't work with multithreading!
         """
@@ -359,9 +337,7 @@ class Tileset:
         return self.output_conf_file
 
     def compose(self) -> None:
-        """
-        Convert a composing tileset into a package readable by the game.
-        """
+        """Convert a composing tileset into a package readable by the game."""
         self.output_dir.mkdir(parents=True, exist_ok=True)
         tileset_confpath = self.output_dir.joinpath(self.determine_conffile())
         typed_sheets = {
@@ -421,9 +397,7 @@ class Tileset:
                 (sheet_type, sheet.name),
             )
             sheet.process_sheet_png_filenames()
-            diff = sheet.sprites_across - (
-                (len(sheet.png_files) % sheet.sprites_across) or sheet.sprites_across
-            )
+            diff = sheet.sprites_across - ((len(sheet.png_files) % sheet.sprites_across) or sheet.sprites_across)
 
             if sheet.name in self.compose_subset:
                 actual_pngnums[sheet.name] = self.pngnum - prev_pngnum
@@ -432,9 +406,7 @@ class Tileset:
             sheet.max_index = self.pngnum
 
         # Combine config data in the correct order.
-        sheet_configs = (
-            typed_sheets["main"] + typed_sheets["filler"] + typed_sheets["fallback"]
-        )
+        sheet_configs = typed_sheets["main"] + typed_sheets["filler"] + typed_sheets["fallback"]
         emit(
             ComposeSignalType.PROGRESS_PNGNUM,
             str(sum(actual_pngnums.values())),
@@ -458,8 +430,7 @@ class Tileset:
                         log_and_emit(
                             logging.WARNING,
                             ComposeSignalType.WARNING_MESSAGE,
-                            "Sprite {} was not mentioned in any "
-                            "tile entry but there is a tile entry for the ID {}.",
+                            "Sprite {} was not mentioned in any " "tile entry but there is a tile entry for the ID {}.",
                             (f"{unused_png}.png", unused_png),
                             MessageType.WARN_NOT_MENTIONED,
                         )
@@ -496,9 +467,7 @@ class Tileset:
                     self.non_standard_sheet(sheet, FALLBACK)
                 continue
             if sheet.is_filler and not main_finished:
-                create_tile_entries_for_unused(
-                    self.handle_unreferenced_sprites("main"), fillers=True
-                )
+                create_tile_entries_for_unused(self.handle_unreferenced_sprites("main"), fillers=True)
                 main_finished = True
             sheet_entries = []
 
@@ -597,10 +566,7 @@ class Tileset:
         sheetconf["sprite_height"] = sheet.sprite_height
         sheetconf["sprite_offset_x"] = sheet.offset_x
         sheetconf["sprite_offset_y"] = sheet.offset_y
-        if (
-            sheet.offset_x_retracted != sheet.offset_x
-            or sheet.offset_y_retracted != sheet.offset_y
-        ):
+        if sheet.offset_x_retracted != sheet.offset_x or sheet.offset_y_retracted != sheet.offset_y:
             sheetconf["sprite_offset_x_retracted"] = sheet.offset_x_retracted
             sheetconf["sprite_offset_y_retracted"] = sheet.offset_y_retracted
         if str(sheet.pixelscale) != str(1.0):
@@ -685,15 +651,10 @@ class Tilesheet(QObject):
         self.max_index = self.tileset.pngnum
 
     def is_standard(self) -> bool:
-        """
-        Check whether output object needs a non-standard size or offset config
-        """
+        """Check whether output object needs a non-standard size or offset config"""
         if self.offset_x or self.offset_y:
             return False
-        if (
-            self.offset_x_retracted != self.offset_x
-            or self.offset_y_retracted != self.offset_y
-        ):
+        if self.offset_x_retracted != self.offset_x or self.offset_y_retracted != self.offset_y:
             return False
         if self.sprite_width != self.tileset.sprite_width:
             return False
@@ -713,8 +674,7 @@ class Tilesheet(QObject):
                 dirs[:] = [
                     d
                     for d in dirs
-                    if Path(root).joinpath(d) not in excluded
-                    and not Path(root).joinpath(d, IGNORE_FILE).is_file()
+                    if Path(root).joinpath(d) not in excluded and not Path(root).joinpath(d, IGNORE_FILE).is_file()
                 ]
                 yield [root, dirs, filenames]
 
@@ -772,9 +732,7 @@ class Tilesheet(QObject):
         self.tileset.pngnum += 1
 
         self.tileset.pngname_to_pngnum[filepath.stem] = self.tileset.pngnum
-        self.tileset.unreferenced_pngnames[
-            "filler" if self.is_filler else "main"
-        ].append(filepath.stem)
+        self.tileset.unreferenced_pngnames["filler" if self.is_filler else "main"].append(filepath.stem)
 
     def load_sheet_images(self):
         """Load the found sprite PNG files."""
@@ -790,9 +748,7 @@ class Tilesheet(QObject):
         try:
             image = Vips.Image.pngload(str(png_path), access="sequential")
         except pyvips.error.Error as pyvips_error:
-            raise ComposingException(
-                f"Cannot load {png_path}: {pyvips_error.message}"
-            ) from None
+            raise ComposingException(f"Cannot load {png_path}: {pyvips_error.message}") from None
         except UnicodeDecodeError:
             raise ComposingException(
                 f"Cannot load {png_path} with UnicodeDecodeError, "
@@ -1003,9 +959,7 @@ class TileEntry:
         self,
         entry_layer: Union[list, str],
     ) -> list:
-        """
-        Convert sprite names to sprite indexes in one fg or bg tile entry part.
-        """
+        """Convert sprite names to sprite indexes in one fg or bg tile entry part."""
         output = []
 
         if isinstance(entry_layer, list):
@@ -1013,9 +967,7 @@ class TileEntry:
             for layer_part in entry_layer:
                 if isinstance(layer_part, dict):
                     # Weighted random variations.
-                    variations, valid = self.convert_random_variations(
-                        layer_part.get("sprite")
-                    )
+                    variations, valid = self.convert_random_variations(layer_part.get("sprite"))
                     if valid:
                         layer_part["sprite"] = list_or_first(variations)
                         output.append(layer_part)
@@ -1056,9 +1008,7 @@ class TileEntry:
             if sprite_index:
                 sheet_type = "filler" if self.tilesheet.is_filler else "main"
                 with contextlib.suppress(ValueError):
-                    self.tilesheet.tileset.unreferenced_pngnames[sheet_type].remove(
-                        sprite_name
-                    )
+                    self.tilesheet.tileset.unreferenced_pngnames[sheet_type].remove(sprite_name)
 
                 entry.append(sprite_index)
                 return True
@@ -1066,8 +1016,7 @@ class TileEntry:
             log_and_emit(
                 logging.ERROR,
                 ComposeSignalType.ERROR_MESSAGE,
-                "{} file for {} value from {} "
-                "was not found. It will not be added to {}",
+                "{} file for {} value from {} " "was not found. It will not be added to {}",
                 (
                     sprite_name,
                     sprite_name,

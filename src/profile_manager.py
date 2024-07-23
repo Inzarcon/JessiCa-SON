@@ -89,9 +89,7 @@ class ProfileManager(QWidget):
     def scan_profiles(self):
         files = self.config_path.glob("*.json")
         # TODO: Cleaner way of filtering out settings file.
-        files = [
-            file.parts[-1][:-5] for file in files if "settings.json" not in str(file)
-        ]
+        files = [file.parts[-1][:-5] for file in files if "settings.json" not in str(file)]
         self.drop_down.addItems(files)
 
     def set_default(self):
@@ -99,18 +97,12 @@ class ProfileManager(QWidget):
         file_path = self.config_path / "settings.json"
         self.config_path.mkdir(exist_ok=True)
         with open(file_path, "w", encoding="utf-8") as file:
-            json.dump(
-                {"cur_default_profile": self.input_profile_name.text()}, file, indent=4
-            )
+            json.dump({"cur_default_profile": self.input_profile_name.text()}, file, indent=4)
         self.btn_set_as_default.setEnabled(False)
 
     def save(self):
         cur_input = self.input_profile_name.text()
-        entries = {
-            entry[0]: entry[1]
-            for widget in self.widgets
-            if (entry := self._handle_widget_write(widget))
-        }
+        entries = {entry[0]: entry[1] for widget in self.widgets if (entry := self._handle_widget_write(widget))}
         file_path = self.config_path / f"{cur_input}.json"
         # TODO: Exception handling.
         with open(file_path, "w", encoding="utf-8") as file:
@@ -149,9 +141,7 @@ class ProfileManager(QWidget):
         self.sig_loaded.emit()
 
     def is_default(self, profile_name):
-        return profile_name == self._load_json(self.config_path / "settings.json").get(
-            "cur_default_profile"
-        )
+        return profile_name == self._load_json(self.config_path / "settings.json").get("cur_default_profile")
 
     def profile_exists(self, profile_name):
         return (self.config_path / f"{profile_name}.json").is_file()
@@ -159,9 +149,7 @@ class ProfileManager(QWidget):
     def delete(self):
         profile_name = self.drop_down.currentText()
         assert self.profile_exists(profile_name)
-        answer = QMessageBox.question(
-            self, "Confirm Profile Deletion", f"Really delete profile '{profile_name}'?"
-        )
+        answer = QMessageBox.question(self, "Confirm Profile Deletion", f"Really delete profile '{profile_name}'?")
         if answer != QMessageBox.Yes:
             return
         os.remove(self.config_path / f"{profile_name}.json")

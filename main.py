@@ -13,9 +13,7 @@ if __name__ == "__main__":
     sys.path.append(str(ROOT_PATH))
     sys.path.append(str(ROOT_PATH.joinpath("src")))
     # Local libvips BEFORE other entries to avoid dll conflicts.
-    os.environ["PATH"] = (
-        str(ROOT_PATH.joinpath("libvips/bin")) + ";" + os.environ["PATH"]
-    )
+    os.environ["PATH"] = str(ROOT_PATH.joinpath("libvips/bin")) + ";" + os.environ["PATH"]
 
     from main_window import run  # type: ignore
 
