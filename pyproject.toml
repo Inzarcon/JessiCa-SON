@@ -1,19 +1,25 @@
+[tool.ruff]
+line-length = 120
+
 [tool.ruff.lint]
-select = [
-    # pycodestyle
-    "E",
-    # Pyflakes
-    "F",
-    # pyupgrade
-    "UP",
-    # flake8-bugbear
-    "B",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
-    # Warnings, Conventions, Refactor
-    "W",
-    "C",
-    "R",
+select = [    
+    "D",   # pydocstyle
+    "E",   # pycodestyle Errors
+    "W",   # pycodestyle Warnings
+    "F",   # Pyflakes
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "I",   # isort
+    "C",   # Conventions
+    "R",   # Refactor
+    "N",   # pep8-Naming
+    "C90", # mccabe
+    "PL",  # pylint
+    "RUF", # Ruff-specific
+]
+
+ignore = [
+    "D203",  # Conflicts with no-blank-line-before-class
+    "D213"   # Conflicts with multi-line-summary-first-line
 ]
