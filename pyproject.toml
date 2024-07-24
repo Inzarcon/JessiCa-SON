@@ -19,13 +19,14 @@ select = [
     # flake8 modules
     "YTT", "ANN", "ASYNC", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "EM", "FA", "ISC", "ICN", "LOG", "G",
     "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "FIX", "ERA",
-    "PGH"
+    "PGH",
 
 ]
 
 ignore = [
-    "D203",  # Conflicts with no-blank-line-before-class
-    "D213",  # Conflicts with multi-line-summary-first-line
+    "D203",   # Conflicts with no-blank-line-before-class.
+    "D213",   # Conflicts with multi-line-summary-first-line.
+    "ANN101", # "self" parameter shoud not need annotation.
 ]
 
 [tool.ruff.lint.per-file-ignores]
