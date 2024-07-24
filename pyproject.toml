@@ -27,3 +27,6 @@ ignore = [
     "D203",  # Conflicts with no-blank-line-before-class
     "D213",  # Conflicts with multi-line-summary-first-line
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"*/__init__.py" = ["D"]
