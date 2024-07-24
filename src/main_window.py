@@ -3,7 +3,7 @@
 from pathlib import Path
 
 import version
-from common_utils import enable_widgets
+from src.utils.widget_utils import set_widgets_enabled
 from compose import ComposeRunner, ComposeSignalType, connect_compose_signal
 from compose_logger import get_logger
 from compose_message_box import ComposeMessageBox
@@ -298,7 +298,7 @@ class MainWindow(QMainWindow):
 
     def enable_controls(self, enable=True):
         """Shortcut for enabling/diabling the control widgets."""
-        enable_widgets(self.control_widgets, enable)
+        set_widgets_enabled(self.control_widgets, enabled=enable)
         self.btn_abort.setEnabled(not enable)
 
     def start_compose_hotkey(self):

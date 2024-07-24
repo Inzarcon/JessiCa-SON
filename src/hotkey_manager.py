@@ -2,7 +2,7 @@ import json
 import re
 from pathlib import Path
 
-from common_utils import show_widgets
+from src.utils.widget_utils import set_widgets_visible
 from compose_logger import get_logger
 from pynput import keyboard
 from PySide6.QtCore import Qt, QThread, Signal
@@ -92,7 +92,7 @@ class HotKeyManager(QWidget):
             self.input_abort,
         ]
 
-        show_widgets(self.nested_widgets, False)
+        set_widgets_visible(self.nested_widgets, visible=False)
 
         self.setLayout(layout)
 
@@ -161,14 +161,14 @@ class HotKeyManager(QWidget):
     def _on_button_pressed(self):
         if self.input_compose.isVisible():
             self.btn_set.setText("Set Hotkeys")
-            show_widgets(self.nested_widgets, False)
+            set_widgets_visible(self.nested_widgets, visible=False)
             self.set_hotkeys(self.compose_key, self.abort_key)
             self.sig_updated.emit(self.compose_key, self.abort_key)
         else:
             if self.hotkey_thread is not None:
                 self.hotkey_thread.quit()  # Stop triggers while in config
             self.btn_set.setText("Apply")
-            show_widgets(self.nested_widgets)
+            set_widgets_visible(self.nested_widgets)
 
     @staticmethod
     def _preparse_hotkey(hotkey):

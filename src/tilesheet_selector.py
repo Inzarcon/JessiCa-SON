@@ -1,6 +1,6 @@
 """Module for the TilesheetSelector class."""
 
-from common_utils import delete_layout_widgets, get_layout_widgets
+from src.utils.widget_utils import delete_layout_widgets, get_layout_widgets
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QCheckBox, QGridLayout, QVBoxLayout, QWidget
 
@@ -66,7 +66,7 @@ class TilesheetSelector(QWidget):
     def clear_entries(self):
         """Delete the selector grid if one exists."""
         if self.selector_grid:
-            delete_layout_widgets(self.layout, except_indeces=[0])
+            delete_layout_widgets(self.layout, except_indeces=[0])  # Exclude main button
 
     def _on_main_change(self, state):
         """Called when the main checkbox was clicked."""
