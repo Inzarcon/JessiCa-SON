@@ -22,7 +22,7 @@ def set_widgets_visible(widgets: list[QWidget], *, visible: bool = True) -> None
 
 def get_layout_widgets(layout: QLayout) -> list[QWidget]:
     """Return all widget that are part of a layout."""
-    return [layout.itemAt(i).wid for i in range(layout.count())]
+    return [layout.itemAt(i).widget() for i in range(layout.count())]
 
 
 def delete_layout_widgets(layout: QLayout, except_indeces: list[int] | None = None) -> None:
