@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 from src.utils.widget_utils import set_widgets_visible
-from compose_logger import get_logger
+from src.utils.logger import get_logger
 from pynput import keyboard
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtWidgets import (
@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-log = get_logger("compose")
+log = get_logger("Compose")
 
 # TODO: Put JSON stuff and main settings.json into separate module.
 #       Currently clashes with ProfileManager and is very messy.

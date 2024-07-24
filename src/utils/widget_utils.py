@@ -29,8 +29,8 @@ def delete_layout_widgets(layout: QLayout, except_indeces: list[int] | None = No
     """Delete all widgets in a layout without deleting the layout itself.
 
     Optionally pass list of widget indices to keep.
-    https://stackoverflow.com/a/13103617
     """
+    # https://stackoverflow.com/a/13103617
     if except_indeces is None:
         except_indeces = []
     for i in reversed(range(layout.count())):

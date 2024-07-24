@@ -1,7 +1,7 @@
 import json
 import os
 
-from compose_logger import get_logger
+from src.utils.logger import get_logger
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-log = get_logger("compose")
+log = get_logger("Compose")
 
 # TODO: Put JSON stuff and main settings.json into separate module.
 #       Currently clashes with HotKeyManager and is very messy.

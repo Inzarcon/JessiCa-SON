@@ -23,12 +23,12 @@ from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from typing import Any, Optional, Tuple, Union
 
-from compose_logger import get_logger
+from src.utils.logger import get_logger
 from PySide6.QtCore import QObject, QRunnable, Signal, Slot
 
 from main import ROOT_PATH
 
-log = get_logger(name="compose")
+log = get_logger(name="Compose")
 
 
 class ComposeSignalType(Enum):
@@ -82,8 +82,9 @@ class ComposeSignalWrapper(QObject):
 SIG_COMPOSE = ComposeSignalWrapper()
 
 
-# These three functions could be class methods, but no "competitors" in this
-# module -> simplify
+# These three functions could be class methods, but no "competitors" in this module -> simplify
+
+
 def connect_compose_signal(receiver: Slot):
     """Connect a slot to the compose signal."""
     SIG_COMPOSE.signal.connect(receiver)
@@ -112,9 +113,9 @@ def log_and_emit(
     type and string replacement args.
     """
     formatted = message if not args else message.format(*args)
+    # Causes line numbers and function names of logging messages to always be the same. Ok enough for only this module.
     log.log(log_level, formatted)
-    # Message box handles color coded formatting later -> just forward
-    emit(sig_type, message, args, msg_type)
+    emit(sig_type, message, args, msg_type)  # ComposeMessageBox handles color coded formatting later -> Just forward.
 
 
 # Original import code kept for compatibility outside bundled windows libvips

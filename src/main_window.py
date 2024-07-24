@@ -5,7 +5,7 @@ from pathlib import Path
 import version
 from src.utils.widget_utils import set_widgets_enabled
 from compose import ComposeRunner, ComposeSignalType, connect_compose_signal
-from compose_logger import get_logger
+from src.utils.logger import get_logger
 from compose_message_box import ComposeMessageBox
 from compose_progress_bars import ComposeProgressBars
 from hotkey_manager import HotKeyManager
@@ -37,7 +37,7 @@ from tilesheet_selector import TilesheetSelector
 
 from main import CFG_PATH, ICON_PATH, ROOT_PATH, SOUNDS_PATH
 
-log = get_logger("compose")
+log = get_logger("Compose")
 
 
 # TODO: Refactor status labels into their own QWidget Class. Code is getting
