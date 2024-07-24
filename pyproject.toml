@@ -8,8 +8,6 @@ select = [
     "W",   # pycodestyle Warnings
     "F",   # Pyflakes
     "UP",  # pyupgrade
-    "B",   # flake8-bugbear
-    "SIM", # flake8-simplify
     "I",   # isort
     "C",   # Conventions
     "R",   # Refactor
@@ -17,9 +15,15 @@ select = [
     "C90", # mccabe
     "PL",  # pylint
     "RUF", # Ruff-specific
+
+    # flake8 modules
+    "YTT", "ANN", "ASYNC", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "EM", "FA", "ISC", "ICN", "LOG", "G",
+    "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "FIX", "ERA",
+    "PGH"
+
 ]
 
 ignore = [
     "D203",  # Conflicts with no-blank-line-before-class
-    "D213"   # Conflicts with multi-line-summary-first-line
+    "D213",  # Conflicts with multi-line-summary-first-line
 ]
