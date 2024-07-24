@@ -2,8 +2,8 @@ import json
 import re
 from pathlib import Path
 
-from src.utils.widget_utils import set_widgets_visible
-from src.utils.logger import get_logger
+from utils.widget_utils import set_widgets_visible
+from utils.logger import get_logger
 from pynput import keyboard
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtWidgets import (

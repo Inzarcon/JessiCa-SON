@@ -3,9 +3,9 @@
 from pathlib import Path
 
 import version
-from src.utils.widget_utils import set_widgets_enabled
+from utils.widget_utils import set_widgets_enabled
 from compose import ComposeRunner, ComposeSignalType, connect_compose_signal
-from src.utils.logger import get_logger
+from utils.logger import get_logger
 from compose_message_box import ComposeMessageBox
 from compose_progress_bars import ComposeProgressBars
 from hotkey_manager import HotKeyManager
