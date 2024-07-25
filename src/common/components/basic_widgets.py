@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 def _apply_font(func: Callable) -> Callable:
     def wrapper(self: FormattedQLabel, *args: tuple, **kwargs: dict[str, dict]) -> None:
         func(self, *args, **kwargs)
-        self.setFont(self.font)
+        self.setFont(self._font)
 
     return wrapper
 
@@ -22,7 +22,7 @@ def _apply_font(func: Callable) -> Callable:
 class FormattedQLabel(QLabel):
     """QLabel with built-in QFont and coloring."""
 
-    font: QFont = QFont()  # type: ignore[assignment]
+    _font: QFont = QFont()  # type: ignore[assignment]
 
     def __init__(
         self,
@@ -51,17 +51,17 @@ class FormattedQLabel(QLabel):
     @_apply_font
     def set_font_size(self, font_size: int) -> None:
         """Set text font size."""
-        self.font.setPointSize(font_size)
+        self._font.setPointSize(font_size)
 
     @_apply_font
     def set_bold(self, *, bold: bool = True) -> None:
         """Set text font bold. Alternatively, remove bold formatting by passing bold=False."""
-        self.font.setBold(bold)
+        self._font.setBold(bold)
 
     @_apply_font
     def set_italic(self, *, italic: bool = True) -> None:
         """Set text font italic. Alternatively, remove italic formatting by passing italic=False."""
-        self.font.setItalic(italic)
+        self._font.setItalic(italic)
 
     def set_color(self, color: str | None = None) -> None:
         """Set text color.
