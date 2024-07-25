@@ -3,9 +3,9 @@
 from pathlib import Path
 
 import version
-from utils.widget_utils import set_widgets_enabled
+from common.widget_utils import set_widgets_enabled
 from compose import ComposeRunner, ComposeSignalType, connect_compose_signal
-from utils.logger import get_logger
+from common.logger import get_logger
 from compose_message_box import ComposeMessageBox
 from compose_progress_bars import ComposeProgressBars
 from hotkey_manager import HotKeyManager
@@ -314,13 +314,13 @@ class MainWindow(QMainWindow):
         self.message_box.clear()
 
         flags = []
-        _ = not self.cb_use_all.isChecked() and flags.append("no_use_all")
-        _ = self.cb_only_json.isChecked() and flags.append("only_json")
-        _ = self.cb_format_json.isChecked() and flags.append("format_json")
-        _ = self.cb_obsolete_fillers.isChecked() and flags.append("obsolete_fillers")
-        _ = self.cb_fail_fast.isChecked() and flags.append("fail_fast")
-        _ = self.cb_palette.isChecked() and flags.append("palette")
-        _ = self.cb_palette_copies.isChecked() and flags.append("palette_copies")
+        not self.cb_use_all.isChecked() and flags.append("no_use_all")
+        self.cb_only_json.isChecked() and flags.append("only_json")
+        self.cb_format_json.isChecked() and flags.append("format_json")
+        self.cb_obsolete_fillers.isChecked() and flags.append("obsolete_fillers")
+        self.cb_fail_fast.isChecked() and flags.append("fail_fast")
+        self.cb_palette.isChecked() and flags.append("palette")
+        self.cb_palette_copies.isChecked() and flags.append("palette_copies")
 
         # TODO: Catch exception just to be sure
         if self.tilesheet_selector.main_checkbox.isChecked():
@@ -328,7 +328,7 @@ class MainWindow(QMainWindow):
         else:
             self.compose_subset = self.tileset_info.tilesheets
 
-        self.progress_bars.subset = self.compose_subset
+        self.progress_bars.set_subset(self.compose_subset)
 
         self.runner = ComposeRunner(self.src_input.text(), self.out_input.text(), flags, self.compose_subset)
         self.runner.create_tileset()
@@ -355,11 +355,11 @@ class MainWindow(QMainWindow):
         #       spaghetti with further additions.
         if sig_type is ComposeSignalType.PROGRESS_PNGNUM:
             self.total_sprites = int(message)
-            self.progress_bars.set_total(replacements, int(message))
+            self.progress_bars.setup(replacements, int(message))
         if sig_type is ComposeSignalType.PROGRESS_PERCENT:
             self.progress_bars.update_percent(message, replacements[0])
         if sig_type is ComposeSignalType.PROGRESS_IMAGE:
-            self.progress_bars.update_image()
+            self.progress_bars.increment_loaded()
             self.sheet_count += 1
         if sig_type is ComposeSignalType.STATUS_MESSAGE:
             if replacements:

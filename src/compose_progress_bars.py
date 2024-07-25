@@ -1,36 +1,28 @@
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QGridLayout, QLabel, QProgressBar, QWidget
+"""Module containing ComposeProgressBars component."""
+
+from common.components.basic_widgets import FormattedQLabel
+from PySide6.QtWidgets import QGridLayout, QProgressBar, QWidget
 
 
 class ComposeProgressBars(QWidget):
-    def __init__(self):
+    """Progress bars shown during composing process."""
+
+    _cur_loaded: int
+    _cur_composed: dict[str, int]
+    _sprites_per_tilesheet: dict[str, int]
+    _subset: tuple[str]
+
+    def __init__(self) -> None:
+        """Create ComposeProgressBars."""
         super().__init__()
-        self.hide()
 
-        self.total_count = 0
-
-        self.label_loaded = QLabel("Sprites loaded:")
+        self.label_loaded = FormattedQLabel("Sprites loaded:", font_size=10, bold=True)
         self.progress_loaded = QProgressBar()
-        self.progress_loaded.setValue(0)
-        self.progress_loaded.setAlignment(Qt.AlignCenter)
-        self.set_color(self.progress_loaded, "#4175c4")
+        self._set_color(self.progress_loaded, "#4175c4")
 
-        self.label_composed = QLabel("Sprites composed:")
+        self.label_composed = FormattedQLabel("Sprites composed:", font_size=10, bold=True)
         self.progress_composed = QProgressBar()
-        self.progress_composed.setValue(0)
-        self.progress_composed.setAlignment(Qt.AlignCenter)
-
-        self.composed_cur = {}
-        self.composed_pngnums = {}
-        self.subset = ()
-
-        # TODO: Refactor to not be duplicate code. -> General utility function?
-        font = QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        self.label_loaded.setFont(font)
-        self.label_composed.setFont(font)
+        self._set_color(self.progress_composed, "#669ff5")
 
         layout = QGridLayout()
         self.setLayout(layout)
@@ -40,37 +32,42 @@ class ComposeProgressBars(QWidget):
         layout.addWidget(self.progress_composed, 1, 1)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.reset()  # TODO Refactor duplicates away and call from __init__
+        self.reset()
 
-    def set_total(self, tilesheet_sprites: list[str], total_sprites: int):
-        self.composed_cur = {tilesheet: 0 for tilesheet in tilesheet_sprites}
-        self.composed_pngnums = tilesheet_sprites
+    def setup(self, sprites_per_tilesheet: dict[str, int], total_sprites: int) -> None:
+        """Set up the progress bars for the next run based on the given sprite numbers."""
+        self._cur_composed = {tilesheet: 0 for tilesheet in sprites_per_tilesheet}
+        self._sprites_per_tilesheet = sprites_per_tilesheet
         self.progress_loaded.setRange(0, total_sprites)
-        self.progress_composed.setRange(0, self.weighted_sum(True))
+        self.progress_composed.setRange(0, total_sprites)
+        self.show()
 
-    def weighted_sum(self, total=False):
-        items = self.composed_cur.items()
-        if total:
-            items = [(name, 100) for name, _ in items]
-        return sum((percent * self.composed_pngnums[name] for name, percent in items))
+    def set_subset(self, subset: tuple[str]) -> None:
+        """Set the subset of tilesheets to compose."""
+        self._subset = subset
 
-    def update_percent(self, sheet_name, percent: int) -> None:
-        self.composed_cur[sheet_name] = percent
-        self.progress_composed.setValue(self.weighted_sum())
+    def _calc_sprites_composed(self) -> int:
+        entries = list(self._cur_composed.items())
+        # Weight by total number of sprites in each tilesheet.
+        return int(sum((percent * self._sprites_per_tilesheet[name] for name, percent in entries)) / 100)
 
-    def set_color(self, which: QProgressBar, color: str = None):
-        color = color if color else "#669ff5"
+    def update_percent(self, sheet_name: str, percent: int) -> None:
+        """Update percentage of sprites composed so far for a specific tilesheet."""
+        self._cur_composed[sheet_name] = percent
+        self.progress_composed.setValue(self._calc_sprites_composed())
+
+    def _set_color(self, progress_bar: QProgressBar, color: str) -> None:
         css = r"QProgressBar::chunk {background: " + color + "}"
-        which.setStyleSheet(css)
+        progress_bar.setStyleSheet(css)
 
-    def update_image(self) -> None:
-        self.total_count += 1
-        self.progress_loaded.setValue(self.total_count)
+    def increment_loaded(self) -> None:
+        """Increment the counter for sprites loaded so far."""
+        self._cur_loaded += 1
+        self.progress_loaded.setValue(self._cur_loaded)
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset to initial state."""
         self.hide()
         self.progress_loaded.setValue(0)
-        self.progress_loaded.setRange(-1, 0)
         self.progress_composed.setValue(0)
-        self.total_count = 0
+        self._cur_loaded = 0
