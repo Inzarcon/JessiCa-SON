@@ -26,7 +26,7 @@ select = [
 ignore = [
     "D203",   # Conflicts with no-blank-line-before-class.
     "D213",   # Conflicts with multi-line-summary-first-line.
-    "ANN101", # "self" parameter shoud not need annotation.
+    "ANN101", # "self" parameter should not need annotation.
 ]
 
 [tool.ruff.lint.per-file-ignores]
