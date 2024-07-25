@@ -56,7 +56,8 @@ class ComposeProgressBars(QWidget):
         self._cur_composed[sheet_name] = percent
         self.progress_bar_composed.setValue(self._calc_sprites_composed())
 
-    def _set_color(self, progress_bar: QProgressBar, color: str) -> None:
+    @staticmethod
+    def _set_color(progress_bar: QProgressBar, color: str) -> None:
         css = r"QProgressBar::chunk {background: " + color + "}"
         progress_bar.setStyleSheet(css)
 
