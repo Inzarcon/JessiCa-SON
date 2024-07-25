@@ -1,4 +1,4 @@
-"""Various basic widgets commonly used throughout the application."""
+"""Module containing FormattedQLabel component."""
 
 from __future__ import annotations
 
