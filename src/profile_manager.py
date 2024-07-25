@@ -1,7 +1,7 @@
 import json
 import os
 
-from utils.logger import get_logger
+from common.logger import get_logger
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (

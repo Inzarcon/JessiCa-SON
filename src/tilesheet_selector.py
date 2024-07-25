@@ -1,6 +1,6 @@
 """Module for the TilesheetSelector class."""
 
-from utils.widget_utils import delete_layout_widgets, get_layout_widgets
+from common.widget_utils import delete_layout_widgets, get_layout_widgets
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QCheckBox, QGridLayout, QVBoxLayout, QWidget
 

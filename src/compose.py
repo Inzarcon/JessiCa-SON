@@ -23,7 +23,7 @@ from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from typing import Any, Optional, Tuple, Union
 
-from utils.logger import get_logger
+from common.logger import get_logger
 from PySide6.QtCore import QObject, QRunnable, Signal, Slot
 
 from main import ROOT_PATH
