@@ -2,8 +2,8 @@ import json
 import re
 from pathlib import Path
 
-from common.widget_utils import set_widgets_visible
 from common.logger import get_logger
+from common.widget_utils import set_widgets_visible
 from pynput import keyboard
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtWidgets import (
@@ -41,7 +41,7 @@ class HotKeyManager(QWidget):
                 {
                     self.compose_hk: self.parent.parent.start_compose_hotkey,
                     self.abort_hk: self.parent.parent.btn_abort.click,
-                }
+                },
             ) as self.hk:
                 self.hk.join()
 

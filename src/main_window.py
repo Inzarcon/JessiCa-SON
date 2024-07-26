@@ -3,9 +3,9 @@
 from pathlib import Path
 
 import version
+from common.logger import get_logger
 from common.widget_utils import set_widgets_enabled
 from compose import ComposeRunner, ComposeSignalType, connect_compose_signal
-from common.logger import get_logger
 from compose_message_box import ComposeMessageBox
 from compose_progress_bars import ComposeProgressBars
 from hotkey_manager import HotKeyManager
@@ -101,7 +101,7 @@ class MainWindow(QMainWindow):
 
         self.cb_format_json = QCheckBox("Format JSON", objectName="format_json")
         self.cb_format_json.setToolTip(
-            "Format tile_config.json. Uses CDDA formatter if found,\n" "otherwise Python built-in formatter"
+            "Format tile_config.json. Uses CDDA formatter if found,\notherwise Python built-in formatter",
         )
 
         self.cb_fail_fast = QCheckBox("Fail Fast", objectName="fail_fast")

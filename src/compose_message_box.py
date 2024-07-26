@@ -182,7 +182,7 @@ formats = {
         "hinting_styles": (style_green, *[style_cyan] * 5),
     },
     MessageType.ERR_PNG_NOT_FOUND: {
-        "new_message": "Sprite {} was not found and will be ignored. " "Referenced in {}.",
+        "new_message": "Sprite {} was not found and will be ignored. Referenced in {}.",
         "select_args": (0, 2),
         "hinting_styles": (style_cyan, style_green),
     },

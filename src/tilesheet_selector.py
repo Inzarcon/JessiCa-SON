@@ -44,7 +44,7 @@ class TilesheetSelector(QWidget):
             "If enabled, choose tilesheet(s) to be composed. The\n"
             "remaining tilesheets will be skipped.\n"
             "(Note: All JSON entries and sprite file names are still\n"
-            "processed in order to generate a valid configuration.)"
+            "processed in order to generate a valid configuration.)",
         )
         self.main_checkbox.stateChanged.connect(self._on_main_change)
         self.selector_grid = None

@@ -21,7 +21,7 @@ import subprocess
 from enum import Enum, auto
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import Any, Optional, Tuple, Union
+from typing import Any
 
 from common.logger import get_logger
 from PySide6.QtCore import QObject, QRunnable, Signal, Slot
@@ -93,7 +93,7 @@ def connect_compose_signal(receiver: Slot):
 def emit(
     sig_type: ComposeSignalType,
     message: str = None,
-    args: Tuple[str] = None,
+    args: tuple[str] = None,
     msg_type: MessageType = None,
 ) -> None:
     """Shortcut for emitting a message with the corresponding signal type and
@@ -106,7 +106,7 @@ def log_and_emit(
     log_level: int,
     sig_type: ComposeSignalType,
     message: str = None,
-    args: Tuple[str] = None,
+    args: tuple[str] = None,
     msg_type: MessageType = None,
 ) -> None:
     """Shortcut for logging and emitting a message with the corresponding signal
@@ -170,7 +170,7 @@ FALLBACK = {
 
 def write_to_json(
     pathname: str,
-    data: Union[dict, list],
+    data: dict | list,
     format_json: bool = False,
 ) -> None:
     """Write data to a JSON file."""
@@ -314,7 +314,7 @@ class Tileset:
         abort_composing doesn't work with multithreading!
         """
         if self.to_exit:
-            raise StopComposing()
+            raise StopComposing
 
     def determine_conffile(self) -> str:
         """Find the tileset properties file."""
@@ -431,7 +431,7 @@ class Tileset:
                         log_and_emit(
                             logging.WARNING,
                             ComposeSignalType.WARNING_MESSAGE,
-                            "Sprite {} was not mentioned in any " "tile entry but there is a tile entry for the ID {}.",
+                            "Sprite {} was not mentioned in any tile entry but there is a tile entry for the ID {}.",
                             (f"{unused_png}.png", unused_png),
                             MessageType.WARN_NOT_MENTIONED,
                         )
@@ -452,7 +452,7 @@ class Tileset:
                             {
                                 "id": unused_png,
                                 "fg": unused_num,
-                            }
+                            },
                         )
                         self.processed_ids.append(unused_png)
                         break
@@ -516,7 +516,7 @@ class Tileset:
                     "iso": self.iso,
                     "retract_dist_min": self.retract_dist_min,
                     "retract_dist_max": self.retract_dist_max,
-                }
+                },
             ],
             "tiles-new": tiles_new,
         }
@@ -741,7 +741,7 @@ class Tilesheet(QObject):
             emit(ComposeSignalType.PROGRESS_IMAGE)
             self.sprites.append(self.load_image(filepath))
 
-    def load_image(self, png_path: Union[str, Path]) -> pyvips.Image:
+    def load_image(self, png_path: str | Path) -> pyvips.Image:
         """Load and verify a single image using pyvips"""
         self.tileset.check_abort()
         if self.tileset.only_json:
@@ -754,7 +754,7 @@ class Tilesheet(QObject):
             raise ComposingException(
                 f"Cannot load {png_path} with UnicodeDecodeError, "
                 "please report your setup at "
-                "https://github.com/libvips/pyvips/issues/80"
+                "https://github.com/libvips/pyvips/issues/80",
             ) from None
         if image.interpretation != "srgb":
             image = image.colourspace("srgb")
@@ -865,7 +865,7 @@ class TileEntry:
         self,
         tilesheet: Tilesheet,
         data: dict,
-        filepath: Union[str, Path],
+        filepath: str | Path,
     ) -> None:
         self.tilesheet = tilesheet
         self.data = data
@@ -873,9 +873,9 @@ class TileEntry:
 
     def convert(
         self,
-        entry: Union[dict, None] = None,
+        entry: dict | None = None,
         prefix: str = "",
-    ) -> Optional[dict]:
+    ) -> dict | None:
         """Recursively compile input into game-compatible objects in-place."""
         if entry is None:
             entry = self.data
@@ -958,7 +958,7 @@ class TileEntry:
 
     def convert_entry_layer(
         self,
-        entry_layer: Union[list, str],
+        entry_layer: list | str,
     ) -> list:
         """Convert sprite names to sprite indexes in one fg or bg tile entry part."""
         output = []
@@ -982,8 +982,8 @@ class TileEntry:
 
     def convert_random_variations(
         self,
-        sprite_names: Union[list, str],
-    ) -> Tuple[list, bool]:
+        sprite_names: list | str,
+    ) -> tuple[list, bool]:
         """Convert list of random weighted variation objects."""
         valid = False
         converted_variations = []
@@ -1017,7 +1017,7 @@ class TileEntry:
             log_and_emit(
                 logging.ERROR,
                 ComposeSignalType.ERROR_MESSAGE,
-                "{} file for {} value from {} " "was not found. It will not be added to {}",
+                "{} file for {} value from {} was not found. It will not be added to {}",
                 (
                     sprite_name,
                     sprite_name,
