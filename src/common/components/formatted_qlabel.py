@@ -39,14 +39,10 @@ class FormattedQLabel(QLabel):
         """
         super().__init__(text=text)
 
-        if font_size is not None:
-            self.set_font_size(font_size)
-
+        self.set_font_size(font_size) if font_size is not None else None
         self.set_bold(bold=bold)
         self.set_italic(italic=italic)
-
-        if color is not None:
-            self.set_color(color)
+        self.set_color(color) if color is not None else None
 
     @_apply_font
     def set_font_size(self, font_size: int) -> None:
