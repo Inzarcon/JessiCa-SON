@@ -33,3 +33,12 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "*/__init__.py" = ["D", "F401"]
+
+[tool.mypy]
+mypy_path = "./src/"
+explicit_package_bases = true
+namespace_packages = true
+
+[[tool.mypy.overrides]]
+module = "thirdparty.*"
+ignore_errors = true
