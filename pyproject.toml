@@ -32,4 +32,4 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"*/__init__.py" = ["D"]
+"*/__init__.py" = ["D", "F401"]
