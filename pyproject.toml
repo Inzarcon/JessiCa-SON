@@ -40,9 +40,11 @@ ignore = [
 "*/__init__.py" = ["F401", "D104"]  # Allow unused imports and missing docstrings.
 
 "tests/*" = [
-    "S101",             # Allow assert for tests.
+    "S101",             # Allow assert.
     "ANN001", "ARG001", # Allow implicitly used pytest fixtures.
-    "PLR2004",          # Allow magic values for tests.
+    "PLR2004",          # Allow magic values.
+    "INP001",           # Allow missing __init__.py (conflicts with test imports.)
+    "SLF001",           # Allow private member access.
 ]
 
 [tool.mypy]
