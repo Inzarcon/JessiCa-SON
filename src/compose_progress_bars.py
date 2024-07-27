@@ -1,6 +1,6 @@
 """Module containing ComposeProgressBars component."""
 
-from common.components import FormattedQLabel
+from common.widgets import FormattedQLabel
 from PySide6.QtWidgets import QGridLayout, QProgressBar, QWidget
 
 
