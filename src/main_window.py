@@ -328,8 +328,6 @@ class MainWindow(QMainWindow):
         else:
             self.compose_subset = self.tileset_info.tilesheets
 
-        self.progress_bars.set_subset(self.compose_subset)
-
         self.runner = ComposeRunner(self.src_input.text(), self.out_input.text(), flags, self.compose_subset)
         self.runner.create_tileset()
         self.threadpool.start(self.runner.run)

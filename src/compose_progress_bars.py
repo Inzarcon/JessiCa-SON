@@ -10,7 +10,6 @@ class ComposeProgressBars(QWidget):
     _cur_loaded: int
     _cur_composed: dict[str, int]
     _sprites_per_tilesheet: dict[str, int]
-    _subset: tuple[str]
 
     def __init__(self) -> None:
         """Create ComposeProgressBars."""
@@ -41,10 +40,6 @@ class ComposeProgressBars(QWidget):
         self.progress_bar_loaded.setRange(0, total_sprites)
         self.progress_bar_composed.setRange(0, total_sprites)
         self.show()
-
-    def set_subset(self, subset: tuple[str]) -> None:
-        """Set the subset of tilesheets to compose."""
-        self._subset = subset
 
     def _calc_sprites_composed(self) -> int:
         entries = list(self._cur_composed.items())
