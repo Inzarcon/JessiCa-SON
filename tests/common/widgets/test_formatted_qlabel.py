@@ -1,4 +1,4 @@
-"""Test class for FormattedQLabel widget."""
+"""Test module for FormattedQLabel widget."""
 
 from common.widgets import FormattedQLabel
 from PySide6.QtWidgets import QLabel
