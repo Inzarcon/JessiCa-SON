@@ -1,16 +1,16 @@
-"""Test module for ConfigManager and ConfigObserver base classes. Combined since they work closely together."""
+"""Test module for SettingsManager and SettingsObserver base classes. Combined since they work closely together."""
 
 from json import JSONDecodeError
 from pathlib import Path
 
 import pytest
-from config_io import ConfigObserver, ConfigObserverSavable
-from config_io.config_manager import ConfigManager
 from PySide6.QtWidgets import QCheckBox
+from settings_io import SettingsObserver, SettingsObserverSavable
+from settings_io.settings_manager import SettingsManager
 
 
 # Simple implementations for testing base class functionality.
-class _BaseConfigManager(ConfigManager):
+class _BaseSettingsManager(SettingsManager):
     _file = Path("test_settings.json")
     _msg_file_not_found: str = "File %s not found."
 
@@ -19,7 +19,7 @@ class _BaseConfigManager(ConfigManager):
         self._dir = tmp_path
 
 
-class _BaseConfigObserver(ConfigObserver):
+class _BaseSettingsObserver(SettingsObserver):
     content: str
     other: str
     number: int
@@ -30,7 +30,7 @@ class _BaseConfigObserver(ConfigObserver):
         self.other_setting = value
 
 
-class _BaseConfigObserverSavable(ConfigObserverSavable):
+class _BaseSettingsObserverSavable(SettingsObserverSavable):
     content: str
     number: int
     include_thing: bool
@@ -50,7 +50,7 @@ class TestJSON:
     @staticmethod
     def test_single(tmp_path, caplog) -> None:
         """Test saving and loading single setting."""
-        cfg = _BaseConfigManager(tmp_path)
+        cfg = _BaseSettingsManager(tmp_path)
         cfg.save_setting("test_setting", "test_value")
         assert cfg.load_setting("test_setting") == "test_value"
 
@@ -72,7 +72,7 @@ class TestJSON:
     @staticmethod
     def test_multiple(tmp_path) -> None:
         """Test saving and loading multiple settings."""
-        cfg = _BaseConfigManager(tmp_path)
+        cfg = _BaseSettingsManager(tmp_path)
         cfg.save_settings(
             {
                 "test_setting": "test_value",
@@ -97,7 +97,7 @@ class TestJSON:
     @staticmethod
     def test_overwrite(tmp_path, caplog) -> None:
         """Test overwriting setting."""
-        cfg = _BaseConfigManager(tmp_path)
+        cfg = _BaseSettingsManager(tmp_path)
         cfg.save_setting("test_setting", "test_value")
         cfg.save_setting("test_setting", "overwritten")
         assert cfg.load_setting("test_setting") == "overwritten"
@@ -114,7 +114,7 @@ class TestJSON:
     @staticmethod
     def test_load_setting_not_exist(tmp_path, caplog) -> None:
         """Test loading setting that does not exist."""
-        cfg = _BaseConfigManager(tmp_path)
+        cfg = _BaseSettingsManager(tmp_path)
         cfg.save_setting("test_setting", "test_value")
         assert cfg.load_setting("test_setting_not_exist") is None
 
@@ -129,7 +129,7 @@ class TestJSON:
     @staticmethod
     def test_load_file_not_exist(tmp_path, caplog) -> None:
         """Test loading file that does not exist."""
-        cfg = _BaseConfigManager(tmp_path)
+        cfg = _BaseSettingsManager(tmp_path)
         with pytest.raises(FileNotFoundError) as _:
             cfg.load_setting("test_setting")
 
@@ -141,7 +141,7 @@ class TestJSON:
     @staticmethod
     def test_load_file_invalid_json(tmp_path, caplog) -> None:
         """Test loading file containing invalid json."""
-        cfg = _BaseConfigManager(tmp_path)
+        cfg = _BaseSettingsManager(tmp_path)
         cfg.save_setting("test_setting", "test_value")
         with Path.open(tmp_path.joinpath("test_settings.json"), "w") as file:
             file.write("invalid")
@@ -160,14 +160,14 @@ class TestJSON:
         assert cfg._entries.get("test_setting") == "test_value"
 
 
-class TestConfigObserver:
-    """Tests for interaction between ConfigManager and ConfigObservers."""
+class TestSettingsObserver:
+    """Tests for interaction between SettingsManager and SettingsObservers."""
 
     @staticmethod
     def test_register(tmp_path, caplog) -> None:
-        """Test registering ConfigObserver to ConfigManager."""
-        obs = _BaseConfigObserver({"content": "Initial State"})
-        cfg = _BaseConfigManager(tmp_path)
+        """Test registering SettingsObserver to SettingsManager."""
+        obs = _BaseSettingsObserver({"content": "Initial State"})
+        cfg = _BaseSettingsManager(tmp_path)
         obs.register_at(cfg)
 
         records = caplog.records
@@ -176,14 +176,14 @@ class TestConfigObserver:
         assert records[0].levelname == "INFO"
         msg = records[0].getMessage()
         assert msg.startswith("Added")
-        assert "_BaseConfigObserver" in msg
+        assert "_BaseSettingsObserver" in msg
         assert "content" in msg
 
     @staticmethod
     def test_register_twice(tmp_path, caplog) -> None:
-        """Test registering ConfigObserver to ConfigManager with the same setting twice."""
-        obs = _BaseConfigObserver({"content": "Initial State"})
-        cfg = _BaseConfigManager(tmp_path)
+        """Test registering SettingsObserver to SettingsManager with the same setting twice."""
+        obs = _BaseSettingsObserver({"content": "Initial State"})
+        cfg = _BaseSettingsManager(tmp_path)
         obs.register_at(cfg)
         obs.register_at(cfg)
 
@@ -193,16 +193,16 @@ class TestConfigObserver:
         assert records[1].levelname == "WARNING"
         msg = records[1].getMessage()
         assert "already registered" in msg
-        assert "_BaseConfigObserver" in msg
+        assert "_BaseSettingsObserver" in msg
         assert "content" in msg
 
     @staticmethod
     def test_single_setting(tmp_path) -> None:
         """Test saving and loading single setting."""
-        obs = _BaseConfigObserver({"content": "Initial State"})
+        obs = _BaseSettingsObserver({"content": "Initial State"})
         assert obs.content == "Initial State"
 
-        cfg = _BaseConfigManager(tmp_path)
+        cfg = _BaseSettingsManager(tmp_path)
         obs.register_at(cfg)
 
         cfg.save_setting("content", "New State")
@@ -214,12 +214,12 @@ class TestConfigObserver:
     @staticmethod
     def test_multiple_settings(tmp_path) -> None:
         """Test saving and loading multiple settings."""
-        obs = _BaseConfigObserver({"content": "Initial State", "number": 42, "include_thing": True})
+        obs = _BaseSettingsObserver({"content": "Initial State", "number": 42, "include_thing": True})
         assert obs.content == "Initial State"
         assert obs.number == 42
         assert obs.include_thing
 
-        cfg = _BaseConfigManager(tmp_path)
+        cfg = _BaseSettingsManager(tmp_path)
         obs.register_at(cfg)
 
         cfg.save_settings({"content": "New State", "number": 2, "include_thing": False, "unrelated": "Unrelated"})
@@ -230,10 +230,10 @@ class TestConfigObserver:
     @staticmethod
     def test_multiple_observers_different_settings(tmp_path) -> None:
         """Test multiple observers with different settings."""
-        cfg = _BaseConfigManager(tmp_path)
-        obs1 = _BaseConfigObserver({"content": "Initial State"})
+        cfg = _BaseSettingsManager(tmp_path)
+        obs1 = _BaseSettingsObserver({"content": "Initial State"})
         obs1.register_at(cfg)
-        obs2 = _BaseConfigObserver({"number": 42})
+        obs2 = _BaseSettingsObserver({"number": 42})
         obs2.register_at(cfg)
 
         cfg.save_settings({"content": "New State", "number": 2, "unrelated": "Unrelated"})
@@ -244,10 +244,10 @@ class TestConfigObserver:
     @staticmethod
     def test_multiple_observers_same_settings(tmp_path) -> None:
         """Test multiple observers with the same setting."""
-        cfg = _BaseConfigManager(tmp_path)
-        obs1 = _BaseConfigObserver({"content": "Initial State"})
+        cfg = _BaseSettingsManager(tmp_path)
+        obs1 = _BaseSettingsObserver({"content": "Initial State"})
         obs1.register_at(cfg)
-        obs2 = _BaseConfigObserver({"content": "Initial State"})
+        obs2 = _BaseSettingsObserver({"content": "Initial State"})
         obs2.register_at(cfg)
 
         cfg.save_settings({"content": "New State", "unrelated": "Unrelated"})
@@ -258,8 +258,8 @@ class TestConfigObserver:
     @staticmethod
     def test_setting_to_func(tmp_path) -> None:
         """Test redirecting a setting to a Callable."""
-        cfg = _BaseConfigManager(tmp_path)
-        obs = _BaseConfigObserver({"content": "Initial State", "other": "Other Inital State"})
+        cfg = _BaseSettingsManager(tmp_path)
+        obs = _BaseSettingsObserver({"content": "Initial State", "other": "Other Inital State"})
         obs.register_at(cfg)
 
         assert hasattr(obs, "other")
@@ -273,8 +273,8 @@ class TestConfigObserver:
     @staticmethod
     def test_setting_to_func_keep_attr(tmp_path) -> None:
         """Test redirecting a setting to a Callable while keeping the created attribute."""
-        cfg = _BaseConfigManager(tmp_path)
-        obs = _BaseConfigObserver({"content": "Initial State", "other": "Other Inital State"})
+        cfg = _BaseSettingsManager(tmp_path)
+        obs = _BaseSettingsObserver({"content": "Initial State", "other": "Other Inital State"})
         obs.register_at(cfg)
 
         assert hasattr(obs, "other")
@@ -284,7 +284,7 @@ class TestConfigObserver:
     @staticmethod
     def test_invalid_func() -> None:
         """Test error if setting_to_func entries are invalid."""
-        obs = _BaseConfigObserver({"content": "Initial State", "number": 42})
+        obs = _BaseSettingsObserver({"content": "Initial State", "number": 42})
         setting_to_func = {"content": obs.other_method, "invalid_1": obs.other_method, "invalid_2": obs.other_method}
 
         with pytest.raises(ValueError, match=r".*\['invalid_1', 'invalid_2'\].*"):
@@ -293,7 +293,7 @@ class TestConfigObserver:
     @staticmethod
     def test_func_not_callable() -> None:
         """Test error if setting_to_func value is not callable."""
-        obs = _BaseConfigObserver({"content": "Initial State", "number": 42, "include_thing": True})
+        obs = _BaseSettingsObserver({"content": "Initial State", "number": 42, "include_thing": True})
         setting_to_func = {"content": obs.other_method, "number": 404, "include_thing": False}
         with pytest.raises(ValueError, match=r".* \[404, False\]"):
             obs.set_setting_to_func(setting_to_func)  # type: ignore[arg-type]
@@ -301,8 +301,8 @@ class TestConfigObserver:
     @staticmethod
     def test_setting_not_found(tmp_path) -> None:
         """Test if observer resets setting back to default state if not found."""
-        cfg = _BaseConfigManager(tmp_path)
-        obs = _BaseConfigObserver({"content": "Initial State"})
+        cfg = _BaseSettingsManager(tmp_path)
+        obs = _BaseSettingsObserver({"content": "Initial State"})
         obs.content = "New State"
         obs.register_at(cfg)
         cfg.save_setting("unrelated", "Unrelated")  # Otherwise file will not exist.
@@ -311,17 +311,17 @@ class TestConfigObserver:
         assert obs.content == "Initial State"
 
 
-class TestConfigObserverSavable:
-    """Additional tests for interaction between ConfigManager and ConfigObserverSavables."""
+class TestSettingsObserverSavable:
+    """Additional tests for interaction between SettingsManager and SettingsObserverSavables."""
 
     @staticmethod
     def test_register_multiple(tmp_path, caplog) -> None:
-        """Test warning when registering multiple ConfigObserverSavable instances for the same setting."""
-        cfg = _BaseConfigManager(tmp_path)
+        """Test warning when registering multiple SettingsObserverSavable instances for the same setting."""
+        cfg = _BaseSettingsManager(tmp_path)
 
-        obs_regular = _BaseConfigObserver({"content": "Initial State"})
-        obs_savable_1 = _BaseConfigObserverSavable({"content": "Initial State"})
-        obs_savable_2 = _BaseConfigObserverSavable({"content": "Initial State"})
+        obs_regular = _BaseSettingsObserver({"content": "Initial State"})
+        obs_savable_1 = _BaseSettingsObserverSavable({"content": "Initial State"})
+        obs_savable_2 = _BaseSettingsObserverSavable({"content": "Initial State"})
 
         obs_regular.register_at(cfg)
         obs_savable_1.register_at(cfg)
@@ -342,8 +342,8 @@ class TestConfigObserverSavable:
     @staticmethod
     def test_single_setting(tmp_path) -> None:
         """Test single setting that can have its state saved and loaded."""
-        obs = _BaseConfigObserverSavable({"content": "Initial State"})
-        cfg = _BaseConfigManager(tmp_path)
+        obs = _BaseSettingsObserverSavable({"content": "Initial State"})
+        cfg = _BaseSettingsManager(tmp_path)
         obs.register_at(cfg)
 
         cfg.save_setting("content", "New State")
@@ -356,8 +356,8 @@ class TestConfigObserverSavable:
     @staticmethod
     def test_multiple_settings(tmp_path) -> None:
         """Test mustiple settings that can have their state saved and loaded."""
-        obs = _BaseConfigObserverSavable({"content": "Initial State", "number": 42, "include_thing": True})
-        cfg = _BaseConfigManager(tmp_path)
+        obs = _BaseSettingsObserverSavable({"content": "Initial State", "number": 42, "include_thing": True})
+        cfg = _BaseSettingsManager(tmp_path)
         obs.register_at(cfg)
 
         cfg.save_settings({"content": "New State", "number": 2, "include_thing": False})
@@ -373,7 +373,7 @@ class TestConfigObserverSavable:
     @staticmethod
     def test_update_none(tmp_path, caplog) -> None:
         """Test warning when there are no observed settings to update."""
-        cfg = _BaseConfigManager(tmp_path)
+        cfg = _BaseSettingsManager(tmp_path)
         cfg.check_states_all()
 
         records = caplog.records
@@ -384,8 +384,8 @@ class TestConfigObserverSavable:
     @staticmethod
     def test_update_wrong_setting(tmp_path, caplog) -> None:
         """Test warning when updating setting without observers."""
-        obs = _BaseConfigObserverSavable({"content": "Initial State"})
-        cfg = _BaseConfigManager(tmp_path)
+        obs = _BaseSettingsObserverSavable({"content": "Initial State"})
+        cfg = _BaseSettingsManager(tmp_path)
         obs.register_at(cfg)
 
         cfg.save_setting("other", "Other State")
@@ -401,9 +401,9 @@ class TestConfigObserverSavable:
     @staticmethod
     def test_update_not_savable(tmp_path, caplog) -> None:
         """Test warning when updating setting that has a regular observer, but no savable observer."""
-        obs_regular = _BaseConfigObserver({"other": "Initial State"})
-        obs_savable = _BaseConfigObserverSavable({"content": "Initial State"})
-        cfg = _BaseConfigManager(tmp_path)
+        obs_regular = _BaseSettingsObserver({"other": "Initial State"})
+        obs_savable = _BaseSettingsObserverSavable({"content": "Initial State"})
+        cfg = _BaseSettingsManager(tmp_path)
         obs_regular.register_at(cfg)
         obs_savable.register_at(cfg)
 
@@ -416,15 +416,15 @@ class TestConfigObserverSavable:
         assert len(records) == 4
         assert records[3].levelname == "WARNING"
         msg = records[3].getMessage()
-        assert "No ConfigObserverSavable instance" in msg
+        assert "No SettingsObserverSavable instance" in msg
         assert "other" in msg
 
     @staticmethod
     def test_update_mixed(tmp_path) -> None:
         """Test updating a regular observer with the value of another savable observer."""
-        obs_regular = _BaseConfigObserver({"content": "Initial State"})
-        obs_savable = _BaseConfigObserverSavable({"content": "Initial State"})
-        cfg = _BaseConfigManager(tmp_path)
+        obs_regular = _BaseSettingsObserver({"content": "Initial State"})
+        obs_savable = _BaseSettingsObserverSavable({"content": "Initial State"})
+        cfg = _BaseSettingsManager(tmp_path)
         obs_regular.register_at(cfg)
         obs_savable.register_at(cfg)
 
@@ -437,10 +437,10 @@ class TestConfigObserverSavable:
     @staticmethod
     def test_function(tmp_path) -> None:
         """Test single setting that is redirected to a function for both loading and saving."""
-        obs = _BaseConfigObserverSavable({"other": "Initial State"})
+        obs = _BaseSettingsObserverSavable({"other": "Initial State"})
         obs.set_setting_to_func({"other": obs.set_other})
         obs.set_func_to_setting({"other": obs.get_other})
-        cfg = _BaseConfigManager(tmp_path)
+        cfg = _BaseSettingsManager(tmp_path)
         obs.register_at(cfg)
 
         cfg.save_setting("other", "New State")
@@ -455,7 +455,7 @@ class TestConfigObserverSavable:
     @staticmethod
     def test_func_not_callable() -> None:
         """Test error if func_to_setting value is not callable."""
-        obs = _BaseConfigObserverSavable({"content": "Initial State", "number": 42, "include_thing": True})
+        obs = _BaseSettingsObserverSavable({"content": "Initial State", "number": 42, "include_thing": True})
         func_to_setting = {"content": obs.get_other, "number": 404, "include_thing": False}
         with pytest.raises(ValueError, match=r".* \[404, False\]"):
             obs.set_func_to_setting(func_to_setting)  # type: ignore[arg-type]
@@ -464,7 +464,7 @@ class TestConfigObserverSavable:
     def test_qt_checkbox(tmp_path, qtbot) -> None:
         """Test loading and saving state of an actual QCheckbox widget."""
 
-        class _TestQCheckBox(ConfigObserverSavable, QCheckBox):
+        class _TestQCheckBox(SettingsObserverSavable, QCheckBox):
             def __init__(self, config) -> None:
                 """Initialize."""
                 QCheckBox.__init__(self)
@@ -475,7 +475,7 @@ class TestConfigObserverSavable:
         cb = _TestQCheckBox(config={"box_checked": False})
         qtbot.addWidget(cb)
         assert not cb.isChecked()
-        cfg = _BaseConfigManager(tmp_path)
+        cfg = _BaseSettingsManager(tmp_path)
         cb.register_at(cfg)
 
         cfg.save_setting("box_checked", value=True)
