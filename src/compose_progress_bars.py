@@ -33,6 +33,13 @@ class ComposeProgressBars(QWidget):
 
         self.reset()
 
+    def reset(self) -> None:
+        """Reset to initial state."""
+        self.hide()
+        self.progress_bar_loaded.setValue(0)
+        self.progress_bar_composed.setValue(0)
+        self._cur_loaded = 0
+
     def setup(self, sprites_per_tilesheet: dict[str, int], total_sprites: int) -> None:
         """Set up the progress bars for the next run based on the given sprite numbers."""
         self._cur_composed = {tilesheet: 0 for tilesheet in sprites_per_tilesheet}
@@ -41,10 +48,10 @@ class ComposeProgressBars(QWidget):
         self.progress_bar_composed.setRange(0, total_sprites)
         self.show()
 
-    def _calc_sprites_composed(self) -> int:
-        entries = list(self._cur_composed.items())
-        # Weight by total number of sprites in each tilesheet.
-        return int(sum((percent * self._sprites_per_tilesheet[name] for name, percent in entries)) / 100)
+    def increment_loaded(self) -> None:
+        """Increment the counter for sprites loaded so far."""
+        self._cur_loaded += 1
+        self.progress_bar_loaded.setValue(self._cur_loaded)
 
     def update_percent(self, sheet_name: str, percent: int) -> None:
         """Update percentage of sprites composed so far for a specific tilesheet."""
@@ -56,14 +63,7 @@ class ComposeProgressBars(QWidget):
         css = r"QProgressBar::chunk {background: " + color + "}"
         progress_bar.setStyleSheet(css)
 
-    def increment_loaded(self) -> None:
-        """Increment the counter for sprites loaded so far."""
-        self._cur_loaded += 1
-        self.progress_bar_loaded.setValue(self._cur_loaded)
-
-    def reset(self) -> None:
-        """Reset to initial state."""
-        self.hide()
-        self.progress_bar_loaded.setValue(0)
-        self.progress_bar_composed.setValue(0)
-        self._cur_loaded = 0
+    def _calc_sprites_composed(self) -> int:
+        entries = list(self._cur_composed.items())
+        # Weight by total number of sprites in each tilesheet.
+        return int(sum((percent * self._sprites_per_tilesheet[name] for name, percent in entries)) / 100)
