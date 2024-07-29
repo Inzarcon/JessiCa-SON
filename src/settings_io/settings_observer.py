@@ -35,6 +35,10 @@ class SettingsObserver:
         for setting_name, value in settings.items():
             self.setting_update(setting_name, value)
 
+    def register_at(self, settings_manager: SettingsManager) -> None:
+        """Register self to a SettingsManager."""
+        settings_manager.register_observer(self, list(self._settings.keys()))
+
     def set_settings_to_callables(self, settings_to_callables: dict[str, Callable], *, keep_attr: bool = False) -> None:
         """Set setting_update method to use given callables instead of overwriting the instance attributes directly.
 
@@ -48,24 +52,6 @@ class SettingsObserver:
         self._set_redirect_method(settings_to_callables, name="settings_to_callables", keep_attr=keep_attr)
         for setting_name in settings_to_callables:
             self.setting_update(setting_name, None)
-
-    def _set_redirect_method(self, redirections: dict[str, Callable], name: str, *, keep_attr: bool = False) -> None:
-        # Internal shortcut for set_settings_to_callables and set_callables_to_settings methods.
-        invalid = [setting_name for setting_name in redirections if setting_name not in self._settings]
-        if invalid:
-            msg = f"All setting names in {name} must exist in settings, but these do not: {invalid}"
-            raise ValueError(msg)
-
-        not_callable = [func for func in redirections.values() if not callable(func)]
-        if not_callable:
-            msg = f"Not callable: {not_callable}"
-            raise ValueError(msg)
-
-        setattr(self, f"_{name}", redirections)
-        if not keep_attr:
-            for setting_name in redirections:
-                if hasattr(self, setting_name):
-                    delattr(self, setting_name)
 
     def setting_update(self, setting_name: str, value: str | int | bool | None) -> None:
         """Notify about setting update and apply new setting. If value is None, reset back to default value."""
@@ -85,9 +71,23 @@ class SettingsObserver:
         else:
             setattr(self, setting_name, value)
 
-    def register_at(self, settings_manager: SettingsManager) -> None:
-        """Register self to a SettingsManager."""
-        settings_manager.register_observer(self, list(self._settings.keys()))
+    def _set_redirect_method(self, redirections: dict[str, Callable], name: str, *, keep_attr: bool = False) -> None:
+        # Internal shortcut for set_settings_to_callables and set_callables_to_settings methods.
+        invalid = [setting_name for setting_name in redirections if setting_name not in self._settings]
+        if invalid:
+            msg = f"All setting names in {name} must exist in settings, but these do not: {invalid}"
+            raise ValueError(msg)
+
+        not_callable = [func for func in redirections.values() if not callable(func)]
+        if not_callable:
+            msg = f"Not callable: {not_callable}"
+            raise ValueError(msg)
+
+        setattr(self, f"_{name}", redirections)
+        if not keep_attr:
+            for setting_name in redirections:
+                if hasattr(self, setting_name):
+                    delattr(self, setting_name)
 
 
 class SettingsObserverSavable(SettingsObserver):

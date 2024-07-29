@@ -12,7 +12,12 @@ log = get_logger("Settings")
 
 
 class SettingsManager(ABC):
-    """Base class of managers for settings files such as the main settings.json and tileset profiles."""
+    """Abstract base class of managers for settings files such as the main settings.json and tileset profiles.
+
+    Handles all relevant JSON operations internally based on the _dir and _file attributes. Registers SettingsObserver
+    instances and notifies them on relevant changes. In the case of SettingsObserverSavable instances, also checks their
+    state and updates the settings file accordingly.
+    """
 
     _dir: Path
     _file: Path
@@ -27,89 +32,6 @@ class SettingsManager(ABC):
         """Create SettingsManager and load initial settings on application startup."""
         self._entries = {}
         self._observed_settings = {}
-
-    def register_observer(self, observer: SettingsObserver, setting_names: list[str]) -> None:
-        """Register an observer and the setting names it should be notified on."""
-        for setting_name in setting_names:
-            if setting_name not in self._observed_settings:
-                self._observed_settings[setting_name] = [observer]
-                log.info("Added observer %s to setting '%s'.", observer, setting_name)
-                continue
-
-            observers = self._observed_settings.get(setting_name)
-            if observers is None:
-                msg = "There are no observers for setting '%s', but it should have been added just before."
-                raise ValueError(msg, setting_name)
-
-            if observer in observers:
-                log.warning("Observer %s already registered to setting '%s'. Ignoring.", observer, setting_name)
-                continue
-
-            if self._get_savable_observer(setting_name):
-                log.warning(
-                    "There should be only one SettingsObserverSavable instance for setting '%s'.",
-                    setting_name,
-                )
-                continue
-
-            self._observed_settings[setting_name].append(observer)
-            log.info("Added observer %s to setting '%s'.", observer, setting_name)
-
-    def _notify_observers(self, setting_name: str, value: str | int | bool | None) -> None:
-        """Notify observers about the given setting."""
-        if setting_name in self._observed_settings:
-            observers = self._observed_settings.get(setting_name)
-            if observers is None:
-                msg = "Setting '%s' is set to be observed, but has no observers."
-                raise ValueError(msg, setting_name)
-
-            for observer in observers:
-                observer.setting_update(setting_name, value)
-
-    def check_state(self, setting_name: str) -> None:
-        """Call state of SettingsObserverSavable instances observing a setting and save."""
-        self.check_states([setting_name])
-
-    def check_states(self, setting_names: list[str]) -> None:
-        """Call state of SettingsObserverSavable instances observing a setting from a given list and save."""
-        if not self._observed_settings:
-            log.warning("No observers registered. Ignoring.")
-            return
-
-        new_settings = {}
-        for setting_name in setting_names:
-            if setting_name not in self._observed_settings:
-                log.warning("No observers registered for setting '%s'. Ignoring.", setting_name)
-                continue
-
-            observer = self._get_savable_observer(setting_name)
-            if not observer:
-                log.warning(
-                    "No SettingsObserverSavable instance registered to save state from for setting '%s'. Ignoring.",
-                    setting_name,
-                )
-                continue
-
-            new_settings[setting_name] = observer.settings_state(setting_name)
-
-        # Saving will cause a redundant notification back to the SettingsObserverSavable instance which just sent the
-        # same state. However, this is not really a problem and the required checks would be unnecessarily complicated.
-        self.save_settings(new_settings)
-
-    def _get_savable_observer(self, setting_name: str) -> SettingsObserverSavable | None:
-        """Return the SettingsObserverSavable instance registered for the given setting."""
-        observers = self._observed_settings.get(setting_name)
-        if observers is None:
-            msg = "Setting '%s' is set to be observed, but has no observers."
-            raise ValueError(msg, setting_name)
-        for observer in observers:
-            if isinstance(observer, SettingsObserverSavable):
-                return observer
-        return None
-
-    def check_states_all(self) -> None:
-        """Call state of all registered SettingsObserverSavable instances and save."""
-        self.check_states(list(self._observed_settings.keys()))
 
     def save_setting(self, setting_name: str, value: str | int | bool) -> None:
         """Save a single setting."""
@@ -163,6 +85,71 @@ class SettingsManager(ABC):
 
         return result
 
+    def register_observer(self, observer: SettingsObserver, setting_names: list[str]) -> None:
+        """Register an observer and the setting names it should be notified on.
+
+        Usually there is no need to call this manually. The ConfigObserver instances automate passing the setting names
+        via their register_at method.
+        """
+        for setting_name in setting_names:
+            if setting_name not in self._observed_settings:
+                self._observed_settings[setting_name] = [observer]
+                log.info("Added observer %s to setting '%s'.", observer, setting_name)
+                continue
+
+            observers = self._observed_settings.get(setting_name)
+            if observers is None:
+                msg = "There are no observers for setting '%s', but it should have been added just before."
+                raise ValueError(msg, setting_name)
+
+            if observer in observers:
+                log.warning("Observer %s already registered to setting '%s'. Ignoring.", observer, setting_name)
+                continue
+
+            if self._get_savable_observer(setting_name):
+                log.warning(
+                    "There should be only one SettingsObserverSavable instance for setting '%s'.",
+                    setting_name,
+                )
+                continue
+
+            self._observed_settings[setting_name].append(observer)
+            log.info("Added observer %s to setting '%s'.", observer, setting_name)
+
+    def check_state(self, setting_name: str) -> None:
+        """Call state of SettingsObserverSavable instances observing a setting and save."""
+        self.check_states([setting_name])
+
+    def check_states(self, setting_names: list[str]) -> None:
+        """Call state of SettingsObserverSavable instances observing a setting from a given list and save."""
+        if not self._observed_settings:
+            log.warning("No observers registered. Ignoring.")
+            return
+
+        new_settings = {}
+        for setting_name in setting_names:
+            if setting_name not in self._observed_settings:
+                log.warning("No observers registered for setting '%s'. Ignoring.", setting_name)
+                continue
+
+            observer = self._get_savable_observer(setting_name)
+            if not observer:
+                log.warning(
+                    "No SettingsObserverSavable instance registered to save state from for setting '%s'. Ignoring.",
+                    setting_name,
+                )
+                continue
+
+            new_settings[setting_name] = observer.settings_state(setting_name)
+
+        # Saving will cause a redundant notification back to the SettingsObserverSavable instance which just sent the
+        # same state. However, this is not really a problem and the required checks would be unnecessarily complicated.
+        self.save_settings(new_settings)
+
+    def check_states_all(self) -> None:
+        """Check states of all registered SettingsObserverSavable instances and save."""
+        self.check_states(list(self._observed_settings.keys()))
+
     def _file_path(self) -> Path:
         return self._dir.joinpath(self._file)
 
@@ -183,3 +170,24 @@ class SettingsManager(ABC):
                 self._file_path(),
             )
             raise
+
+    def _notify_observers(self, setting_name: str, value: str | int | bool | None) -> None:
+        if setting_name in self._observed_settings:
+            observers = self._observed_settings.get(setting_name)
+            if observers is None:
+                msg = "Setting '%s' is set to be observed, but has no observers."
+                raise ValueError(msg, setting_name)
+
+            for observer in observers:
+                observer.setting_update(setting_name, value)
+
+    def _get_savable_observer(self, setting_name: str) -> SettingsObserverSavable | None:
+        # Assumes that there is one savable instance as register_observer should ensure.
+        observers = self._observed_settings.get(setting_name)
+        if observers is None:
+            msg = "Setting '%s' is set to be observed, but has no observers."
+            raise ValueError(msg, setting_name)
+        for observer in observers:
+            if isinstance(observer, SettingsObserverSavable):
+                return observer
+        return None
