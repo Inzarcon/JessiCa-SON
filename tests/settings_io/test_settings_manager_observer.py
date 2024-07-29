@@ -45,7 +45,7 @@ class _BaseSettingsObserverSavable(SettingsObserverSavable):
 
 
 class TestJSON:
-    """Tests for pure JSON IO."""
+    """Tests for pure JSON IO without SettingsObservers."""
 
     @staticmethod
     def test_single(tmp_path, caplog) -> None:
@@ -256,47 +256,55 @@ class TestSettingsObserver:
         assert obs2.content == "New State"
 
     @staticmethod
-    def test_setting_to_func(tmp_path) -> None:
+    def test_settings_to_callables(tmp_path) -> None:
         """Test redirecting a setting to a Callable."""
         cfg = _BaseSettingsManager(tmp_path)
         obs = _BaseSettingsObserver({"content": "Initial State", "other": "Other Inital State"})
         obs.register_at(cfg)
 
         assert hasattr(obs, "other")
-        obs.set_setting_to_func({"other": obs.other_method})
+        assert not hasattr(obs, "other_setting")
+
+        obs.set_settings_to_callables({"other": obs.other_method})
         assert not hasattr(obs, "other")
+        assert hasattr(obs, "other_setting")
+        assert obs.other_setting == "Other Inital State"
 
         cfg.save_settings({"content": "New State", "other": "New Other State", "unrelated": "Unrelated"})
         assert obs.content == "New State"
         assert obs.other_setting == "New Other State"
 
     @staticmethod
-    def test_setting_to_func_keep_attr(tmp_path) -> None:
+    def test_settings_to_callables_keep_attr(tmp_path) -> None:
         """Test redirecting a setting to a Callable while keeping the created attribute."""
         cfg = _BaseSettingsManager(tmp_path)
         obs = _BaseSettingsObserver({"content": "Initial State", "other": "Other Inital State"})
         obs.register_at(cfg)
 
         assert hasattr(obs, "other")
-        obs.set_setting_to_func({"other": obs.other_method}, keep_attr=True)
+        obs.set_settings_to_callables({"other": obs.other_method}, keep_attr=True)
         assert hasattr(obs, "other")
 
     @staticmethod
-    def test_invalid_func() -> None:
-        """Test error if setting_to_func entries are invalid."""
+    def test_invalid_callable() -> None:
+        """Test error if settings_to_callables entries are invalid."""
         obs = _BaseSettingsObserver({"content": "Initial State", "number": 42})
-        setting_to_func = {"content": obs.other_method, "invalid_1": obs.other_method, "invalid_2": obs.other_method}
+        settings_to_callables = {
+            "content": obs.other_method,
+            "invalid_1": obs.other_method,
+            "invalid_2": obs.other_method,
+        }
 
         with pytest.raises(ValueError, match=r".*\['invalid_1', 'invalid_2'\].*"):
-            obs.set_setting_to_func(setting_to_func)
+            obs.set_settings_to_callables(settings_to_callables)
 
     @staticmethod
-    def test_func_not_callable() -> None:
-        """Test error if setting_to_func value is not callable."""
+    def test_not_callable() -> None:
+        """Test error if settings_to_callables value is not actually callable."""
         obs = _BaseSettingsObserver({"content": "Initial State", "number": 42, "include_thing": True})
-        setting_to_func = {"content": obs.other_method, "number": 404, "include_thing": False}
+        settings_to_callables = {"content": obs.other_method, "number": 404, "include_thing": False}
         with pytest.raises(ValueError, match=r".* \[404, False\]"):
-            obs.set_setting_to_func(setting_to_func)  # type: ignore[arg-type]
+            obs.set_settings_to_callables(settings_to_callables)  # type: ignore[arg-type]
 
     @staticmethod
     def test_setting_not_found(tmp_path) -> None:
@@ -435,11 +443,11 @@ class TestSettingsObserverSavable:
         assert obs_regular.content == "New State"
 
     @staticmethod
-    def test_function(tmp_path) -> None:
-        """Test single setting that is redirected to a function for both loading and saving."""
+    def test_callable(tmp_path) -> None:
+        """Test single setting that is redirected to a callable for both loading and saving."""
         obs = _BaseSettingsObserverSavable({"other": "Initial State"})
-        obs.set_setting_to_func({"other": obs.set_other})
-        obs.set_func_to_setting({"other": obs.get_other})
+        obs.set_settings_to_callables({"other": obs.set_other})
+        obs.set_callables_to_settings({"other": obs.get_other})
         cfg = _BaseSettingsManager(tmp_path)
         obs.register_at(cfg)
 
@@ -453,35 +461,35 @@ class TestSettingsObserverSavable:
         assert cfg.load_setting("other") == "Self Changed State"
 
     @staticmethod
-    def test_func_not_callable() -> None:
-        """Test error if func_to_setting value is not callable."""
+    def test_not_callable() -> None:
+        """Test error if callables_to_settings value is not actually callable."""
         obs = _BaseSettingsObserverSavable({"content": "Initial State", "number": 42, "include_thing": True})
-        func_to_setting = {"content": obs.get_other, "number": 404, "include_thing": False}
+        callables_to_settings = {"content": obs.get_other, "number": 404, "include_thing": False}
         with pytest.raises(ValueError, match=r".* \[404, False\]"):
-            obs.set_func_to_setting(func_to_setting)  # type: ignore[arg-type]
+            obs.set_callables_to_settings(callables_to_settings)  # type: ignore[arg-type]
 
     @staticmethod
     def test_qt_checkbox(tmp_path, qtbot) -> None:
         """Test loading and saving state of an actual QCheckbox widget."""
 
         class _TestQCheckBox(SettingsObserverSavable, QCheckBox):
-            def __init__(self, config) -> None:
+            def __init__(self, settings) -> None:
                 """Initialize."""
                 QCheckBox.__init__(self)
-                super().__init__(config)
-                self.set_setting_to_func({"box_checked": self.setChecked})
-                self.set_func_to_setting({"box_checked": self.isChecked})
+                super().__init__(settings)
+                self.set_settings_to_callables({"box_checked": self.setChecked})
+                self.set_callables_to_settings({"box_checked": self.isChecked})
 
-        cb = _TestQCheckBox(config={"box_checked": False})
+        cb = _TestQCheckBox(settings={"box_checked": True})
         qtbot.addWidget(cb)
-        assert not cb.isChecked()
+        assert cb.isChecked()
         cfg = _BaseSettingsManager(tmp_path)
         cb.register_at(cfg)
 
-        cfg.save_setting("box_checked", value=True)
-        assert cb.isChecked()
-        assert cfg.load_setting("box_checked")
-
-        cb.setChecked(False)
-        cfg.check_states_all()
+        cfg.save_setting("box_checked", value=False)
+        assert not cb.isChecked()
         assert not cfg.load_setting("box_checked")
+
+        cb.setChecked(True)
+        cfg.check_states_all()
+        assert cfg.load_setting("box_checked")

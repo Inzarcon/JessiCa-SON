@@ -64,7 +64,7 @@ class SettingsManager(ABC):
                 raise ValueError(msg, setting_name)
 
             for observer in observers:
-                observer.settings_notify(setting_name, value)
+                observer.setting_update(setting_name, value)
 
     def check_state(self, setting_name: str) -> None:
         """Call state of SettingsObserverSavable instances observing a setting and save."""
