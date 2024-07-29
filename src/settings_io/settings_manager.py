@@ -140,7 +140,7 @@ class SettingsManager(ABC):
                 )
                 continue
 
-            new_settings[setting_name] = observer.settings_state(setting_name)
+            new_settings[setting_name] = observer.setting_state(setting_name)
 
         # Saving will cause a redundant notification back to the SettingsObserverSavable instance which just sent the
         # same state. However, this is not really a problem and the required checks would be unnecessarily complicated.

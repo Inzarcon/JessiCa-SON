@@ -115,13 +115,13 @@ class SettingsObserverSavable(SettingsObserver):
         """
         self._set_redirect_method(callables_to_settings, name="callables_to_settings", keep_attr=keep_attr)
 
-    def settings_state(self, setting_name: str) -> str | int | bool:
-        """Return the current settings state of a given setting. Called by SettingsManager to update its settings."""
+    def setting_state(self, setting_name: str) -> str | int | bool:
+        """Return the current state of a given setting. Called by SettingsManager to update its settings."""
         if self._callables_to_settings and setting_name in self._callables_to_settings:
             func = self._callables_to_settings.get(setting_name)
             if not callable(func):
                 msg = (
-                    f"Not callable: {func}. Found late in settings_state; set_callables_to_settings"
+                    f"Not callable: {func}. Found late in setting_state; set_callables_to_settings"
                     "should have caught this earlier. Did you directly overwrite the _callables_to_settings attribute?"
                 )
                 raise ValueError(msg)
