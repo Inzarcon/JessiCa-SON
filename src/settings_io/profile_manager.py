@@ -39,12 +39,16 @@ class ProfileManager(SettingsManager):
         self.set_as_default(other_profile=default)
 
         if not self.profile_exists(default):
-            self.create_new(default)
+            self.create_new(default, skip_check=True)
         self.switch(default)
 
-    def create_new(self, new_profile: str, *, overwrite: bool = False) -> None:
-        """Create a new profile if does not already exist or overwrite=True."""
-        if self.profile_exists(new_profile):
+    def create_new(self, new_profile: str, *, overwrite: bool = False, skip_check: bool = False) -> None:
+        """Create a new profile if does not already exist or overwrite=True.
+
+        If skip_check=True, file will be created without checking for existing file at all. Mainly used by __init__ to
+        avoid redundant check and log message after already determining that the file does not exist.
+        """
+        if not skip_check and self.profile_exists(new_profile):
             if overwrite:
                 log.warning("Overwriting existing profile '%s' with new empty profile.", new_profile)
             else:
