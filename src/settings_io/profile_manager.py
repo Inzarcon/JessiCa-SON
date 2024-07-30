@@ -32,11 +32,12 @@ class ProfileManager(SettingsManager):
         self._settings_mgr = settings_mgr
 
         default = settings_mgr.load_setting("default_profile")
-        if type(default) is not str:
+        if type(default) is str:
+            self.set_as_default(other_profile=default, skip_save=True)
+        else:
             log.error("No valid default profile name set; using 'Default'. On first app startup this is normal.")
             default = "Default"
-            settings_mgr.save_setting("default_profile", default)
-        self.set_as_default(other_profile=default)
+            self.set_as_default(other_profile=default)
 
         if not self.profile_exists(default):
             self.create_new(default, skip_check=True)
@@ -84,10 +85,16 @@ class ProfileManager(SettingsManager):
         profile = other_profile if other_profile else self.profile_name()
         return self._default == profile
 
-    def set_as_default(self, *, other_profile: str | None = None) -> None:
-        """Set current profile (or other profile if passed) as new default."""
+    def set_as_default(self, *, other_profile: str | None = None, skip_save: bool = False) -> None:
+        """Set current profile (or other profile if passed) as new default.
+
+        If skip_save=True, "default_profile" in settings.json is not updated. Mainly used by __init__ to
+        avoid redundant overwrite and log message during startup.
+        """
         profile = other_profile if other_profile else self.profile_name()
         self._default = profile
+        if not skip_save:
+            self._settings_mgr.save_setting("default_profile", profile)
 
     def profile_name(self) -> str:
         """Return name of the current profile."""

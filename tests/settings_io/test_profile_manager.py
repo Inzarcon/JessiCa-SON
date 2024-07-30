@@ -6,8 +6,8 @@ from settings_io.main_settings_manager import MainSettingsManager
 from settings_io.profile_manager import ProfileManager
 
 
-def _first_start(tmp_path: str) -> tuple[MainSettingsManager, ProfileManager]:
-    # Helper for simulating first startup.
+def _setup(tmp_path: str) -> tuple[MainSettingsManager, ProfileManager]:
+    # Shortcut for setting up managers like when starting the app.
     settings = MainSettingsManager(Path(tmp_path))
     profiles = ProfileManager(Path(tmp_path), settings)
     return settings, profiles
@@ -15,7 +15,7 @@ def _first_start(tmp_path: str) -> tuple[MainSettingsManager, ProfileManager]:
 
 def test_first_start(tmp_path) -> None:
     """Test creation of Default Profile on first startup."""
-    settings, profiles = _first_start(tmp_path)
+    settings, profiles = _setup(tmp_path)
 
     assert Path(tmp_path).joinpath("settings.json").is_file()
     assert Path(tmp_path).joinpath("profiles/Default.json").is_file()
@@ -27,7 +27,7 @@ def test_first_start(tmp_path) -> None:
 
 def test_default_not_found(tmp_path) -> None:
     """Test loading a default profile that does not exist."""
-    settings, profiles_pre = _first_start(tmp_path)
+    settings, profiles_pre = _setup(tmp_path)
     profiles_pre.save_setting("number", 42)
     settings.save_setting("default_profile", "Other")
 
@@ -44,7 +44,7 @@ def test_default_not_found(tmp_path) -> None:
 
 def test_default_not_set_but_exists(tmp_path) -> None:
     """Test loading "Default" profile that exists, but is not set as default."""
-    _, profiles_pre = _first_start(tmp_path)
+    _, profiles_pre = _setup(tmp_path)
     profiles_pre.save_setting("number", 42)
     settings = MainSettingsManager(Path(tmp_path))
 
@@ -56,7 +56,7 @@ def test_default_not_set_but_exists(tmp_path) -> None:
 
 def test_default_invalid(tmp_path) -> None:
     """Test loading a default profile that has become invalid."""
-    settings, profiles_pre = _first_start(tmp_path)
+    settings, profiles_pre = _setup(tmp_path)
     profiles_pre.save_setting("number", 42)
     with Path.open(Path(tmp_path).joinpath("profiles/Default.json"), "w") as file:
         file.write("Invalid")
@@ -70,7 +70,7 @@ def test_default_invalid(tmp_path) -> None:
 
 def test_new_and_switch(tmp_path) -> None:
     """Test creating a new profile and switching between profiles."""
-    _, profiles = _first_start(tmp_path)
+    _, profiles = _setup(tmp_path)
     profiles.save_setting("number", 42)
     profiles.create_new("New Profile")
     profiles.switch("New Profile")
@@ -89,8 +89,8 @@ def test_new_and_switch(tmp_path) -> None:
 
 
 def test_set_default(tmp_path) -> None:
-    """Test setting the a profile as new default."""
-    _, profiles = _first_start(tmp_path)
+    """Test setting a profile as the new default."""
+    _, profiles = _setup(tmp_path)
     profiles.save_setting("number", 42)
     profiles.create_new("New Profile")
     profiles.switch("New Profile")
@@ -109,9 +109,32 @@ def test_set_default(tmp_path) -> None:
     assert profiles.load_setting("number") == 42
 
 
+def test_set_default_after_restart(tmp_path) -> None:
+    """Test setting a profile as the new default and loading it after app restart."""
+    _, profiles_pre = _setup(tmp_path)
+    profiles_pre.save_setting("number", 42)
+    profiles_pre.create_new("New Profile")
+    profiles_pre.switch("New Profile")
+    profiles_pre.set_as_default()
+    profiles_pre.save_setting("number", 3)
+
+    _, profiles = _setup(tmp_path)
+
+    assert profiles.default_profile_name() == "New Profile"
+    assert profiles.profile_name() == "New Profile"
+    assert profiles.is_default()
+    assert profiles.load_setting("number") == 3
+
+    profiles.switch("Default")
+    assert profiles.default_profile_name() == "New Profile"
+    assert profiles.profile_name() == "Default"
+    assert not profiles.is_default()
+    assert profiles.load_setting("number") == 42
+
+
 def test_switch_to_default(tmp_path) -> None:
     """Test switching to the default profile."""
-    _, profiles = _first_start(tmp_path)
+    _, profiles = _setup(tmp_path)
     profiles.save_setting("number", 42)
     profiles.create_new("New Profile")
 
@@ -122,7 +145,7 @@ def test_switch_to_default(tmp_path) -> None:
 
 def test_scan(tmp_path) -> None:
     """Test scnanning for profiles."""
-    _, profiles = _first_start(tmp_path)
+    _, profiles = _setup(tmp_path)
     profile_names = ["Default", "UltiCa", "MSX+", "Chibi Ultica", "UDP"]
     for profile_name in profile_names[1:]:
         profiles.create_new(profile_name)
@@ -135,7 +158,7 @@ def test_scan(tmp_path) -> None:
 
 def test_delete(tmp_path) -> None:
     """Test deleting profiles."""
-    _, profiles = _first_start(tmp_path)
+    _, profiles = _setup(tmp_path)
     profile_names = ["Default", "UltiCa", "MSX+", "Chibi Ultica", "UDP"]
     for profile_name in profile_names[1:]:
         profiles.create_new(profile_name)
@@ -153,7 +176,7 @@ def test_delete(tmp_path) -> None:
 
 def test_delete_default(tmp_path) -> None:
     """Test trying to delete the default profile."""
-    _, profiles = _first_start(tmp_path)
+    _, profiles = _setup(tmp_path)
     profiles.create_new("New Profile")
     profiles.delete_profile()
 
@@ -165,7 +188,7 @@ def test_delete_default(tmp_path) -> None:
 
 def test_delete_old_default(tmp_path) -> None:
     """Test setting another profile as default and deleting the old default profile."""
-    _, profiles = _first_start(tmp_path)
+    _, profiles = _setup(tmp_path)
     profiles.create_new("New Profile")
     profiles.switch("New Profile")
     profiles.set_as_default()
