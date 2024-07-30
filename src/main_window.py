@@ -9,7 +9,7 @@ from compose import ComposeRunner, ComposeSignalType, connect_compose_signal
 from compose_message_box import ComposeMessageBox
 from compose_progress_bars import ComposeProgressBars
 from hotkey_manager import HotKeyManager
-from profile_manager import ProfileManager
+from settings_io.widgets import ProfileSelector
 from PySide6.QtCore import QSize, Qt, QThread, QThreadPool, QUrl
 from PySide6.QtGui import QFont, QPixmap
 from PySide6.QtWidgets import (
@@ -231,7 +231,7 @@ class MainWindow(QMainWindow):
         css = "QToolTip {background-color: white; color: black;}"
         self.setStyleSheet(css)
 
-        self.profile_manager = ProfileManager(CFG_PATH, self.control_widgets)
+        self.profile_manager = ProfileSelector(CFG_PATH, self.control_widgets)
         self.profile_manager.sig_loaded.connect(self.update_tileset_info)
         self.update_tileset_info()  # alternatively connection within init.
 

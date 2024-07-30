@@ -21,7 +21,7 @@ log = get_logger("Compose")
 #       Currently clashes with HotKeyManager and is very messy.
 
 
-class ProfileManager(QWidget):
+class ProfileSelector(QWidget):
     sig_loaded = Signal()
 
     def __init__(self, cfg_path, widgets: list[QWidget]):
