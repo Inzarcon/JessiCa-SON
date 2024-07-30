@@ -76,7 +76,7 @@ class SettingsManager(ABC):
                 log.warning("Setting '%s' not found in %s. Returning 'None'", setting_name, self._file)
             else:
                 log.info(
-                    "Loaded setting '%s' with value %s from %s.",
+                    "Loaded setting '%s' with value '%s' from %s.",
                     setting_name,
                     value,
                     self._file,
@@ -108,7 +108,7 @@ class SettingsManager(ABC):
 
             if self._get_savable_observer(setting_name):
                 log.warning(
-                    "There should be only one SettingsObserverSavable instance for setting '%s'.",
+                    "There should be only one SettingsObserverSavable instance for setting '%s'. Ignoring.",
                     setting_name,
                 )
                 continue
@@ -150,24 +150,29 @@ class SettingsManager(ABC):
         """Check states of all registered SettingsObserverSavable instances and save."""
         self.check_states(list(self._observed_settings.keys()))
 
-    def _file_path(self) -> Path:
-        return self._dir.joinpath(self._file)
+    def _file_path(self, *, other_file: Path | None = None) -> Path:
+        file = other_file if other_file else self._file
+        return self._dir.joinpath(file)
 
-    def _save_json(self) -> None:
-        with Path.open(self._file_path(), "w", encoding="utf-8") as file:
-            json.dump(self._entries, file, indent=4)
+    def _save_json(self, *, create_only: bool = False, other_file: Path | None = None) -> None:
+        with Path.open(self._file_path(other_file=other_file), "w", encoding="utf-8") as file:
+            entries = {} if create_only else self._entries
+            json.dump(entries, file, indent=4)
 
-    def _load_json(self) -> None:
+    def _load_json(self, *, check_only: bool = False, other_file: Path | None = None) -> None:
         try:
-            with Path.open(self._file_path(), encoding="utf-8") as file:
-                self._entries = json.load(file)
+            with Path.open(self._file_path(other_file=other_file), encoding="utf-8") as file:
+                if check_only:
+                    json.load(file)
+                else:
+                    self._entries = json.load(file)
         except json.decoder.JSONDecodeError as exception:
-            log.error("JSONDecodeError %s: %s", self._file_path(), exception)
+            log.error("JSONDecodeError %s: %s", self._file_path(other_file=other_file), exception)
             raise
         except FileNotFoundError:
             log.error(
                 self._msg_file_not_found,
-                self._file_path(),
+                self._file_path(other_file=other_file),
             )
             raise
 
@@ -180,6 +185,10 @@ class SettingsManager(ABC):
 
             for observer in observers:
                 observer.setting_update(setting_name, value)
+
+    def _notify_observers_all(self) -> None:
+        for setting_name in self._observed_settings:
+            self._notify_observers(setting_name, self.load_setting(setting_name))
 
     def _get_savable_observer(self, setting_name: str) -> SettingsObserverSavable | None:
         # Assumes that there is one savable instance as register_observer should ensure.
