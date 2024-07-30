@@ -67,7 +67,12 @@ class SettingsManager(ABC):
 
     def load_settings(self, setting_names: list[str]) -> dict[str, str | int | bool | None]:
         """Load and return the given settings as a dict."""
-        self._load_json()  # Maybe redundant, but in case _entries and actual JSON file desynchronize for some reason.
+        # Might seem redundant to always reload JSON file even if settings did not change, but:
+        #   * self._entries and actual JSON file may desynchronize.
+        #   * JSON file may go missing or turn invalid during runtime. -> Info for debugging; higher layer can react.
+        #   * Checking when or when not to reload would be more complicated to implement and test than it is worth.
+        #   * Loading small JSON files is fast enough to not cause performance bottlenecks.
+        self._load_json()
         result = {}
         for setting_name in setting_names:
             value = self._entries.get(setting_name)
