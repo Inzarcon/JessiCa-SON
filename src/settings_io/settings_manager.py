@@ -236,7 +236,7 @@ class SettingsManager(ABC):
             self._notify_observers(setting_name, self.load_setting(setting_name))
 
     def _get_savable_observer(self, setting_name: str) -> SettingsObserverSavable | None:
-        # Assumes that there is one savable instance as register_observer should ensure.
+        # Assumes that there is no more than one savable instance as register_observer should ensure.
         observers = self._observed_settings.get(setting_name)
         if observers is None:
             msg = "Setting '%s' is set to be observed, but has no observers."
