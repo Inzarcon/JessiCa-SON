@@ -65,8 +65,9 @@ class ProfileManager(SettingsManager):
 
     def switch(self, profile: str) -> None:
         """Switch to another profile and notify observers."""
+        is_default = self.is_default(other_profile=profile)
         if not self.profile_exists(profile):
-            if self.is_default(other_profile=profile):
+            if is_default:
                 self._log.error(
                     "Default profile '%s' not found or invalid; creating new. On first app startup this is normal."
                 )
@@ -75,7 +76,9 @@ class ProfileManager(SettingsManager):
                 self._log.warning("Profile '%s' not found. Ignoring.", profile)
                 return
         self._file = self._profile_to_file(profile)
-        self._log.info("Switched to profile '%s'.", profile)
+
+        profile_type = "default" if is_default else ""
+        self._log.info("Switched to %s profile '%s'.", profile_type, profile)
         self._notify_observers_all()
 
     def switch_to_default(self) -> None:
@@ -123,13 +126,14 @@ class ProfileManager(SettingsManager):
         """Delete a profile unless it is the default profile."""
         profile = other_profile if other_profile else self.profile_name()
         if not self.profile_exists(profile):
-            self._log.warning("Profile '%s' does not exist. Nothing to delete.")
+            self._log.warning("Profile '%s' does not exist. Nothing to delete.", profile)
             return
         if self.is_default(other_profile=profile):
-            self._log.warning("Profile '%s' is the default profile. Not deleting.")
+            self._log.warning("Profile '%s' is the default profile. Not deleting.", profile)
             return
 
         self._file_path(other_file=self._profile_to_file(profile)).unlink()
+        self._log.info("Deleted profile '%s'.", profile)
         if not other_profile:
             self.switch_to_default()
 
