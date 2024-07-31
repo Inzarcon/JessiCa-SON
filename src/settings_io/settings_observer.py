@@ -37,7 +37,8 @@ class SettingsObserver:
 
     def register_at(self, settings_manager: SettingsManager) -> None:
         """Register self to a SettingsManager."""
-        settings_manager.register_observer(self, list(self._settings.keys()))
+        setting_names = list(self._settings.keys())
+        settings_manager.register_observer(self, setting_names)
 
     def set_settings_to_callables(self, settings_to_callables: dict[str, Callable], *, keep_attr: bool = False) -> None:
         """Set setting_update method to use given callables instead of overwriting the instance attributes directly.

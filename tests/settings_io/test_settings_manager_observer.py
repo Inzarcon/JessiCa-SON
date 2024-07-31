@@ -45,7 +45,7 @@ class _BaseSettingsObserverSavable(SettingsObserverSavable):
 
 
 class TestJSON:
-    """Tests for pure JSON IO without SettingsObservers."""
+    """Tests for pure JSON IO without SettingsObserver."""
 
     @staticmethod
     def test_single(tmp_path, caplog) -> None:
@@ -161,7 +161,7 @@ class TestJSON:
 
 
 class TestSettingsObserver:
-    """Tests for interaction between SettingsManager and SettingsObservers."""
+    """Tests for interaction between SettingsManager and SettingsObserver."""
 
     @staticmethod
     def test_register(tmp_path, caplog) -> None:
@@ -320,7 +320,7 @@ class TestSettingsObserver:
 
 
 class TestSettingsObserverSavable:
-    """Additional tests for interaction between SettingsManager and SettingsObserverSavables."""
+    """Additional tests for interaction between SettingsManager and SettingsObserverSavable."""
 
     @staticmethod
     def test_register_multiple(tmp_path, caplog) -> None:
@@ -359,7 +359,7 @@ class TestSettingsObserverSavable:
 
         obs.content = "Self Changed State"
         cfg.check_state("content")
-        assert obs.content == "Self Changed State"
+        assert cfg.load_setting("content") == "Self Changed State"
 
     @staticmethod
     def test_multiple_settings(tmp_path) -> None:
@@ -376,7 +376,11 @@ class TestSettingsObserverSavable:
         obs.content = "Self Changed State"
         obs.number = 123
         obs.include_thing = True
-        cfg.check_states([""])
+
+        cfg.check_states_all()
+        assert cfg.load_setting("content") == "Self Changed State"
+        assert cfg.load_setting("number") == 123
+        assert cfg.load_setting("include_thing")
 
     @staticmethod
     def test_update_none(tmp_path, caplog) -> None:

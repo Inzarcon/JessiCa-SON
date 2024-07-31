@@ -1,7 +1,6 @@
 """Module containing the ProfileManager class."""
 
 import sys
-from json.decoder import JSONDecodeError
 from pathlib import Path
 
 from common.logger import get_logger
@@ -33,39 +32,39 @@ class ProfileManager(SettingsManager):
 
         default = settings_mgr.load_setting("default_profile")
         if type(default) is str:
-            self.set_as_default(other_profile=default, skip_save=True)
+            self.set_as_default(other_profile=default, auto_save=False)
         else:
             log.error("No valid default profile name set; using 'Default'. On first app startup this is normal.")
             default = "Default"
             self.set_as_default(other_profile=default)
-
-        if not self.profile_exists(default):
-            self.create_new(default, skip_check=True)
         self.switch(default)
 
-    def create_new(self, new_profile: str, *, overwrite: bool = False, skip_check: bool = False) -> None:
-        """Create a new profile if does not already exist or overwrite=True.
+    def create_new(self, new_profile: str, *, force_overwrite: bool = False, empty_file: bool = True) -> None:
+        """Create a new profile if does not already exist or force_overwrite=True.
 
-        If skip_check=True, file will be created without checking for existing file at all. Mainly used by __init__ to
-        avoid redundant check and log message after already determining that the file does not exist.
+        If empty_file=False, the current state is be saved to the new profile. The current profile is not changed
+        either way.
         """
-        if not skip_check and self.profile_exists(new_profile):
-            if overwrite:
-                log.warning("Overwriting existing profile '%s' with new empty profile.", new_profile)
+        if self.profile_exists(new_profile):
+            if force_overwrite:
+                log.warning("Overwriting existing profile '%s' with new profile.", new_profile)
             else:
                 log.warning("Profile '%s' already exists. Ignoring.", new_profile)
                 return
 
         self._dir.mkdir(exist_ok=True)
-        self._save_json(create_only=True, other_file=self._profile_to_file(new_profile))
+        self.check_states_all(auto_save=False)
+        self._save_json(empty_file=empty_file, other_file=self._profile_to_file(new_profile))
         log.info("Created new profile '%s'", new_profile)
 
     def switch(self, profile: str) -> None:
         """Switch to another profile and notify observers."""
         if not self.profile_exists(profile):
             if self.is_default(other_profile=profile):
-                log.error("Default profile '%s' not found or invalid. Creating new.")
-                self.create_new(profile, overwrite=True)
+                log.error(
+                    "Default profile '%s' not found or invalid; creating new. On first app startup this is normal."
+                )
+                self.create_new(profile, force_overwrite=True)
             else:
                 log.warning("Profile '%s' not found. Ignoring.", profile)
                 return
@@ -85,15 +84,15 @@ class ProfileManager(SettingsManager):
         profile = other_profile if other_profile else self.profile_name()
         return self._default == profile
 
-    def set_as_default(self, *, other_profile: str | None = None, skip_save: bool = False) -> None:
+    def set_as_default(self, *, other_profile: str | None = None, auto_save: bool = True) -> None:
         """Set current profile (or other profile if passed) as new default.
 
-        If skip_save=True, "default_profile" in settings.json is not updated. Mainly used by __init__ to
+        If auto_save=False, "default_profile" in settings.json is not updated. Mainly used by __init__ to
         avoid redundant overwrite and log message during startup.
         """
         profile = other_profile if other_profile else self.profile_name()
         self._default = profile
-        if not skip_save:
+        if auto_save:
             self._settings_mgr.save_setting("default_profile", profile)
 
     def profile_name(self) -> str:
@@ -106,16 +105,13 @@ class ProfileManager(SettingsManager):
 
     def profile_exists(self, profile_name: str) -> bool:
         """Return whether a profile with the given name exists."""
-        try:
-            self._load_json(check_only=True, other_file=self._profile_to_file(profile_name))
-            return True
-        except (JSONDecodeError, FileNotFoundError):
-            return False
+        return self.valid_file_exists(other_file=self._profile_to_file(profile_name), log_errors=False)
 
     def scan(self) -> list[str]:
         """Return list of valid profiles found in the profile directory."""
-        files = list(self._dir.iterdir())
-        return [file.stem for file in files if file.is_file() and file.suffix == ".json"]
+        result = [file.stem for file in list(self._dir.iterdir()) if file.is_file() and file.suffix == ".json"]
+        log.info("Scanned for profiles. Found: %s", result)
+        return result
 
     def delete_profile(self, *, other_profile: str | None = None) -> None:
         """Delete a profile unless it is the default profile."""

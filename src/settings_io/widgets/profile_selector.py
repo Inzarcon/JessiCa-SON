@@ -1,42 +1,50 @@
-import json
-import os
+"""Module containing the ProfileSelector widget."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from common.logger import get_logger
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QSignalBlocker, Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
-    QCheckBox,
     QComboBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QMessageBox,
     QPushButton,
     QWidget,
 )
 
-log = get_logger("Compose")
+if TYPE_CHECKING:
+    from settings_io.profile_manager import ProfileManager
 
-# TODO: Put JSON stuff and main settings.json into separate module.
-#       Currently clashes with HotKeyManager and is very messy.
+log = get_logger("App")
 
 
 class ProfileSelector(QWidget):
-    sig_loaded = Signal()
+    """GUI wrapper widget for the ProfileManager interface."""
 
-    def __init__(self, cfg_path, widgets: list[QWidget]):
+    sig_loaded = Signal()
+    _profile_mgr: ProfileManager
+    _save_new: bool
+
+    def __init__(self, profile_manager: ProfileManager) -> None:
+        """Create ProfileSelector that uses given ProfileManager."""
         super().__init__()
+        self._profile_mgr = profile_manager
+
         self.label = QLabel("Profile:")
         font = QFont()
         font.setPointSize(10)
         font.setBold(True)
         self.label.setFont(font)
 
-        self.drop_down = QComboBox()
-        self.drop_down.setMinimumWidth(150)
-        self.input_profile_name = QLineEdit()
-        self.input_profile_name.setPlaceholderText("Set profile name:")
-        self.input_profile_name.setMaximumWidth(200)
+        self.combo = QComboBox()
+        self.combo.setMinimumWidth(150)
+        self.edit_profile_name = QLineEdit()
+        self.edit_profile_name.setPlaceholderText("Set profile name:")
+        self.edit_profile_name.setMaximumWidth(200)
         self.btn_save = QPushButton("Save Profile")
         self.btn_save.setMinimumWidth(115)
         self.btn_set_as_default = QPushButton("Set as default")
@@ -44,9 +52,9 @@ class ProfileSelector(QWidget):
 
         layout = QHBoxLayout()
         layout.addWidget(self.label)
-        layout.addWidget(self.drop_down)
+        layout.addWidget(self.combo)
         layout.addWidget(QLabel("Set Profile Name:"))
-        layout.addWidget(self.input_profile_name)
+        layout.addWidget(self.edit_profile_name)
         layout.addWidget(self.btn_save)
         layout.addWidget(self.btn_set_as_default)
         layout.addWidget(self.btn_delete)
@@ -55,142 +63,81 @@ class ProfileSelector(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
-        self.btn_save.pressed.connect(self.save)
-        self.btn_set_as_default.pressed.connect(self.set_default)
-        self.drop_down.currentIndexChanged.connect(self.on_drop_down_change)
-        self.input_profile_name.textChanged.connect(self.on_input_text_change)
-        self.btn_delete.pressed.connect(self.delete)
+        self.btn_save.clicked.connect(self.save)
+        self.btn_set_as_default.clicked.connect(self.set_default)
+        self.combo.currentIndexChanged.connect(self.switch)
+        self.edit_profile_name.textChanged.connect(self.check_edit_profile_name)
+        self.btn_delete.clicked.connect(self.delete_profile)
 
-        self.config_path = cfg_path
-        self.widgets = widgets
-        self.entries = None
+        profiles = self._profile_mgr.scan()
+        default = self._profile_mgr.default_profile_name()
+        self.btn_set_as_default.setEnabled(False)
+        self.btn_delete.setEnabled(False)
 
-        self.scan_profiles()
-        self.load_default()
-        self.on_input_text_change()
+        self.combo.addItems(profiles)
+        self.combo.model().sort(0)
+        self.edit_profile_name.setText(default)
+        self.combo.setCurrentText(default)
 
-    # TODO: Refactor code before adding features. Works for now, but way too
-    #       chaotic edge case handling.
-
-    def on_input_text_change(self):
-        cur_text = self.input_profile_name.text()
-        if self.profile_exists(cur_text):
+    def check_edit_profile_name(self) -> None:
+        """React to edit_profile_name change."""
+        cur_text = self.edit_profile_name.text()
+        if self._profile_mgr.profile_exists(cur_text):
             self.btn_save.setText("Overwrite Profile")
+            self._save_new = False
         else:
             self.btn_save.setText("Create new Profile")
+            self._save_new = True
 
-    def on_drop_down_change(self):
-        new = self.drop_down.currentText()
-        if self.input_profile_name.text() != new:
-            self.load(new)
-            self.input_profile_name.setText(new)
-        self.btn_set_as_default.setEnabled(not self.is_default(new))
-
-    def scan_profiles(self):
-        files = self.config_path.glob("*.json")
-        # TODO: Cleaner way of filtering out settings file.
-        files = [file.parts[-1][:-5] for file in files if "settings.json" not in str(file)]
-        self.drop_down.addItems(files)
-
-    def set_default(self):
-        # TODO: Exception handling and validation.
-        file_path = self.config_path / "settings.json"
-        self.config_path.mkdir(exist_ok=True)
-        with open(file_path, "w", encoding="utf-8") as file:
-            json.dump({"cur_default_profile": self.input_profile_name.text()}, file, indent=4)
+    def set_default(self) -> None:
+        """Set current profile as new default. Called when btn_set_as_default is clicked."""
+        self._profile_mgr.set_as_default()
         self.btn_set_as_default.setEnabled(False)
 
-    def save(self):
-        cur_input = self.input_profile_name.text()
-        entries = {entry[0]: entry[1] for widget in self.widgets if (entry := self._handle_widget_write(widget))}
-        file_path = self.config_path / f"{cur_input}.json"
-        # TODO: Exception handling.
-        with open(file_path, "w", encoding="utf-8") as file:
-            json.dump(entries, file, indent=4)
-        if self.drop_down.findText(cur_input) < 0:  # New entry
-            self.drop_down.addItem(cur_input)
-            self.drop_down.setCurrentIndex(self.drop_down.findText(cur_input))
-            self.on_input_text_change()
+    def save(self) -> None:
+        """Save new profile or overwrite current depending on _save_new. Called when btn_save is clicked."""
+        if self._save_new:
+            new_profile = self.edit_profile_name.text()
 
-    def load_default(self):
-        # TODO: Exception handling.
-        if (self.config_path / "settings.json").is_file():
-            entry = self._load_json(self.config_path / "settings.json")
-        else:  # First start or otherwise missing -> Generate default config
-            entry = {"cur_default_profile": "Default"}
-            self.input_profile_name.setText("Default")
-            self.set_default()
-            self.save()
-        self.load(entry.get("cur_default_profile"))
+            self._profile_mgr.create_new(new_profile, empty_file=False)
 
-    def load(self, profile_name):
-        file_path = self.config_path / f"{profile_name}.json"
-        self.entries = self._load_json(file_path)
-        self.input_profile_name.setText(profile_name)
-        self.drop_down.setCurrentText(profile_name)
-        for widget in self.widgets:
-            try:
-                self._handle_widget_load(widget)
-            except TypeError as exception:
-                log.error(
-                    "%s\n in %s property %s",
-                    exception,
-                    file_path,
-                    widget.objectName(),
-                )
-        self.sig_loaded.emit()
+            self.combo.addItem(new_profile)
+            self.combo.model().sort(0)
+            self.combo.setCurrentText(new_profile)
+            self.edit_profile_name.setText(new_profile)
 
-    def is_default(self, profile_name):
-        return profile_name == self._load_json(self.config_path / "settings.json").get("cur_default_profile")
+        else:
+            self._profile_mgr.check_states_all()
 
-    def profile_exists(self, profile_name):
-        return (self.config_path / f"{profile_name}.json").is_file()
+    def switch(self, *, manager_switch: bool = True) -> None:
+        """Switch to newly selected profile.
 
-    def delete(self):
-        profile_name = self.drop_down.currentText()
-        assert self.profile_exists(profile_name)
-        answer = QMessageBox.question(self, "Confirm Profile Deletion", f"Really delete profile '{profile_name}'?")
-        if answer != QMessageBox.Yes:
+        If manager_switch=False, only the widget switches, but not the internal ProfileManager. Used to avoid recursion
+        if the ProfileManager already switched on its own like when deleting a profile.
+        """
+        profile_name = self.combo.currentText()
+        if manager_switch:
+            self._profile_mgr.switch(profile_name)
+
+        self.edit_profile_name.setText(profile_name)
+
+        is_default = self._profile_mgr.is_default()
+        self.btn_set_as_default.setEnabled(not is_default)
+        self.btn_delete.setEnabled(not is_default)
+
+    def delete_profile(self) -> None:
+        """Delete the current profile."""
+        if self._profile_mgr.is_default():
+            log.error("Delete button pressed while on default profile, but should be disabled.")
             return
-        os.remove(self.config_path / f"{profile_name}.json")
-        self.drop_down.removeItem(self.drop_down.findText(profile_name))
-        if self.is_default(profile_name) and self.drop_down.count():
-            self.input_profile_name.setText(self.drop_down.itemText(0))
-            self.set_default()
-        self.load_default()
+        self._profile_mgr.delete_profile()
 
-    @staticmethod
-    def _save_json(file_path, entries):
-        with open(file_path, "w", encoding="utf-8") as file:
-            json.dump(entries, file, indent=4)
+        blocker = QSignalBlocker(self.combo)
+        self.combo.removeItem(self.combo.currentIndex())
+        self.combo.setCurrentText(self._profile_mgr.profile_name())
+        blocker.unblock()
+        self.switch(manager_switch=False)  # Manager switches first in this case.
 
-    @staticmethod
-    def _load_json(file_path):
-        try:
-            with open(file_path, encoding="utf-8") as file:
-                return json.load(file)
-        except json.decoder.JSONDecodeError as exception:
-            log.error("JSONDecodeError %s: %s", file_path, exception)
-        except FileNotFoundError:
-            log.error(
-                "Profile %s not found. Starting with initial configuration.",
-                file_path,
-            )
-
-    @staticmethod
-    def _handle_widget_write(widget):
-        if not (name := widget.objectName()):
-            return None
-        if isinstance(widget, QCheckBox):
-            return name, widget.isChecked()
-        if isinstance(widget, QLineEdit):  # noqa: RET503
-            return name, widget.text()
-
-    def _handle_widget_load(self, widget):
-        name = widget.objectName()
-        if not self.entries or not name or name not in self.entries:
-            return
-        if isinstance(widget, QCheckBox):
-            widget.setChecked(self.entries.get(name))
-        if isinstance(widget, QLineEdit):
-            widget.setText(self.entries.get(name))
+    def _entries(self) -> list[str]:
+        # Return the current list of combo box items.
+        return [self.combo.itemText(i) for i in range(self.combo.count())]
