@@ -74,7 +74,10 @@ class ProfileSelector(QWidget):
         self.btn_set_as_default.setEnabled(False)
         self.btn_delete.setEnabled(False)
 
+        blocker = QSignalBlocker(self.combo)
         self.combo.addItems(profiles)
+        blocker.unblock()
+
         self.combo.model().sort(0)
         self.edit_profile_name.setText(default)
         self.combo.setCurrentText(default)
