@@ -1,14 +1,21 @@
 """Module containing SettingsManager base class."""
 
+from __future__ import annotations
+
 import json
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from common.logger import get_logger
 
 from . import SettingsObserver, SettingsObserverSavable
 
 log = get_logger("Settings")
+
+
+if TYPE_CHECKING:
+    from logging import Logger
 
 
 class SettingsManager(ABC):
@@ -27,11 +34,14 @@ class SettingsManager(ABC):
 
     _observed_settings: dict[str, list[SettingsObserver]]
 
+    _log: Logger
+
     @abstractmethod
-    def __init__(self) -> None:
+    def __init__(self, *, log: Logger = log) -> None:
         """Create SettingsManager and load initial settings on application startup."""
         self._entries = {}
         self._observed_settings = {}
+        self._log = log
 
     def save_setting(self, setting_name: str, value: str | int | bool) -> None:
         """Save a single setting."""
@@ -41,14 +51,14 @@ class SettingsManager(ABC):
         """Save a dict of settings."""
         for setting_name, value in settings.items():
             if self._entries.get(setting_name) is None:
-                log.info(
+                self._log.info(
                     "Added new setting '%s' with value '%s' to %s.",
                     setting_name,
                     value,
                     self._file,
                 )
             else:
-                log.info(
+                self._log.info(
                     "Overwrote setting '%s' with new value '%s' in %s.",
                     setting_name,
                     value,
@@ -92,9 +102,9 @@ class SettingsManager(ABC):
             value = self._entries.get(setting_name)
             result[setting_name] = value
             if (value) is None:
-                log.warning("Setting '%s' not found in %s. Returning 'None'", setting_name, self._file)
+                self._log.warning("Setting '%s' not found in %s. Returning 'None'", setting_name, self._file)
             else:
-                log.info(
+                self._log.info(
                     "Loaded setting '%s' with value '%s' from %s.",
                     setting_name,
                     value,
@@ -113,7 +123,7 @@ class SettingsManager(ABC):
         for setting_name in setting_names:
             if setting_name not in self._observed_settings:
                 self._observed_settings[setting_name] = [observer]
-                log.info("Added observer %s to setting '%s'.", observer, setting_name)
+                self._log.info("Added observer %s to setting '%s'.", observer, setting_name)
                 continue
 
             observers = self._observed_settings.get(setting_name)
@@ -122,18 +132,18 @@ class SettingsManager(ABC):
                 raise ValueError(msg, setting_name)
 
             if observer in observers:
-                log.warning("Observer %s already registered to setting '%s'. Ignoring.", observer, setting_name)
+                self._log.warning("Observer %s already registered to setting '%s'. Ignoring.", observer, setting_name)
                 continue
 
             if self._get_savable_observer(setting_name):
-                log.warning(
+                self._log.warning(
                     "There should be only one SettingsObserverSavable instance for setting '%s'. Ignoring.",
                     setting_name,
                 )
                 continue
 
             self._observed_settings[setting_name].append(observer)
-            log.info("Added observer %s to setting '%s'.", observer, setting_name)
+            self._log.info("Added observer %s to setting '%s'.", observer, setting_name)
         self.load_settings(setting_names, allow_missing_file=True)
 
     def check_state(self, setting_name: str, *, auto_save: bool = True) -> None:
@@ -147,18 +157,18 @@ class SettingsManager(ABC):
         current profile JSON file. Mainly used when creating a new profile.
         """
         if not self._observed_settings:
-            log.warning("No observers registered. Ignoring.")
+            self._log.warning("No observers registered. Ignoring.")
             return
 
         new_settings = {}
         for setting_name in setting_names:
             if setting_name not in self._observed_settings:
-                log.warning("No observers registered for setting '%s'. Ignoring.", setting_name)
+                self._log.warning("No observers registered for setting '%s'. Ignoring.", setting_name)
                 continue
 
             observer = self._get_savable_observer(setting_name)
             if not observer:
-                log.warning(
+                self._log.warning(
                     "No SettingsObserverSavable instance registered to save state from for setting '%s'. Ignoring.",
                     setting_name,
                 )
@@ -214,11 +224,11 @@ class SettingsManager(ABC):
                     self._entries = json.load(file)
         except json.decoder.JSONDecodeError as exception:
             if log_errors:
-                log.error("JSONDecodeError %s: %s", self._file_path(other_file=other_file), exception)
+                self._log.error("JSONDecodeError %s: %s", self._file_path(other_file=other_file), exception)
             raise
         except FileNotFoundError:
             if log_errors:
-                log.error(self._msg_file_not_found, self._file_path(other_file=other_file))
+                self._log.error(self._msg_file_not_found, self._file_path(other_file=other_file))
             raise
 
     def _notify_observers(self, setting_name: str, value: str | int | bool | None) -> None:

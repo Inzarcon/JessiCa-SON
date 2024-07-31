@@ -1,13 +1,19 @@
 """Module containing the ProfileManager class."""
 
+from __future__ import annotations
+
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from common.logger import get_logger
 
 from .settings_manager import SettingsManager
 
 log = get_logger("Profiles")
+
+if TYPE_CHECKING:
+    from logging import Logger
 
 
 class ProfileManager(SettingsManager):
@@ -24,9 +30,9 @@ class ProfileManager(SettingsManager):
     _settings_mgr: SettingsManager
     _default: str
 
-    def __init__(self, directory: Path, settings_mgr: SettingsManager) -> None:
+    def __init__(self, directory: Path, settings_mgr: SettingsManager, *, log: Logger = log) -> None:
         """Create ProfileManager."""
-        super().__init__()
+        super().__init__(log=log)
         self._dir = directory.joinpath("profiles")
         self._settings_mgr = settings_mgr
 
@@ -34,7 +40,7 @@ class ProfileManager(SettingsManager):
         if type(default) is str:
             self.set_as_default(other_profile=default, auto_save=False)
         else:
-            log.error("No valid default profile name set; using 'Default'. On first app startup this is normal.")
+            self._log.error("No valid default profile name set; using 'Default'. On first app startup this is normal.")
             default = "Default"
             self.set_as_default(other_profile=default)
         self.switch(default)
@@ -47,35 +53,35 @@ class ProfileManager(SettingsManager):
         """
         if self.profile_exists(new_profile):
             if force_overwrite:
-                log.warning("Overwriting existing profile '%s' with new profile.", new_profile)
+                self._log.warning("Overwriting existing profile '%s' with new profile.", new_profile)
             else:
-                log.warning("Profile '%s' already exists. Ignoring.", new_profile)
+                self._log.warning("Profile '%s' already exists. Ignoring.", new_profile)
                 return
 
         self._dir.mkdir(exist_ok=True)
         self.check_states_all(auto_save=False)
         self._save_json(empty_file=empty_file, other_file=self._profile_to_file(new_profile))
-        log.info("Created new profile '%s'", new_profile)
+        self._log.info("Created new profile '%s'", new_profile)
 
     def switch(self, profile: str) -> None:
         """Switch to another profile and notify observers."""
         if not self.profile_exists(profile):
             if self.is_default(other_profile=profile):
-                log.error(
+                self._log.error(
                     "Default profile '%s' not found or invalid; creating new. On first app startup this is normal."
                 )
                 self.create_new(profile, force_overwrite=True)
             else:
-                log.warning("Profile '%s' not found. Ignoring.", profile)
+                self._log.warning("Profile '%s' not found. Ignoring.", profile)
                 return
         self._file = self._profile_to_file(profile)
-        log.info("Switched to profile '%s'.", profile)
+        self._log.info("Switched to profile '%s'.", profile)
         self._notify_observers_all()
 
     def switch_to_default(self) -> None:
         """Switch to default profile."""
         if self.is_default():
-            log.warning("Profile '%s' already is the default profile.", self.profile_name)
+            self._log.warning("Profile '%s' already is the default profile.", self.profile_name)
             return
         self.switch(self._default)
 
@@ -110,17 +116,17 @@ class ProfileManager(SettingsManager):
     def scan(self) -> list[str]:
         """Return list of valid profiles found in the profile directory."""
         result = [file.stem for file in list(self._dir.iterdir()) if file.is_file() and file.suffix == ".json"]
-        log.info("Scanned for profiles. Found: %s", result)
+        self._log.info("Scanned for profiles. Found: %s", result)
         return result
 
     def delete_profile(self, *, other_profile: str | None = None) -> None:
         """Delete a profile unless it is the default profile."""
         profile = other_profile if other_profile else self.profile_name()
         if not self.profile_exists(profile):
-            log.warning("Profile '%s' does not exist. Nothing to delete.")
+            self._log.warning("Profile '%s' does not exist. Nothing to delete.")
             return
         if self.is_default(other_profile=profile):
-            log.warning("Profile '%s' is the default profile. Not deleting.")
+            self._log.warning("Profile '%s' is the default profile. Not deleting.")
             return
 
         self._file_path(other_file=self._profile_to_file(profile)).unlink()
