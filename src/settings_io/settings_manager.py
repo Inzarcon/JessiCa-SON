@@ -123,7 +123,7 @@ class SettingsManager(ABC):
         for setting_name in setting_names:
             if setting_name not in self._observed_settings:
                 self._observed_settings[setting_name] = [observer]
-                self._log.info("Added observer %s to setting '%s'.", observer, setting_name)
+                self._log.info("Added observer %s to setting '%s'.", type(observer).__name__, setting_name)
                 continue
 
             observers = self._observed_settings.get(setting_name)
@@ -132,7 +132,9 @@ class SettingsManager(ABC):
                 raise ValueError(msg, setting_name)
 
             if observer in observers:
-                self._log.warning("Observer %s already registered to setting '%s'. Ignoring.", observer, setting_name)
+                self._log.warning(
+                    "Observer %s already registered to setting '%s'. Ignoring.", type(observer).__name__, setting_name
+                )
                 continue
 
             if self._get_savable_observer(setting_name):
@@ -143,7 +145,7 @@ class SettingsManager(ABC):
                 continue
 
             self._observed_settings[setting_name].append(observer)
-            self._log.info("Added observer %s to setting '%s'.", observer, setting_name)
+            self._log.info("Added observer %s to setting '%s'.", type(observer).__name__, setting_name)
         self.load_settings(setting_names, allow_missing_file=True)
 
     def check_state(self, setting_name: str, *, auto_save: bool = True) -> None:
